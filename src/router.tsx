@@ -11,6 +11,7 @@ import { CatalogoPage } from './features/public/CatalogoPage';
 import { PerfilEspecialistaPage } from './features/public/PerfilEspecialistaPage';
 import { RegistroPage } from './features/public/RegistroPage';
 import { SeguimientoPedidosPage } from './features/public/SeguimientoPedidosPage';
+import { VerificarRecetaPage } from './features/public/VerificarRecetaPage';
 import { LoginPage } from './features/auth/LoginPage';
 
 import { DashboardPage } from './features/admin/DashboardPage';
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       { path: '/especialista', element: <PerfilEspecialistaPage /> },
       { path: '/registro', element: <RegistroPage /> },
       { path: '/login', element: <LoginPage /> },
+      { path: '/verificar/:hash', element: <VerificarRecetaPage /> },
       {
         element: <ProtectedRoute />,
         children: [{ path: '/pedidos', element: <SeguimientoPedidosPage /> }],
