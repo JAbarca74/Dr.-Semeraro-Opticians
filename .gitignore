@@ -3,13 +3,17 @@
 
 # Compilado
 /dist
-/out-tsc
-/tmp
+/dist-ssr
 *.tsbuildinfo
-.angular/
 
 # Entorno
 .env
+.env.local
+*.local
+
+# Logs
+*.log
+npm-debug.log*
 
 # Editor / SO
 .idea
