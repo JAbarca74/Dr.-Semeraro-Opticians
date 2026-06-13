@@ -5,9 +5,7 @@ import { Rol } from '../core/models/rol';
 const itemClass = ({ isActive }: { isActive: boolean }) =>
   [
     'block rounded px-3 py-2 text-sm',
-    isActive
-      ? 'bg-slate-900 text-white'
-      : 'text-slate-700 hover:bg-slate-100',
+    isActive ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100',
   ].join(' ');
 
 /** Shell del entorno PRIVADO (panel administrativo). */
@@ -15,8 +13,8 @@ export const AdminLayout = () => {
   const { user, logout, hasRole } = useAuth();
   const navigate = useNavigate();
 
-  const onLogout = () => {
-    logout();
+  const onLogout = async () => {
+    await logout();
     navigate('/login', { replace: true });
   };
 
@@ -53,6 +51,9 @@ export const AdminLayout = () => {
               Usuarios y roles
             </NavLink>
           ) : null}
+          <NavLink to="/admin/cuenta" className={itemClass}>
+            Mi cuenta
+          </NavLink>
         </nav>
       </aside>
 

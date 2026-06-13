@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
-import type { JwtPayload, Usuario } from '../models/usuario';
+import type { JwtPayload, UsuarioSesion } from '../models/usuario';
 
 const TOKEN_KEY = 'optica_token';
 
@@ -24,7 +24,7 @@ export const isExpired = (payload: JwtPayload): boolean =>
   typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now();
 
 /** Devuelve el usuario derivado de un token válido y vigente, o null. */
-export const getUserFromToken = (token: string): Usuario | null => {
+export const getUserFromToken = (token: string): UsuarioSesion | null => {
   const payload = decodeToken(token);
   if (!payload || isExpired(payload)) {
     return null;

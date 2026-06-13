@@ -21,6 +21,7 @@ import { InventarioPage } from './features/admin/InventarioPage';
 import { VentasPage } from './features/admin/VentasPage';
 import { MetricasPage } from './features/admin/MetricasPage';
 import { UsuariosPage } from './features/admin/UsuariosPage';
+import { CuentaPage } from './features/admin/CuentaPage';
 
 /**
  * Rutas divididas en dos entornos:
@@ -54,6 +55,7 @@ export const router = createBrowserRouter([
           { path: '/admin/inventario', element: <InventarioPage /> },
           { path: '/admin/ventas', element: <VentasPage /> },
           { path: '/admin/metricas', element: <MetricasPage /> },
+          { path: '/admin/cuenta', element: <CuentaPage /> },
           {
             element: <RoleRoute roles={[Rol.DOCTOR, Rol.ADMINISTRADOR]} />,
             children: [
