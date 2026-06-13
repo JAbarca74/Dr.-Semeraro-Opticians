@@ -1,33 +1,42 @@
 # Óptica Dr. Semeraro — Frontend
 
-Aplicación web del Sistema de Gestión de Óptica Dr. Semeraro.
+Aplicación web (SPA) del Sistema de Gestión de Óptica Dr. Semeraro.
 
 > Repositorio del **frontend**. La API (NestJS) vive en un repositorio aparte.
 
 ## Tecnologías
 
-- **Angular 17** con componentes *standalone* (sin NgModules).
-- **Diseño Web Responsivo (RWD)**.
-- Consumo de la API REST mediante `HttpClient` con interceptor JWT.
-- Control de rutas con guards (**RBAC**).
+- **React 18 + Vite + TypeScript**.
+- **Tailwind CSS** para los estilos.
+- **React Router** para el enrutamiento (separación público/privado).
+- **Axios** con interceptor JWT para consumir la API REST.
+- Control de acceso por **RBAC** mediante guards de ruta.
+
+## Documentación
+
+- [Arquitectura del sistema](./docs/arquitectura.md)
+- [WBS](./docs/wbs.md) · [Convenciones](./docs/convenciones.md)
+- [Decisiones de arquitectura (ADRs)](./docs/adr)
 
 ## Estructura
 
 ```
-src/app/
-├── app.component.ts        # Componente raíz
-├── app.config.ts           # Providers (router + HttpClient + interceptor)
-├── app.routes.ts           # Rutas: entorno público y entorno /admin privado
-├── core/                   # Servicios, guards, interceptor y modelos transversales
-│   ├── services/           # auth.service, api.service
-│   ├── guards/             # authGuard, roleGuard
-│   ├── interceptors/       # authInterceptor (adjunta el token JWT)
-│   └── models/             # Rol, Usuario
-└── features/
-    ├── public/             # Portal del paciente (home, catálogo, especialista, pedidos, registro)
-    ├── auth/               # Inicio de sesión
-    └── admin/              # Panel administrativo (un componente por módulo)
+src/
+├── main.tsx · App.tsx · router.tsx   # Entrada, providers y rutas
+├── core/
+│   ├── api/        # Instancia Axios + interceptores (Bearer / 401)
+│   ├── auth/       # AuthContext, login, utilidades de token (JWT)
+│   ├── guards/     # ProtectedRoute (sesión) y RoleRoute (RBAC)
+│   └── models/     # Tipos Rol y Usuario
+├── layouts/        # PublicLayout (portal) y AdminLayout (panel)
+├── features/       # public/ · auth/ · admin/ (una página por ruta)
+└── shared/         # Componentes reutilizables
 ```
+
+## Requisitos
+
+- Node.js 20+
+- El backend (API) en ejecución para las funciones que consumen datos.
 
 ## Puesta en marcha
 
@@ -35,11 +44,24 @@ src/app/
    ```bash
    npm install
    ```
-2. Levantar el servidor de desarrollo:
+2. Configurar la URL de la API:
    ```bash
-   npm start
+   cp .env.example .env
    ```
-3. Abrir `http://localhost:4200`.
+   Ajustar `VITE_API_URL` (por defecto `http://localhost:3000/api`).
+3. Levantar el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
+4. Abrir `http://localhost:5173`.
 
-> Requiere el backend en ejecución. La URL de la API se configura en
-> `src/environments/environment.ts` (`apiUrl`).
+## Scripts útiles
+
+| Comando | Descripción |
+| --- | --- |
+| `npm run dev` | Servidor de desarrollo (Vite) |
+| `npm run build` | Type-check y compilación de producción |
+| `npm run preview` | Sirve la compilación de producción |
+| `npm run lint` | ESLint sobre `ts`/`tsx` |
+| `npm run format` | Formatea con Prettier |
+| `npm test` | Pruebas (Vitest) |
