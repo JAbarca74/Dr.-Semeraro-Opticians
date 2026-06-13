@@ -6,23 +6,23 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { LoginRequest, Usuario } from '../models/usuario';
+import type { LoginRequest, UsuarioSesion } from '../models/usuario';
 import type { Rol } from '../models/rol';
 import { clearToken, getToken, getUserFromToken, setToken } from './token';
-import { loginRequest } from './auth.service';
+import { loginRequest, logoutRequest } from './auth.service';
 
 interface AuthContextValue {
-  user: Usuario | null;
+  user: UsuarioSesion | null;
   isAuthenticated: boolean;
   login: (credenciales: LoginRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   hasRole: (roles: Rol[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<Usuario | null>(() => {
+  const [user, setUser] = useState<UsuarioSesion | null>(() => {
     const token = getToken();
     return token ? getUserFromToken(token) : null;
   });
@@ -33,7 +33,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(getUserFromToken(accessToken));
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    await logoutRequest();
     clearToken();
     setUser(null);
   }, []);
