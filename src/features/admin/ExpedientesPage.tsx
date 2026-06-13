@@ -16,6 +16,9 @@ import {
 } from '../../core/models/expediente';
 import { mensajeDeError } from '../../shared/error';
 
+const API_BASE =
+  import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
+
 interface RefraccionForm {
   esfera: string;
   cilindro: string;
@@ -24,19 +27,20 @@ interface RefraccionForm {
 }
 
 const REF_VACIA: RefraccionForm = { esfera: '', cilindro: '', eje: '', adicion: '' };
+const CAMPOS_REF = ['esfera', 'cilindro', 'eje', 'adicion'] as const;
 
 const inputClass =
   'mt-1 w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none';
 
-/** Avisos de rango óptico (CU-02: alerta de datos fuera de rango). */
+/** Avisos de rango óptico (CU-02, EX-03): esfera ±25, cilindro ±10, eje 0–180, adición 0–4. */
 const fueraDeRango = (campo: keyof RefraccionForm, valor: string): boolean => {
   if (valor === '') return false;
   const n = Number(valor);
   if (Number.isNaN(n)) return true;
-  if (campo === 'esfera') return n < -30 || n > 30;
-  if (campo === 'cilindro') return n < -15 || n > 15;
+  if (campo === 'esfera') return n < -25 || n > 25;
+  if (campo === 'cilindro') return n < -10 || n > 10;
   if (campo === 'eje') return n < 0 || n > 180;
-  if (campo === 'adicion') return n < 0 || n > 6;
+  if (campo === 'adicion') return n < 0 || n > 4;
   return false;
 };
 
@@ -66,7 +70,12 @@ export const ExpedientesPage = () => {
   const [od, setOd] = useState<RefraccionForm>(REF_VACIA);
   const [oi, setOi] = useState<RefraccionForm>(REF_VACIA);
   const [error, setError] = useState('');
+  const [aviso, setAviso] = useState('');
   const [guardando, setGuardando] = useState(false);
+
+  const hayFueraDeRango = CAMPOS_REF.some(
+    (c) => fueraDeRango(c, od[c]) || fueraDeRango(c, oi[c]),
+  );
 
   useEffect(() => {
     listarPersonas()
@@ -86,14 +95,20 @@ export const ExpedientesPage = () => {
 
   useEffect(() => {
     setError('');
+    setAviso('');
     cargarDetalle(idPaciente);
   }, [idPaciente]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setAviso('');
     if (!idPaciente) {
       setError('Seleccione un paciente');
+      return;
+    }
+    if (hayFueraDeRango) {
+      setError('Corrija los valores fuera de rango antes de guardar.');
       return;
     }
     setGuardando(true);
@@ -102,7 +117,7 @@ export const ExpedientesPage = () => {
         construirRefraccion(Ojo.DERECHO, od),
         construirRefraccion(Ojo.IZQUIERDO, oi),
       ].filter((r): r is NuevaRefraccion => r !== null);
-      await crearEvaluacion({
+      const evaluacion = await crearEvaluacion({
         idPaciente,
         diagnosticos: diagnosticos
           .split('\n')
@@ -111,6 +126,13 @@ export const ExpedientesPage = () => {
         notas: notas || undefined,
         refracciones: refracciones.length ? refracciones : undefined,
       });
+      // CU-02 paso 7 / CU-16: persistir y generar la receta en la misma acción.
+      try {
+        await emitirReceta(evaluacion.idEvaluacionClinica);
+        setAviso('Evaluación guardada y receta generada con sello digital.');
+      } catch (e2) {
+        setAviso(`Evaluación guardada, pero ${mensajeDeError(e2)}`);
+      }
       setDiagnosticos('');
       setNotas('');
       setOd(REF_VACIA);
@@ -143,18 +165,21 @@ export const ExpedientesPage = () => {
         {etiqueta}
       </legend>
       <div className="grid grid-cols-4 gap-2">
-        {(['esfera', 'cilindro', 'eje', 'adicion'] as const).map((campo) => (
+        {CAMPOS_REF.map((campo) => (
           <label key={campo} className="block text-xs">
             <span className="capitalize text-slate-500">{campo}</span>
             <input
               type="number"
               step="0.25"
-              className={inputClass}
+              className={[
+                inputClass,
+                fueraDeRango(campo, valores[campo]) ? 'border-red-500' : '',
+              ].join(' ')}
               value={valores[campo]}
               onChange={(e) => set({ ...valores, [campo]: e.target.value })}
             />
             {fueraDeRango(campo, valores[campo]) ? (
-              <span className="text-[11px] text-amber-600">Fuera de rango</span>
+              <span className="text-[11px] text-red-600">Fuera de rango</span>
             ) : null}
           </label>
         ))}
@@ -190,13 +215,14 @@ export const ExpedientesPage = () => {
       </label>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {aviso ? <p className="text-sm text-green-700">{aviso}</p> : null}
 
       {idPaciente && esDoctor ? (
         <form
           onSubmit={onSubmit}
           className="space-y-4 rounded-lg border border-slate-200 bg-white p-4"
         >
-          <h2 className="text-sm font-medium text-slate-700">Nueva evaluación</h2>
+          <h2 className="text-sm font-medium text-slate-700">Nueva evolución</h2>
           <label className="block text-sm">
             <span className="text-slate-600">Diagnósticos (uno por línea)</span>
             <textarea
@@ -219,13 +245,20 @@ export const ExpedientesPage = () => {
             {campoRefraccion('Ojo derecho (OD)', od, setOd)}
             {campoRefraccion('Ojo izquierdo (OI)', oi, setOi)}
           </div>
-          <button
-            type="submit"
-            disabled={guardando}
-            className="rounded bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-60"
-          >
-            Registrar evaluación
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={guardando || hayFueraDeRango}
+              className="rounded bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
+            >
+              Guardar y generar receta
+            </button>
+            {hayFueraDeRango ? (
+              <span className="text-sm text-red-600">
+                Hay valores fuera de rango óptico.
+              </span>
+            ) : null}
+          </div>
         </form>
       ) : null}
 
@@ -296,12 +329,22 @@ export const ExpedientesPage = () => {
                       <p className="break-all text-xs text-slate-400">
                         SHA-256: {ev.receta.hashSha256}
                       </p>
-                      <Link
-                        to={`/verificar/${ev.receta.hashSha256}`}
-                        className="mt-1 inline-block text-slate-600 underline hover:text-slate-900"
-                      >
-                        Verificar receta
-                      </Link>
+                      <div className="mt-1 flex gap-4">
+                        <Link
+                          to={`/verificar/${ev.receta.hashSha256}`}
+                          className="text-slate-600 underline hover:text-slate-900"
+                        >
+                          Verificar
+                        </Link>
+                        <a
+                          href={`${API_BASE}/recetas/${ev.receta.hashSha256}/pdf`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-slate-600 underline hover:text-slate-900"
+                        >
+                          Descargar PDF
+                        </a>
+                      </div>
                     </div>
                   </div>
                 ) : esDoctor ? (

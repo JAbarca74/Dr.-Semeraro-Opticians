@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { verificarReceta } from '../../core/api/expedientes.service';
 import type { VerificacionReceta } from '../../core/models/expediente';
 
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
+
 export const VerificarRecetaPage = () => {
   const { hash = '' } = useParams();
   const [resultado, setResultado] = useState<VerificacionReceta | null>(null);
@@ -89,6 +91,14 @@ export const VerificarRecetaPage = () => {
           <p className="break-all pt-2 text-xs text-slate-400">
             SHA-256: {resultado?.hash}
           </p>
+          <a
+            href={`${API_BASE}/recetas/${hash}/pdf`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block rounded bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700"
+          >
+            Descargar PDF
+          </a>
         </div>
       ) : null}
     </section>
