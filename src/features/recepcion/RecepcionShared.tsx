@@ -25,11 +25,11 @@ export const RecepHeader = ({ cu, title, description, actions }: RecepHeaderProp
   >
     <div>
       {cu ? (
-        <p className="font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-lux-blue">
+        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-gold">
           {cu}
         </p>
       ) : null}
-      <h1 className="mt-1 font-serif text-4xl font-light text-lux-dark dark:text-white">
+      <h1 className="mt-1 font-serif text-4xl italic font-light tracking-tight text-lux-blue dark:text-white">
         {title}
       </h1>
       {description ? (
