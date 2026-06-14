@@ -1,10 +1,18 @@
 import { useState, type FormEvent } from 'react';
+import { motion } from 'framer-motion';
+import { KeyRound, UserCircle } from 'lucide-react';
 import { cambiarPasswordRequest } from '../../core/auth/auth.service';
 import { useAuth } from '../../core/auth/auth.context';
 import { mensajeDeError } from '../../shared/error';
-
-const inputClass =
-  'mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none';
+import {
+  Alert,
+  LuxButton,
+  LuxCard,
+  SectionHeader,
+  fadeUp,
+  fieldInputClass,
+  fieldLabelClass,
+} from '../../shared/ui';
 
 export const CuentaPage = () => {
   const { user } = useAuth();
@@ -41,61 +49,93 @@ export const CuentaPage = () => {
     }
   };
 
-  return (
-    <section className="max-w-md space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold text-slate-800">Mi cuenta</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          {user?.email} · {user?.rol}
-        </p>
-      </header>
+  const iniciales = (user?.email ?? 'OP').substring(0, 2).toUpperCase();
 
-      <form
-        onSubmit={onSubmit}
-        className="space-y-4 rounded-lg border border-slate-200 bg-white p-4"
-      >
-        <h2 className="text-sm font-medium text-slate-700">Cambiar contraseña</h2>
-        <label className="block text-sm">
-          <span className="text-slate-600">Contraseña actual</span>
-          <input
-            type="password"
-            className={inputClass}
-            value={actual}
-            onChange={(e) => setActual(e.target.value)}
-            required
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="text-slate-600">Nueva contraseña</span>
-          <input
-            type="password"
-            className={inputClass}
-            value={nueva}
-            onChange={(e) => setNueva(e.target.value)}
-            minLength={8}
-            required
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="text-slate-600">Confirmar nueva contraseña</span>
-          <input
-            type="password"
-            className={inputClass}
-            value={confirmar}
-            onChange={(e) => setConfirmar(e.target.value)}
-            required
-          />
-        </label>
-        <button
-          type="submit"
-          disabled={guardando}
-          className="rounded bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-60"
-        >
-          Actualizar contraseña
-        </button>
-        {mensaje ? <p className="text-sm text-green-600">{mensaje}</p> : null}
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      </form>
+  return (
+    <section className="space-y-10">
+      <SectionHeader
+        kicker="Sesión clínica"
+        title="Mi cuenta"
+        description="Datos de la sesión y gestión de credenciales de acceso."
+      />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Tarjeta de identidad */}
+        <motion.div {...fadeUp}>
+          <LuxCard className="flex flex-col items-center gap-4 p-8 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-lux-gold font-serif text-xl font-bold uppercase text-black">
+              {iniciales}
+            </div>
+            <div>
+              <UserCircle className="mx-auto mb-2 h-4 w-4 text-lux-gold" strokeWidth={1.5} />
+              <span className="block text-sm font-bold text-lux-blue dark:text-white">
+                {user?.email}
+              </span>
+              <span className="mt-1 block font-mono text-[10px] uppercase tracking-widest text-lux-gold">
+                {user?.rol} · Autenticado
+              </span>
+            </div>
+          </LuxCard>
+        </motion.div>
+
+        {/* Cambio de contraseña */}
+        <motion.div {...fadeUp} className="lg:col-span-2">
+          <LuxCard className="p-6">
+            <div className="mb-5 flex items-center gap-2 border-b border-neutral-100 pb-4 dark:border-white/5">
+              <KeyRound className="h-4 w-4 text-lux-gold" strokeWidth={1.5} />
+              <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
+                Cambiar contraseña
+              </h2>
+            </div>
+            <form onSubmit={onSubmit} className="space-y-4">
+              <label className="block">
+                <span className={fieldLabelClass}>Contraseña actual</span>
+                <input
+                  type="password"
+                  className={fieldInputClass}
+                  value={actual}
+                  onChange={(e) => setActual(e.target.value)}
+                  required
+                />
+              </label>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className={fieldLabelClass}>Nueva contraseña</span>
+                  <input
+                    type="password"
+                    className={fieldInputClass}
+                    value={nueva}
+                    onChange={(e) => setNueva(e.target.value)}
+                    minLength={8}
+                    required
+                  />
+                </label>
+                <label className="block">
+                  <span className={fieldLabelClass}>Confirmar nueva</span>
+                  <input
+                    type="password"
+                    className={fieldInputClass}
+                    value={confirmar}
+                    onChange={(e) => setConfirmar(e.target.value)}
+                    required
+                  />
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <LuxButton type="submit" disabled={guardando}>
+                  Actualizar contraseña
+                </LuxButton>
+                {mensaje ? (
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    {mensaje}
+                  </span>
+                ) : null}
+                {error ? <Alert>{error}</Alert> : null}
+              </div>
+            </form>
+          </LuxCard>
+        </motion.div>
+      </div>
     </section>
   );
 };
