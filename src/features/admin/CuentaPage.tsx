@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { KeyRound, UserCircle } from 'lucide-react';
 import { cambiarPasswordRequest } from '../../core/auth/auth.service';
 import { useAuth } from '../../core/auth/auth.context';
+import { rolLabel } from '../../core/models/rol';
 import { mensajeDeError } from '../../shared/error';
 import {
   Alert,
@@ -72,7 +73,7 @@ export const CuentaPage = () => {
                 {user?.email}
               </span>
               <span className="mt-1 block font-mono text-[10px] uppercase tracking-widest text-lux-gold">
-                {user?.rol} · Autenticado
+                {rolLabel(user?.rol)} · Autenticado
               </span>
             </div>
           </LuxCard>

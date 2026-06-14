@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../core/auth/auth.context';
 import { useTheme } from '../core/theme/theme.context';
-import { Rol } from '../core/models/rol';
+import { Rol, rolLabel } from '../core/models/rol';
 
 interface NavItem {
   to: string;
@@ -266,7 +266,7 @@ export const AdminLayout = () => {
                       {user?.email}
                     </span>
                     <span className="mt-1 block font-mono text-[9px] uppercase leading-none tracking-wider text-lux-gold">
-                      {user?.rol} · Autenticado
+                      {rolLabel(user?.rol)} · Autenticado
                     </span>
                   </div>
                 </div>

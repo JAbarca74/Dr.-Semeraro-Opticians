@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../core/auth/auth.context';
 import { useTheme } from '../core/theme/theme.context';
+import { rolLabel } from '../core/models/rol';
 
 interface NavItem {
   to: string;
@@ -22,7 +23,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: '/recepcion', label: 'Panel', drawerLabel: 'Panel Central', end: true },
-  { to: '/recepcion/pacientes', label: 'Expedientes', drawerLabel: 'Expedientes de Pacientes' },
+  { to: '/recepcion/pacientes', label: 'Pacientes', drawerLabel: 'Registro de Pacientes' },
   { to: '/recepcion/recetas', label: 'Verificar', drawerLabel: 'Verificar Receta' },
   { to: '/recepcion/agenda', label: 'Citas', drawerLabel: 'Agenda Médica' },
   { to: '/recepcion/ventas', label: 'Caja & Ventas', drawerLabel: 'Caja y Cobro Diario' },
@@ -245,7 +246,7 @@ export const ReceptionLayout = () => {
                       {user?.email}
                     </span>
                     <span className="mt-1 block font-mono text-[9px] uppercase leading-none tracking-wider text-lux-gold">
-                      {user?.rol} · Front desk
+                      {rolLabel(user?.rol)} · Front desk
                     </span>
                   </div>
                 </div>

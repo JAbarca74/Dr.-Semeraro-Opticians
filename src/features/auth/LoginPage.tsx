@@ -324,7 +324,7 @@ export const LoginPage = () => {
 
       <footer className="transition-luxe w-full border-t border-neutral-200/50 bg-[#faf9f6] py-6 text-center font-sans text-[9px] uppercase tracking-[0.2em] text-neutral-500 dark:border-white/5 dark:bg-[#080809]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-6 sm:flex-row">
-          <span>EssilorLuxottica Medical Partners © 2026</span>
+          <span>EssilorLuxottica Medical Partners © {new Date().getFullYear()}</span>
           <span className="font-semibold text-lux-blue dark:text-lux-gold">
             Gestionado por Óptica Dr. Semeraro S.A.
           </span>
