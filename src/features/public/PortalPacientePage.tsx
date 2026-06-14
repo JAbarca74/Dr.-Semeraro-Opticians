@@ -11,6 +11,7 @@ import {
 import { verificarReceta } from '../../core/api/expedientes.service';
 import type { VerificacionReceta } from '../../core/models/expediente';
 import { mensajeDeError } from '../../shared/error';
+import { normalizarHash } from '../../shared/receta';
 import {
   Kicker,
   LuxButton,
@@ -22,13 +23,6 @@ import {
 } from '../../shared/ui';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
-
-/** Acepta el hash directo o la URL completa del QR de la receta. */
-const normalizarHash = (valor: string): string => {
-  const limpio = valor.trim();
-  const m = limpio.match(/verificar\/([a-f0-9]+)/i);
-  return m ? m[1] : limpio;
-};
 
 export const PortalPacientePage = () => {
   const [entrada, setEntrada] = useState('');

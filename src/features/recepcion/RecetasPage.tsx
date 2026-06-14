@@ -4,6 +4,7 @@ import { Download, ScanLine, ShieldCheck, ShieldX } from 'lucide-react';
 import { verificarReceta } from '../../core/api/expedientes.service';
 import type { VerificacionReceta } from '../../core/models/expediente';
 import { mensajeDeError } from '../../shared/error';
+import { normalizarHash } from '../../shared/receta';
 import {
   RecepButton,
   RecepCard,
@@ -14,13 +15,6 @@ import {
 } from './RecepcionShared';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
-
-/** Extrae el hash si pegan la URL completa de verificación. */
-const normalizarHash = (valor: string): string => {
-  const limpio = valor.trim();
-  const match = limpio.match(/verificar\/([a-f0-9]+)/i);
-  return match ? match[1] : limpio;
-};
 
 export const RecetasPage = () => {
   const [entrada, setEntrada] = useState('');
