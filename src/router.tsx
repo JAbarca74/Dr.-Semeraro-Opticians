@@ -13,6 +13,7 @@ import { PerfilEspecialistaPage } from './features/public/PerfilEspecialistaPage
 import { RegistroPage } from './features/public/RegistroPage';
 import { SeguimientoPedidosPage } from './features/public/SeguimientoPedidosPage';
 import { VerificarRecetaPage } from './features/public/VerificarRecetaPage';
+import { PortalPacientePage } from './features/public/PortalPacientePage';
 import { LoginPage } from './features/auth/LoginPage';
 
 import { DashboardPage } from './features/admin/DashboardPage';
@@ -51,6 +52,7 @@ export const router = createBrowserRouter([
       { path: '/catalogo', element: <CatalogoPage /> },
       { path: '/especialista', element: <PerfilEspecialistaPage /> },
       { path: '/registro', element: <RegistroPage /> },
+      { path: '/portal', element: <PortalPacientePage /> },
       { path: '/verificar/:hash', element: <VerificarRecetaPage /> },
       {
         element: <ProtectedRoute />,
