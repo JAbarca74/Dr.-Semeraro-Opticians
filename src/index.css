@@ -72,6 +72,30 @@
   }
 }
 
+/* Impresión de la receta clínica: solo el certificado, en alto contraste. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-clinical-recipe,
+  #printable-clinical-recipe * {
+    visibility: visible;
+  }
+  #printable-clinical-recipe {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #fff !important;
+    color: #000 !important;
+    border: none !important;
+    padding: 24px;
+  }
+  #printable-clinical-recipe * {
+    color: #000 !important;
+  }
+}
+
 /* Scrollbar premium dorado. */
 ::-webkit-scrollbar {
   width: 6px;

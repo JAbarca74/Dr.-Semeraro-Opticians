@@ -30,15 +30,18 @@ export const PublicLayout = () => {
               Dr. Semeraro
             </span>
           </Link>
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-5 md:gap-6">
             <NavLink to="/" className={navLinkClass} end>
               Inicio
             </NavLink>
-            <NavLink to="/catalogo" className={navLinkClass}>
-              Catálogo
-            </NavLink>
             <NavLink to="/especialista" className={navLinkClass}>
-              Especialista
+              El Especialista
+            </NavLink>
+            <NavLink to="/catalogo" className={navLinkClass}>
+              Vitrina
+            </NavLink>
+            <NavLink to="/portal" className={navLinkClass}>
+              Mi Expediente
             </NavLink>
             <button
               onClick={toggleTheme}
