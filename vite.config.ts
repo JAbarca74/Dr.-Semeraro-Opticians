@@ -12,10 +12,15 @@ export default defineConfig({
     environment: 'node',
     coverage: {
       provider: 'v8',
-      // Solo lógica pura (servicios, auth, utilidades). Los componentes React
-      // son probados con herramientas de integración; excluirlos evita falsos negativos.
-      // core/models solo contiene interfaces TS y const de tipos: sin código ejecutable.
-      include: ['src/core/api/**/*.ts', 'src/core/auth/**/*.ts', 'src/shared/**/*.ts'],
+      // Solo lógica pura (servicios, auth, utilidades, helpers de modelo). Los
+      // componentes React (.tsx) se prueban con herramientas de integración;
+      // excluirlos evita falsos negativos. Los modelos solo-tipo se omiten.
+      include: [
+        'src/core/api/**/*.ts',
+        'src/core/auth/**/*.ts',
+        'src/core/models/rol.ts',
+        'src/shared/**/*.ts',
+      ],
       exclude: [],
       thresholds: {
         statements: 100,
