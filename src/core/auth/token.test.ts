@@ -1,7 +1,20 @@
-import { describe, expect, it } from 'vitest';
-import { decodeToken, getUserFromToken } from './token';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { decodeToken, getUserFromToken, getToken, setToken, clearToken } from './token';
 import { Rol } from '../models/rol';
 
+// ── localStorage mock ──────────────────────────────────────────────────────
+let storage: Record<string, string> = {};
+beforeEach(() => {
+  storage = {};
+  vi.stubGlobal('localStorage', {
+    getItem: (k: string) => storage[k] ?? null,
+    setItem: (k: string, v: string) => { storage[k] = v; },
+    removeItem: (k: string) => { delete storage[k]; },
+  });
+});
+afterEach(() => vi.unstubAllGlobals());
+
+// ── helpers ────────────────────────────────────────────────────────────────
 /** Construye un JWT de prueba (firma irrelevante: jwtDecode no la valida). */
 const makeToken = (payload: Record<string, unknown>): string => {
   const encode = (obj: unknown) =>
@@ -39,5 +52,22 @@ describe('utilidades de token', () => {
   it('devuelve null ante un token malformado', () => {
     expect(decodeToken('no-es-un-jwt')).toBeNull();
     expect(getUserFromToken('basura')).toBeNull();
+  });
+});
+
+describe('gestión de token en localStorage', () => {
+  it('getToken devuelve null cuando no hay token guardado', () => {
+    expect(getToken()).toBeNull();
+  });
+
+  it('setToken persiste el token y getToken lo recupera', () => {
+    setToken('mi.jwt.token');
+    expect(getToken()).toBe('mi.jwt.token');
+  });
+
+  it('clearToken elimina el token del almacenamiento', () => {
+    setToken('mi.jwt.token');
+    clearToken();
+    expect(getToken()).toBeNull();
   });
 });
