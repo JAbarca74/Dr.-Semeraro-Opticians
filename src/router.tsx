@@ -30,6 +30,7 @@ import { CuentaPage } from './features/admin/CuentaPage';
  *  - PRIVADO /admin (panel administrativo, protegido por sesión y RBAC)
  */
 export const router = createBrowserRouter([
+  { path: '/login', element: <LoginPage /> },
   {
     element: <PublicLayout />,
     children: [
@@ -37,7 +38,6 @@ export const router = createBrowserRouter([
       { path: '/catalogo', element: <CatalogoPage /> },
       { path: '/especialista', element: <PerfilEspecialistaPage /> },
       { path: '/registro', element: <RegistroPage /> },
-      { path: '/login', element: <LoginPage /> },
       { path: '/verificar/:hash', element: <VerificarRecetaPage /> },
       {
         element: <ProtectedRoute />,

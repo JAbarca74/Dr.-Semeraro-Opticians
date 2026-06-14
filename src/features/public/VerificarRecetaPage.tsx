@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Download, ShieldCheck, ShieldX } from 'lucide-react';
 import { verificarReceta } from '../../core/api/expedientes.service';
 import type { VerificacionReceta } from '../../core/models/expediente';
+import { Kicker, LuxButton, LuxCard, fadeUp } from '../../shared/ui';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
 
@@ -18,88 +21,108 @@ export const VerificarRecetaPage = () => {
   }, [hash]);
 
   if (cargando) {
-    return <p className="text-slate-500">Verificando receta…</p>;
+    return (
+      <p className="text-sm uppercase tracking-widest text-neutral-400">
+        Verificando receta…
+      </p>
+    );
   }
 
   const valida = resultado?.valida;
 
   return (
-    <section className="mx-auto max-w-xl space-y-6">
-      <h1 className="text-2xl font-semibold text-slate-800">
-        Verificación de receta
-      </h1>
+    <section className="mx-auto max-w-xl space-y-8">
+      <motion.div {...fadeUp} className="space-y-2">
+        <Kicker>Sello digital · SHA-256</Kicker>
+        <h1 className="font-serif text-3xl italic tracking-tight text-lux-blue dark:text-white">
+          Verificación de receta
+        </h1>
+      </motion.div>
 
-      <div
-        className={[
-          'rounded-lg border p-4',
-          valida
-            ? 'border-green-200 bg-green-50'
-            : 'border-red-200 bg-red-50',
-        ].join(' ')}
-      >
-        <p
-          className={
-            valida ? 'font-medium text-green-700' : 'font-medium text-red-700'
-          }
+      <motion.div {...fadeUp}>
+        <div
+          className={[
+            'flex items-center gap-3 border p-4',
+            valida
+              ? 'border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
+              : 'border-red-500/30 bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400',
+          ].join(' ')}
         >
-          {valida
-            ? '✓ Receta auténtica y sin alteraciones'
-            : '✗ Receta no válida o no encontrada'}
-        </p>
-      </div>
+          {valida ? (
+            <ShieldCheck className="h-5 w-5" strokeWidth={1.8} />
+          ) : (
+            <ShieldX className="h-5 w-5" strokeWidth={1.8} />
+          )}
+          <p className="text-sm font-semibold">
+            {valida
+              ? 'Receta auténtica y sin alteraciones'
+              : 'Receta no válida o no encontrada'}
+          </p>
+        </div>
+      </motion.div>
 
       {valida ? (
-        <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 text-sm">
-          <div className="flex justify-between">
-            <span className="text-slate-500">Paciente</span>
-            <span className="font-medium">{resultado?.paciente}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500">Especialista</span>
-            <span className="font-medium">{resultado?.doctor}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500">Firmada</span>
-            <span className="font-medium">
-              {resultado?.firmadoEn
-                ? new Date(resultado.firmadoEn).toLocaleString()
-                : '—'}
-            </span>
-          </div>
-          {resultado?.refracciones?.length ? (
-            <table className="mt-2 w-full text-left">
-              <thead className="text-slate-500">
-                <tr>
-                  <th className="py-1">Ojo</th>
-                  <th className="py-1">Esfera</th>
-                  <th className="py-1">Cilindro</th>
-                  <th className="py-1">Eje</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resultado.refracciones.map((r) => (
-                  <tr key={r.ojo} className="border-t border-slate-100">
-                    <td className="py-1">{r.ojo}</td>
-                    <td className="py-1">{r.esfera}</td>
-                    <td className="py-1">{r.cilindro}</td>
-                    <td className="py-1">{r.eje}°</td>
+        <motion.div {...fadeUp}>
+          <LuxCard className="space-y-4 p-6 text-sm">
+            {[
+              ['Paciente', resultado?.paciente],
+              ['Especialista', resultado?.doctor],
+              [
+                'Firmada',
+                resultado?.firmadoEn
+                  ? new Date(resultado.firmadoEn).toLocaleString()
+                  : '—',
+              ],
+            ].map(([k, v]) => (
+              <div key={k} className="flex justify-between border-b border-neutral-100 pb-2 last:border-0 dark:border-white/5">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                  {k}
+                </span>
+                <span className="font-medium text-lux-blue dark:text-white">{v}</span>
+              </div>
+            ))}
+
+            {resultado?.refracciones?.length ? (
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-neutral-100 dark:border-white/5">
+                    {['Ojo', 'Esfera', 'Cilindro', 'Eje'].map((h) => (
+                      <th
+                        key={h}
+                        className="py-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400"
+                      >
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : null}
-          <p className="break-all pt-2 text-xs text-slate-400">
-            SHA-256: {resultado?.hash}
-          </p>
-          <a
-            href={`${API_BASE}/recetas/${hash}/pdf`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-block rounded bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700"
-          >
-            Descargar PDF
-          </a>
-        </div>
+                </thead>
+                <tbody>
+                  {resultado.refracciones.map((r) => (
+                    <tr key={r.ojo} className="border-b border-neutral-50 last:border-0 dark:border-white/5">
+                      <td className="py-2 font-semibold text-lux-gold">{r.ojo}</td>
+                      <td className="py-2">{r.esfera}</td>
+                      <td className="py-2">{r.cilindro}</td>
+                      <td className="py-2">{r.eje}°</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : null}
+
+            <p className="break-all font-mono text-[10px] text-neutral-400">
+              SHA-256: {resultado?.hash}
+            </p>
+            <a
+              href={`${API_BASE}/recetas/${hash}/pdf`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <LuxButton type="button">
+                <Download className="h-3.5 w-3.5" /> Descargar PDF
+              </LuxButton>
+            </a>
+          </LuxCard>
+        </motion.div>
       ) : null}
     </section>
   );
