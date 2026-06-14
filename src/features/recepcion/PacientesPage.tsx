@@ -70,10 +70,10 @@ export const PacientesPage = () => {
       };
       if (editId) {
         await actualizarPersona(editId, payload);
-        setOk(`Expediente de ${form.nombre} actualizado.`);
+        setOk(`Datos de ${form.nombre} actualizados.`);
       } else {
         await crearPersona(payload);
-        setOk(`Expediente de ${form.nombre} iniciado en la base de Óptica Semeraro.`);
+        setOk(`Paciente ${form.nombre} registrado en la base de Óptica Dr. Semeraro.`);
       }
       setForm(VACIO);
       setEditId(null);
@@ -110,8 +110,8 @@ export const PacientesPage = () => {
   return (
     <div>
       <RecepHeader
-        cu="Módulo de Recepción · CU-18"
-        title="Expedientes Administrativos"
+        cu="Registro de pacientes · CU-18"
+        title="Pacientes"
         description="Gestione la base demográfica de pacientes de Óptica Dr. Semeraro: registro, contacto y trazabilidad para facturación y citas."
         actions={
           <RecepButton onClick={nuevo}>
@@ -148,7 +148,7 @@ export const PacientesPage = () => {
               <RecepCard className="space-y-6 p-8">
                 <div className="border-b border-neutral-100 pb-3 dark:border-neutral-800">
                   <h3 className="font-serif text-lg font-medium text-neutral-900 dark:text-white">
-                    {editId ? 'Editar expediente' : 'Formulario de inscripción'}
+                    {editId ? 'Editar paciente' : 'Formulario de inscripción'}
                   </h3>
                   <p className="text-xs font-light text-neutral-400">
                     Ingrese con exactitud los datos del documento de identidad

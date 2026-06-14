@@ -23,7 +23,7 @@ export const OverviewPage = () => {
       <RecepHeader
         cu="Panel Central · Recepción"
         title="Buen día, recepción"
-        description="Centro operativo del front desk de Óptica Dr. Semeraro. Gestione expedientes de pacientes y verifique la autenticidad de las recetas emitidas."
+        description="Centro operativo del front desk de Óptica Dr. Semeraro. Gestione el registro de pacientes y verifique la autenticidad de las recetas emitidas."
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -60,7 +60,7 @@ export const OverviewPage = () => {
                 className="group flex items-center justify-between border border-neutral-200 px-4 py-4 text-left transition-all duration-300 hover:border-lux-gold hover:bg-lux-ice dark:border-neutral-700 dark:hover:bg-neutral-900"
               >
                 <span className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-lux-dark dark:text-neutral-200">
-                  <Users className="h-4 w-4 text-lux-gold" /> Expedientes
+                  <Users className="h-4 w-4 text-lux-gold" /> Pacientes
                 </span>
                 <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-lux-gold" />
               </button>
