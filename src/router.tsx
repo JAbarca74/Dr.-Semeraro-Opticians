@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import { PublicLayout } from './layouts/PublicLayout';
 import { AdminLayout } from './layouts/AdminLayout';
+import { ReceptionLayout } from './layouts/ReceptionLayout';
 import { ProtectedRoute } from './core/guards/ProtectedRoute';
 import { RoleRoute } from './core/guards/RoleRoute';
 import { Rol } from './core/models/rol';
@@ -24,10 +25,22 @@ import { MetricasPage } from './features/admin/MetricasPage';
 import { UsuariosPage } from './features/admin/UsuariosPage';
 import { CuentaPage } from './features/admin/CuentaPage';
 
+import { OverviewPage } from './features/recepcion/OverviewPage';
+import { PacientesPage as PacientesRecepcionPage } from './features/recepcion/PacientesPage';
+import { RecetasPage as RecetasRecepcionPage } from './features/recepcion/RecetasPage';
+import {
+  AgendaRecepcionPage,
+  VentasRecepcionPage,
+  ExistenciasRecepcionPage,
+  LaboratorioRecepcionPage,
+} from './features/recepcion/StubPages';
+
 /**
- * Rutas divididas en dos entornos:
+ * Rutas divididas en tres entornos:
  *  - PÚBLICO (portal del paciente)
- *  - PRIVADO /admin (panel administrativo, protegido por sesión y RBAC)
+ *  - /admin (panel administrativo: Administrador y Doctor)
+ *  - /recepcion (front desk: Recepción)
+ * Todo lo privado está protegido por sesión y RBAC real.
  */
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -49,24 +62,41 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        element: <AdminLayout />,
+        element: <RoleRoute roles={[Rol.ADMINISTRADOR, Rol.DOCTOR]} />,
         children: [
-          { path: '/admin', element: <DashboardPage /> },
-          { path: '/admin/personas', element: <PersonasPage /> },
-          { path: '/admin/agenda', element: <AgendaPage /> },
-          { path: '/admin/inventario', element: <InventarioPage /> },
-          { path: '/admin/ventas', element: <VentasPage /> },
-          { path: '/admin/metricas', element: <MetricasPage /> },
-          { path: '/admin/cuenta', element: <CuentaPage /> },
           {
-            element: <RoleRoute roles={[Rol.DOCTOR, Rol.ADMINISTRADOR]} />,
+            element: <AdminLayout />,
             children: [
+              { path: '/admin', element: <DashboardPage /> },
+              { path: '/admin/personas', element: <PersonasPage /> },
+              { path: '/admin/agenda', element: <AgendaPage /> },
+              { path: '/admin/inventario', element: <InventarioPage /> },
+              { path: '/admin/ventas', element: <VentasPage /> },
+              { path: '/admin/metricas', element: <MetricasPage /> },
+              { path: '/admin/cuenta', element: <CuentaPage /> },
               { path: '/admin/expedientes', element: <ExpedientesPage /> },
+              {
+                element: <RoleRoute roles={[Rol.ADMINISTRADOR]} />,
+                children: [{ path: '/admin/usuarios', element: <UsuariosPage /> }],
+              },
             ],
           },
+        ],
+      },
+      {
+        element: <RoleRoute roles={[Rol.RECEPCION, Rol.ADMINISTRADOR]} />,
+        children: [
           {
-            element: <RoleRoute roles={[Rol.ADMINISTRADOR]} />,
-            children: [{ path: '/admin/usuarios', element: <UsuariosPage /> }],
+            element: <ReceptionLayout />,
+            children: [
+              { path: '/recepcion', element: <OverviewPage /> },
+              { path: '/recepcion/pacientes', element: <PacientesRecepcionPage /> },
+              { path: '/recepcion/recetas', element: <RecetasRecepcionPage /> },
+              { path: '/recepcion/agenda', element: <AgendaRecepcionPage /> },
+              { path: '/recepcion/ventas', element: <VentasRecepcionPage /> },
+              { path: '/recepcion/existencias', element: <ExistenciasRecepcionPage /> },
+              { path: '/recepcion/laboratorio', element: <LaboratorioRecepcionPage /> },
+            ],
           },
         ],
       },

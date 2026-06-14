@@ -16,9 +16,10 @@ export default {
           blue: '#021a30',
           gold: '#c19f55',
           'gold-light': '#f7f4ea',
-          dark: '#010d18',
+          dark: '#0b1a30',
           cream: '#fcfbf9',
           gray: '#f5f4ef',
+          ice: '#f6f9fc',
         },
       },
       letterSpacing: {
