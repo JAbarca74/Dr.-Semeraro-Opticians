@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../core/auth/auth.context';
 import { useTheme } from '../../core/theme/theme.context';
+import { homePathForRole } from '../../core/models/rol';
 import { mensajeDeError } from '../../shared/error';
 
 const SLIDES = [
@@ -44,6 +45,7 @@ const SLIDES = [
 const DEMO = [
   { label: 'Administrador del sistema', email: 'admin@optica.local', password: 'admin1234' },
   { label: 'Dr. Semeraro (Doctor)', email: 'doctor@optica.local', password: 'doctor1234' },
+  { label: 'Recepción (front desk)', email: 'recepcion@optica.local', password: 'recepcion1234' },
 ];
 
 export const LoginPage = () => {
@@ -59,7 +61,7 @@ export const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [slide, setSlide] = useState(0);
 
-  const from = (location.state as { from?: string } | null)?.from ?? '/admin';
+  const from = (location.state as { from?: string } | null)?.from;
 
   useEffect(() => {
     const t = setInterval(() => setSlide((s) => (s + 1) % SLIDES.length), 6000);
@@ -71,8 +73,9 @@ export const LoginPage = () => {
     setError('');
     setLoading(true);
     try {
-      await login({ email, password });
-      navigate(from, { replace: true });
+      const sesion = await login({ email, password });
+      // Respeta la ruta de origen; si no hay, envía al inicio según el rol.
+      navigate(from ?? homePathForRole(sesion?.rol), { replace: true });
     } catch (e) {
       setError(mensajeDeError(e, 'Credenciales inválidas'));
     } finally {

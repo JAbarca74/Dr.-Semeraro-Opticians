@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
 import { useAuth } from '../core/auth/auth.context';
 import { useTheme } from '../core/theme/theme.context';
+import { homePathForRole } from '../core/models/rol';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
@@ -13,7 +14,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 /** Shell del entorno PÚBLICO (portal del paciente) con identidad EssilorLuxottica. */
 export const PublicLayout = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -52,7 +53,7 @@ export const PublicLayout = () => {
             </button>
             {isAuthenticated ? (
               <>
-                <Link to="/admin" className={navLinkClass({ isActive: false })}>
+                <Link to={homePathForRole(user?.rol)} className={navLinkClass({ isActive: false })}>
                   Panel
                 </Link>
                 <button
