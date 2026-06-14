@@ -53,7 +53,7 @@ const construirRefraccion = (
     ojo,
     esfera: Number(f.esfera || 0),
     cilindro: Number(f.cilindro || 0),
-    eje: Number(f.eje || 0),
+    eje: Math.round(Number(f.eje || 0)),
     adicion: f.adicion ? Number(f.adicion) : undefined,
   };
 };
@@ -170,7 +170,7 @@ export const ExpedientesPage = () => {
             <span className="capitalize text-slate-500">{campo}</span>
             <input
               type="number"
-              step="0.25"
+              step={campo === 'eje' ? '1' : '0.25'}
               className={[
                 inputClass,
                 fueraDeRango(campo, valores[campo]) ? 'border-red-500' : '',

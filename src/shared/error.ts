@@ -1,3 +1,6 @@
+/** Quita prefijos técnicos de ruta como "refracciones.0." de los mensajes anidados. */
+const limpiar = (m: string): string => m.replace(/^[A-Za-z]+\.\d+\./, '').trim();
+
 /** Extrae un mensaje legible de un error de Axios / API. */
 export const mensajeDeError = (
   err: unknown,
@@ -10,10 +13,10 @@ export const mensajeDeError = (
     mensaje = (mensaje as { message: unknown }).message;
   }
   if (Array.isArray(mensaje)) {
-    return mensaje.join(', ');
+    return mensaje.map((m) => limpiar(String(m))).join(' · ');
   }
   if (typeof mensaje === 'string') {
-    return mensaje;
+    return limpiar(mensaje);
   }
   return fallback;
 };
