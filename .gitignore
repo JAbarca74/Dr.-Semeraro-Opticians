@@ -23,3 +23,7 @@ Thumbs.db
 
 # Cobertura
 /coverage
+
+# Contexto local del asistente (no es entregable del curso)
+/.contexto
+/CLAUDE.md
