@@ -6,7 +6,12 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
+    // Respeta el puerto que inyecte el entorno (previews con puerto asignado);
+    // en local sigue siendo 5173.
+    port: Number(process.env.PORT) || 5173,
+    // Falla en vez de mudarse a otro puerto: si Vite se cambia en silencio, el
+    // arranque parece colgado porque nada responde donde se le espera.
+    strictPort: true,
   },
   test: {
     environment: 'node',

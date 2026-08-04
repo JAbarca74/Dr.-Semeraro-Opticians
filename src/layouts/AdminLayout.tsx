@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../core/auth/auth.context';
 import { useTheme } from '../core/theme/theme.context';
 import { Rol, rolLabel } from '../core/models/rol';
+import { MarcaOptica } from '../shared/MarcaOptica';
 
 interface NavItem {
   to: string;
@@ -70,13 +71,7 @@ export const AdminLayout = () => {
             onClick={() => navigate('/admin')}
             className="flex cursor-pointer items-center gap-3"
           >
-            <span className="font-display text-sm font-light uppercase tracking-luxe md:text-base">
-              ESSILORLUXOTTICA
-            </span>
-            <span className="text-xs font-light text-lux-gold/40">|</span>
-            <span className="font-serif text-xs italic tracking-normal text-lux-gold md:text-sm">
-              Socio Dr. Semeraro
-            </span>
+            <MarcaOptica />
           </button>
 
           {/* Navegación central (desktop) */}

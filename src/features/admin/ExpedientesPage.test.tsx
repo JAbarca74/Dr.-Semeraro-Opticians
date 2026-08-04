@@ -114,6 +114,13 @@ const renderComponent = () =>
     </MemoryRouter>,
   );
 
+/**
+ * Valor de un KPI a partir de su etiqueta. Cada tarjeta agrupa el número y su
+ * rótulo en el mismo contenedor, con el número primero.
+ */
+const valorKpi = (etiqueta: string) =>
+  screen.getByText(etiqueta).parentElement?.querySelector('span')?.textContent;
+
 describe('ExpedientesPage', () => {
   let user: ReturnType<typeof userEvent.setup>;
 
@@ -144,12 +151,11 @@ describe('ExpedientesPage', () => {
 
     it('Los 3 KPI muestran total de pacientes, nº de expedientes abiertos y nº de coincidencias', async () => {
       renderComponent();
-      await waitFor(() => {
-        expect(screen.getByText('02')).toBeInTheDocument(); // 2 pacientes
-        expect(screen.getByText('01')).toBeInTheDocument(); // 1 expediente abierto
-        // Coincidencias = 2 al inicio (dos veces el '02')
-        expect(screen.getAllByText('02').length).toBeGreaterThan(1);
-      });
+      // Los tres KPI comparten cifras ('02' sale dos veces), así que cada uno se
+      // localiza por su etiqueta y se lee el valor que la acompaña.
+      await waitFor(() => expect(valorKpi('Pacientes registrados')).toBe('02'));
+      expect(valorKpi('Expedientes abiertos')).toBe('01');
+      expect(valorKpi('Coincidencias del filtro')).toBe('02');
     });
 
     it('Al escribir una cédula parcial, la tabla filtra en tiempo real', async () => {
@@ -264,7 +270,9 @@ describe('ExpedientesPage', () => {
         expect(
           screen.queryByText('Nueva evolución clínica'),
         ).not.toBeInTheDocument();
-        expect(screen.getByText(/Modo supervisión./i)).toBeInTheDocument();
+        // Texto exacto: el badge del encabezado también empieza por «Modo
+        // supervisión», y una coincidencia parcial casaría con los dos.
+        expect(screen.getByText('Modo supervisión.')).toBeInTheDocument();
         expect(screen.getByText('Sin receta.')).toBeInTheDocument();
         expect(
           screen.queryByRole('button', { name: /emitir receta con qr/i }),
