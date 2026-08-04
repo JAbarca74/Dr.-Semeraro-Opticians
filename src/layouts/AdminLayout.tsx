@@ -24,7 +24,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: '/admin', label: 'Métricas', drawerLabel: 'Panel Métricas y KPI', end: true },
+  // `/admin` renderiza el DashboardPage; las métricas viven en `/admin/metricas`.
+  // Rotularlo «Métricas» mandaba a la gente al sitio equivocado.
+  { to: '/admin', label: 'Panel', drawerLabel: 'Panel General', end: true },
   { to: '/admin/personas', label: 'Personas', drawerLabel: 'Pacientes y Personal' },
   {
     to: '/admin/expedientes',
@@ -47,6 +49,8 @@ const NAV_ITEMS: NavItem[] = [
     drawerLabel: 'Auditoría y Trazabilidad',
     roles: [Rol.ADMINISTRADOR],
   },
+  // Estaba huérfana: existía la ruta pero no había un solo enlace a ella.
+  { to: '/admin/metricas', label: 'Métricas', drawerLabel: 'Métricas y KPI' },
 ];
 
 /** Shell del entorno PRIVADO con la identidad de Óptica Dr. Luigi Semeraro. */

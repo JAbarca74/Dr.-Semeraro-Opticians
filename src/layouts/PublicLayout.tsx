@@ -51,6 +51,11 @@ export const PublicLayout = () => {
             </button>
             {isAuthenticated ? (
               <>
+                {/* `/pedidos` exige sesión y no tenía ningún enlace: solo se
+                    llegaba escribiendo la URL a mano. */}
+                <NavLink to="/pedidos" className={navLinkClass}>
+                  Mis Pedidos
+                </NavLink>
                 <Link to={homePathForRole(user?.rol)} className={navLinkClass({ isActive: false })}>
                   Panel
                 </Link>
