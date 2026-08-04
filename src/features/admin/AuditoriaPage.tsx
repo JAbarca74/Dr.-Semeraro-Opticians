@@ -546,7 +546,9 @@ export const AuditoriaPage = () => {
                 ) : (
                   <p className="mt-1.5 flex items-start gap-2 border border-dashed border-neutral-200 p-3 text-[11px] leading-relaxed text-neutral-500 dark:border-white/10 dark:text-neutral-400">
                     <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-lux-gold" />
-                    El sistema aún no conserva el valor previo de esta operación.
+                    {seleccionado.operacion === OperacionAuditoria.INSERT
+                      ? 'Una creación no tiene valor previo: el registro no existía antes.'
+                      : 'No se conservó el valor previo de esta operación.'}
                   </p>
                 )}
               </div>
