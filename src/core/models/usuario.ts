@@ -49,4 +49,6 @@ export interface UpdateUsuario {
   email?: string;
   rol?: Rol;
   activo?: boolean;
+  /** Restablecimiento por el Administrador (mínimo 8 caracteres). */
+  password?: string;
 }

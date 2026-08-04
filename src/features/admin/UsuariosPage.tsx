@@ -7,8 +7,13 @@ import {
   listarUsuarios,
 } from '../../core/api/usuarios.service';
 import { listarPersonas } from '../../core/api/personas.service';
+import { useAuth } from '../../core/auth/auth.context';
 import { Rol } from '../../core/models/rol';
-import type { CreateUsuario, Usuario } from '../../core/models/usuario';
+import type {
+  CreateUsuario,
+  UpdateUsuario,
+  Usuario,
+} from '../../core/models/usuario';
 import type { Persona } from '../../core/models/persona';
 import { mensajeDeError } from '../../shared/error';
 import {
@@ -30,11 +35,18 @@ const FORM_VACIO: CreateUsuario = {
 };
 
 export const UsuariosPage = () => {
+  const { user } = useAuth();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [form, setForm] = useState<CreateUsuario>(FORM_VACIO);
   const [error, setError] = useState('');
+  const [aviso, setAviso] = useState('');
   const [guardando, setGuardando] = useState(false);
+  /** Restablecimiento en curso: a quién y con qué contraseña. */
+  const [reset, setReset] = useState<{ id: number; valor: string } | null>(null);
+
+  /** La propia cuenta no se puede degradar ni desactivar desde aquí. */
+  const esCuentaPropia = (u: Usuario) => u.idUsuario === user?.idUsuario;
 
   const cargar = () => {
     listarUsuarios()
@@ -68,18 +80,41 @@ export const UsuariosPage = () => {
     }
   };
 
-  const cambiarRol = async (u: Usuario, rol: Rol) => {
-    await actualizarUsuario(u.idUsuario, { rol }).catch((e) =>
-      setError(mensajeDeError(e)),
-    );
+  /**
+   * Aplica un cambio sobre un usuario y deja el mensaje coherente con el
+   * resultado: un reintento que funciona ya no arrastra el error anterior.
+   */
+  const aplicar = async (id: number, cambio: UpdateUsuario, exito?: string) => {
+    setError('');
+    setAviso('');
+    try {
+      await actualizarUsuario(id, cambio);
+      if (exito) {
+        setAviso(exito);
+      }
+    } catch (e) {
+      setError(mensajeDeError(e));
+    }
     cargar();
   };
 
-  const alternarActivo = async (u: Usuario) => {
-    await actualizarUsuario(u.idUsuario, { activo: !u.activo }).catch((e) =>
-      setError(mensajeDeError(e)),
+  const cambiarRol = (u: Usuario, rol: Rol) =>
+    aplicar(u.idUsuario, { rol });
+
+  const alternarActivo = (u: Usuario) =>
+    aplicar(u.idUsuario, { activo: !u.activo });
+
+  const restablecerPassword = async (u: Usuario) => {
+    if (!reset || reset.valor.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+    await aplicar(
+      u.idUsuario,
+      { password: reset.valor },
+      `Contraseña restablecida para ${u.email}. Comuníquesela por un canal seguro.`,
     );
-    cargar();
+    setReset(null);
   };
 
   const selectMini =
@@ -164,6 +199,15 @@ export const UsuariosPage = () => {
         </LuxCard>
       </motion.div>
 
+      {aviso ? (
+        <motion.p
+          {...fadeUp}
+          className="border border-lux-gold/40 bg-lux-gold/5 p-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-300"
+        >
+          {aviso}
+        </motion.p>
+      ) : null}
+
       <motion.div {...fadeUp}>
         <LuxCard className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -196,6 +240,12 @@ export const UsuariosPage = () => {
                       value={u.rol}
                       onChange={(e) => cambiarRol(u, e.target.value as Rol)}
                       className={selectMini}
+                      disabled={esCuentaPropia(u)}
+                      title={
+                        esCuentaPropia(u)
+                          ? 'No puede cambiar su propio rol.'
+                          : undefined
+                      }
                     >
                       {Object.values(Rol).map((r) => (
                         <option key={r} value={r}>
@@ -209,14 +259,60 @@ export const UsuariosPage = () => {
                       {u.activo ? 'Activo' : 'Inactivo'}
                     </Badge>
                   </td>
-                  <td className="px-5 py-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => alternarActivo(u)}
-                      className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-gold"
-                    >
-                      {u.activo ? 'Desactivar' : 'Activar'}
-                    </button>
+                  <td className="px-5 py-3">
+                    <div className="flex flex-wrap items-center justify-end gap-3">
+                      {reset?.id === u.idUsuario ? (
+                        <>
+                          <input
+                            type="password"
+                            autoFocus
+                            minLength={8}
+                            placeholder="Nueva contraseña"
+                            aria-label={`Nueva contraseña de ${u.email}`}
+                            value={reset.valor}
+                            onChange={(e) =>
+                              setReset({ id: u.idUsuario, valor: e.target.value })
+                            }
+                            className={selectMini}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => restablecerPassword(u)}
+                            className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-lux-gold hover:text-lux-blue"
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setReset(null)}
+                            className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-400 hover:text-lux-gold"
+                          >
+                            Cancelar
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setReset({ id: u.idUsuario, valor: '' })}
+                          className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-gold"
+                        >
+                          Restablecer contraseña
+                        </button>
+                      )}
+                      {esCuentaPropia(u) ? (
+                        <span className="text-[11px] uppercase tracking-wider text-neutral-400">
+                          Su cuenta
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => alternarActivo(u)}
+                          className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-gold"
+                        >
+                          {u.activo ? 'Desactivar' : 'Activar'}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
