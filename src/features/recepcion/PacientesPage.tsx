@@ -8,6 +8,7 @@ import {
 } from '../../core/api/personas.service';
 import { TipoPersona, type Persona, type PersonaInput } from '../../core/models/persona';
 import { mensajeDeError } from '../../shared/error';
+import { sinVacios } from '../../shared/form';
 import {
   RecepButton,
   RecepCard,
@@ -68,22 +69,14 @@ export const PacientesPage = () => {
     setOk('');
     setGuardando(true);
     try {
-      const payload: PersonaInput = {
-        ...form,
-        tipo: TipoPersona.PACIENTE,
-        telefono: form.telefono || undefined,
-        correo: form.correo || undefined,
-        fechaNacimiento: form.fechaNacimiento || undefined,
-        ocupacion: form.ocupacion || undefined,
-        direccion: form.direccion || undefined,
-        contactoEmergencia: form.contactoEmergencia || undefined,
-        telefonoEmergencia: form.telefonoEmergencia || undefined,
-      };
+      const payload: PersonaInput = { ...form, tipo: TipoPersona.PACIENTE };
       if (editId) {
+        // Con las cadenas vacías incluidas: en una edición significan «borra
+        // este campo». Omitirlas dejaba el valor anterior vivo en la base.
         await actualizarPersona(editId, payload);
         setOk(`Datos de ${form.nombre} actualizados.`);
       } else {
-        await crearPersona(payload);
+        await crearPersona(sinVacios(payload));
         setOk(`Paciente ${form.nombre} registrado en la base de Óptica Dr. Luigi Semeraro.`);
       }
       setForm(VACIO);
