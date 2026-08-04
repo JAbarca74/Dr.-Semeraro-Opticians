@@ -57,4 +57,46 @@ describe('mensajeDeError', () => {
     const err = { response: { data: { message: 'Credenciales invalidas' } } };
     expect(mensajeDeError(err)).toBe('Credenciales invalidas');
   });
+
+  describe('errores de red (RS-06)', () => {
+    const SIN_CONEXION =
+      'No se pudo conectar con el servidor. Verifique que la API esté en ejecución e inténtelo de nuevo.';
+
+    it('avisa de la falta de conexión cuando la petición salió pero no hubo respuesta', () => {
+      const err = { request: {}, message: 'Network Error' };
+      expect(mensajeDeError(err, 'Credenciales inválidas')).toBe(SIN_CONEXION);
+    });
+
+    it('reconoce el código ERR_NETWORK de Axios', () => {
+      expect(mensajeDeError({ code: 'ERR_NETWORK' })).toBe(SIN_CONEXION);
+    });
+
+    it('reconoce un tiempo de espera agotado (ECONNABORTED)', () => {
+      expect(mensajeDeError({ code: 'ECONNABORTED' })).toBe(SIN_CONEXION);
+    });
+
+    it('reconoce la conexión rechazada (ERR_CONNECTION_REFUSED)', () => {
+      expect(mensajeDeError({ code: 'ERR_CONNECTION_REFUSED' })).toBe(
+        SIN_CONEXION,
+      );
+    });
+
+    it('prioriza el mensaje del servidor sobre el aviso de red si hubo respuesta', () => {
+      const err = {
+        request: {},
+        response: { data: { message: 'Credenciales invalidas' } },
+      };
+      expect(mensajeDeError(err)).toBe('Credenciales invalidas');
+    });
+
+    it('no confunde un error corriente sin request con un fallo de red', () => {
+      expect(mensajeDeError(new Error('algo falló'), 'Error de datos')).toBe(
+        'Error de datos',
+      );
+    });
+
+    it('tolera valores nulos', () => {
+      expect(mensajeDeError(null, 'Sin detalle')).toBe('Sin detalle');
+    });
+  });
 });
