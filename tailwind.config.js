@@ -9,6 +9,16 @@ export default {
         display: ['Outfit', 'sans-serif'],
         // Grotesca del membrete impreso (sustituta libre de Helvetica Neue).
         marca: ['Archivo', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        // Condensada de los rótulos del expediente en papel (Helvetica Neue
+        // Condensed). Se usa en títulos y rótulos del entorno clínico; el texto
+        // que escribe el doctor sigue en `sans` para que se lea en pantalla.
+        clinico: [
+          '"Archivo Narrow"',
+          'Archivo',
+          '"Helvetica Neue Condensed"',
+          '"Arial Narrow"',
+          'sans-serif',
+        ],
         serif: ['"Playfair Display"', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },

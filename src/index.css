@@ -1,6 +1,8 @@
-/* Archivo es el sustituto libre de la grotesca (Helvetica) del membrete impreso;
-   se usa en el logotipo. Ver .contexto/Imagenes/IDENTIDAD-PAPELERIA.md */
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Archivo y Archivo Narrow son los sustitutos libres de la grotesca (Helvetica /
+   Helvetica Neue Condensed) del expediente impreso: Archivo en el logotipo y
+   Archivo Narrow en los rótulos del entorno clínico.
+   Ver .contexto/Imagenes/IDENTIDAD-PAPELERIA.md */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;

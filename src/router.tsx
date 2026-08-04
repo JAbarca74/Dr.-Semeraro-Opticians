@@ -24,6 +24,7 @@ import { InventarioPage } from './features/admin/InventarioPage';
 import { VentasPage } from './features/admin/VentasPage';
 import { MetricasPage } from './features/admin/MetricasPage';
 import { UsuariosPage } from './features/admin/UsuariosPage';
+import { AuditoriaPage } from './features/admin/AuditoriaPage';
 import { CuentaPage } from './features/admin/CuentaPage';
 
 import { OverviewPage } from './features/recepcion/OverviewPage';
@@ -79,7 +80,10 @@ export const router = createBrowserRouter([
               { path: '/admin/expedientes', element: <ExpedientesPage /> },
               {
                 element: <RoleRoute roles={[Rol.ADMINISTRADOR]} />,
-                children: [{ path: '/admin/usuarios', element: <UsuariosPage /> }],
+                children: [
+                  { path: '/admin/usuarios', element: <UsuariosPage /> },
+                  { path: '/admin/auditoria', element: <AuditoriaPage /> },
+                ],
               },
             ],
           },
