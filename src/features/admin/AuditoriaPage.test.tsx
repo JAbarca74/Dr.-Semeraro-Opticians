@@ -56,7 +56,7 @@ const mockCambios = [
     tabla: 'persona',
     registroId: 12,
     operacion: OperacionAuditoria.UPDATE,
-    valorAnterior: null,
+    valorAnterior: { telefono: '2222-0000' },
     valorNuevo: { telefono: '8888-0000' },
     ip: '127.0.0.1',
   },
@@ -67,7 +67,8 @@ const mockCambios = [
     tabla: 'evaluacion_clinica',
     registroId: 5,
     operacion: OperacionAuditoria.INSERT,
-    valorAnterior: { notas: 'previa' },
+    // Una creación no tiene valor previo: el interceptor la guarda con null.
+    valorAnterior: null,
     valorNuevo: { notas: 'nueva' },
     ip: null,
   },
@@ -229,24 +230,43 @@ describe('AuditoriaPage', () => {
       expect(screen.getByText(/8888-0000/)).toBeInTheDocument();
     });
 
-    it('Avisa cuando el sistema no conservó el valor previo', async () => {
+    it('CU-08 paso 6: muestra el valor anterior junto al nuevo', async () => {
+      render(<AuditoriaPage />);
+
+      await user.click(await celda('persona'));
+
+      expect(await screen.findByText(/2222-0000/)).toBeInTheDocument();
+      expect(screen.getByText(/8888-0000/)).toBeInTheDocument();
+    });
+
+    it('En una creación explica que no hay valor previo, en vez de sugerir una carencia', async () => {
+      render(<AuditoriaPage />);
+
+      await user.click(await celda('evaluacion_clinica'));
+
+      expect(
+        await screen.findByText(
+          'Una creación no tiene valor previo: el registro no existía antes.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('Avisa cuando una modificación antigua no conservó el valor previo', async () => {
+      (listarLogs as any).mockResolvedValue({
+        ...paginaCambios,
+        total: 1,
+        registros: [{ ...mockCambios[0], valorAnterior: null }],
+      });
+
       render(<AuditoriaPage />);
 
       await user.click(await celda('persona'));
 
       expect(
         await screen.findByText(
-          'El sistema aún no conserva el valor previo de esta operación.',
+          'No se conservó el valor previo de esta operación.',
         ),
       ).toBeInTheDocument();
-    });
-
-    it('Muestra el valor anterior cuando sí existe', async () => {
-      render(<AuditoriaPage />);
-
-      await user.click(await celda('evaluacion_clinica'));
-
-      expect(await screen.findByText(/"previa"/)).toBeInTheDocument();
     });
 
     it('El botón de cerrar oculta el detalle', async () => {
