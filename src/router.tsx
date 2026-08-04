@@ -101,6 +101,9 @@ export const router = createBrowserRouter([
               { path: '/recepcion', element: <OverviewPage /> },
               { path: '/recepcion/pacientes', element: <PacientesRecepcionPage /> },
               { path: '/recepcion/recetas', element: <RecetasRecepcionPage /> },
+              // `CuentaPage` no depende del entorno: solo cambia la contraseña
+              // de quien tiene la sesión abierta, sea cual sea su rol.
+              { path: '/recepcion/cuenta', element: <CuentaPage /> },
               { path: '/recepcion/agenda', element: <AgendaRecepcionPage /> },
               { path: '/recepcion/ventas', element: <VentasRecepcionPage /> },
               { path: '/recepcion/existencias', element: <ExistenciasRecepcionPage /> },
