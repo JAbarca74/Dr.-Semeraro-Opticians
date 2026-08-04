@@ -1,9 +1,17 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
   Download,
+  Eye,
   FileText,
   FolderOpen,
   History,
@@ -22,10 +30,13 @@ import {
 } from '../../core/api/expedientes.service';
 import { useAuth } from '../../core/auth/auth.context';
 import { Rol } from '../../core/models/rol';
-import { TipoPersona, type Persona } from '../../core/models/persona';
+import { TipoPersona, edadDesde, type Persona } from '../../core/models/persona';
 import {
   Ojo,
+  type Evaluacion,
   type ExpedienteDetalle,
+  type MotilidadOjo,
+  type NuevaEvaluacion,
   type NuevaRefraccion,
   type Refraccion,
 } from '../../core/models/expediente';
@@ -41,11 +52,15 @@ import {
   fadeUp,
   fadeUpItem,
   fieldInputClass,
-  fieldLabelClass,
   stagger,
 } from '../../shared/ui';
+import { DiagramaMotilidad } from './DiagramaMotilidad';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
+
+/** Rótulos con la grotesca condensada del expediente en papel. */
+const rotuloClinicoClass =
+  'block font-clinico text-[11px] font-bold uppercase tracking-wider2 text-neutral-600 dark:text-neutral-300';
 
 interface RefraccionForm {
   esfera: string;
@@ -80,6 +95,85 @@ const fueraDeRango = (campo: keyof RefraccionForm, valor: string): boolean => {
   if (campo === 'eje') return n < 0 || n > 180;
   if (campo === 'adicion') return n < 0 || n > 4;
   return false;
+};
+
+/**
+ * Ficha del expediente impreso. Todo se maneja como texto: son los mismos
+ * campos del papel y se convierten al enviar.
+ */
+interface FichaForm {
+  motivoConsulta: string;
+  ultimoControl: string;
+  remitidoPor: string;
+  antOculares: string;
+  antFamiliares: string;
+  antPersonales: string;
+  antMedicamentosos: string;
+  rxEnUso: string;
+  tiempoUso: string;
+  avScOd: string;
+  avScOi: string;
+  avScAo: string;
+  avCcOd: string;
+  avCcOi: string;
+  avCcAo: string;
+  pioOd: string;
+  pioOi: string;
+  dp: string;
+  ppc: string;
+  vergenciasForias: string;
+  segmentoExterno: string;
+  oftalmoscopia: string;
+  refraccionTexto: string;
+  diagnosticos: string;
+  recomendaciones: string;
+  control: string;
+  remisiones: string;
+}
+
+const FICHA_VACIA: FichaForm = {
+  motivoConsulta: '',
+  ultimoControl: '',
+  remitidoPor: '',
+  antOculares: '',
+  antFamiliares: '',
+  antPersonales: '',
+  antMedicamentosos: '',
+  rxEnUso: '',
+  tiempoUso: '',
+  avScOd: '',
+  avScOi: '',
+  avScAo: '',
+  avCcOd: '',
+  avCcOi: '',
+  avCcAo: '',
+  pioOd: '',
+  pioOi: '',
+  dp: '',
+  ppc: '',
+  vergenciasForias: '',
+  segmentoExterno: '',
+  oftalmoscopia: '',
+  refraccionTexto: '',
+  diagnosticos: '',
+  recomendaciones: '',
+  control: '',
+  remisiones: '',
+};
+
+/** Rangos clínicamente posibles de las medidas numéricas del anverso. */
+const RANGO_MEDIDA: Record<string, { min: number; max: number }> = {
+  pioOd: { min: 0, max: 80 },
+  pioOi: { min: 0, max: 80 },
+  dp: { min: 0, max: 99 },
+  ppc: { min: 0, max: 99 },
+};
+
+const medidaFueraDeRango = (campo: string, valor: string): boolean => {
+  const rango = RANGO_MEDIDA[campo];
+  if (!rango || valor === '') return false;
+  const n = Number(valor);
+  return Number.isNaN(n) || n < rango.min || n > rango.max;
 };
 
 const construirRefraccion = (
@@ -117,6 +211,138 @@ const fechaCorta = (iso: string): string =>
     year: 'numeric',
   });
 
+const fechaHora = (iso: string): string =>
+  new Date(iso).toLocaleString('es-CR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+const textoODefecto = (valor?: string | number | null): string =>
+  valor === null || valor === undefined || valor === '' ? '—' : String(valor);
+
+// ── Piezas de presentación del entorno clínico ───────────────────────────────
+
+/** Bloque del expediente, con el rótulo en la tipografía del impreso. */
+const BloqueFicha = ({
+  titulo,
+  children,
+}: {
+  titulo: string;
+  children: ReactNode;
+}) => (
+  <fieldset className="border border-neutral-200 p-4 dark:border-white/10">
+    <legend className="px-2 font-clinico text-[11px] font-bold uppercase tracking-wider2 text-lux-gold">
+      {titulo}
+    </legend>
+    <div className="space-y-4">{children}</div>
+  </fieldset>
+);
+
+interface CampoProps {
+  etiqueta: string;
+  valor: string;
+  onChange: (v: string) => void;
+  filas?: number;
+  placeholder?: string;
+}
+
+/** Campo de texto del expediente: rótulo condensado, contenido en pantalla. */
+const CampoTexto = ({
+  etiqueta,
+  valor,
+  onChange,
+  filas,
+  placeholder,
+}: CampoProps) => (
+  <label className="block">
+    <span className={rotuloClinicoClass}>{etiqueta}</span>
+    {filas ? (
+      <textarea
+        className={fieldInputClass}
+        rows={filas}
+        value={valor}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    ) : (
+      <input
+        className={fieldInputClass}
+        value={valor}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    )}
+  </label>
+);
+
+/** Campo numérico con aviso de rango (mismo criterio que EX-03). */
+const CampoMedida = ({
+  etiqueta,
+  campo,
+  valor,
+  onChange,
+  sufijo,
+  paso = '0.5',
+}: {
+  etiqueta: string;
+  campo: string;
+  valor: string;
+  onChange: (v: string) => void;
+  sufijo?: string;
+  paso?: string;
+}) => {
+  const malo = medidaFueraDeRango(campo, valor);
+  return (
+    <label className="block">
+      <span className={rotuloClinicoClass}>
+        {etiqueta}
+        {sufijo ? (
+          <span className="ml-1 font-sans normal-case tracking-normal text-neutral-400">
+            ({sufijo})
+          </span>
+        ) : null}
+      </span>
+      <input
+        type="number"
+        step={paso}
+        className={cx(
+          fieldInputClass,
+          malo && '!border-red-500 focus:!ring-red-400',
+        )}
+        value={valor}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {malo ? (
+        <span className="mt-1 block text-[10px] font-semibold text-red-600">
+          Fuera de rango
+        </span>
+      ) : null}
+    </label>
+  );
+};
+
+/** Dato de una evolución ya guardada. */
+const DatoFicha = ({
+  etiqueta,
+  valor,
+}: {
+  etiqueta: string;
+  valor?: string | number | null;
+}) =>
+  valor === null || valor === undefined || valor === '' ? null : (
+    <div>
+      <span className="block font-clinico text-[10px] font-bold uppercase tracking-wider2 text-neutral-400">
+        {etiqueta}
+      </span>
+      <p className="whitespace-pre-line text-sm text-neutral-700 dark:text-neutral-200">
+        {valor}
+      </p>
+    </div>
+  );
+
 export const ExpedientesPage = () => {
   const { hasRole } = useAuth();
 
@@ -132,8 +358,9 @@ export const ExpedientesPage = () => {
   const [busqueda, setBusqueda] = useState('');
   const [idPaciente, setIdPaciente] = useState(0);
   const [detalle, setDetalle] = useState<ExpedienteDetalle | null>(null);
-  const [diagnosticos, setDiagnosticos] = useState('');
-  const [notas, setNotas] = useState('');
+  const [ficha, setFicha] = useState<FichaForm>(FICHA_VACIA);
+  const [movOd, setMovOd] = useState<MotilidadOjo>({});
+  const [movOi, setMovOi] = useState<MotilidadOjo>({});
   const [od, setOd] = useState<RefraccionForm>(REF_VACIA);
   const [oi, setOi] = useState<RefraccionForm>(REF_VACIA);
   const [precargadoDe, setPrecargadoDe] = useState('');
@@ -143,9 +370,14 @@ export const ExpedientesPage = () => {
   const [aviso, setAviso] = useState('');
   const [guardando, setGuardando] = useState(false);
 
-  const hayFueraDeRango = CAMPOS_REF.some(
-    (c) => fueraDeRango(c, od[c]) || fueraDeRango(c, oi[c]),
-  );
+  const campo = (clave: keyof FichaForm) => (valor: string) =>
+    setFicha((f) => ({ ...f, [clave]: valor }));
+
+  const hayFueraDeRango =
+    CAMPOS_REF.some((c) => fueraDeRango(c, od[c]) || fueraDeRango(c, oi[c])) ||
+    Object.keys(RANGO_MEDIDA).some((c) =>
+      medidaFueraDeRango(c, ficha[c as keyof FichaForm]),
+    );
 
   const pacienteActivo =
     pacientes.find((p) => p.idPersona === idPaciente) ?? null;
@@ -184,20 +416,33 @@ export const ExpedientesPage = () => {
   }, [pacientes, busqueda]);
 
   const limpiarFormulario = () => {
-    setDiagnosticos('');
-    setNotas('');
+    setFicha(FICHA_VACIA);
+    setMovOd({});
+    setMovOi({});
     setOd(REF_VACIA);
     setOi(REF_VACIA);
     setPrecargadoDe('');
   };
 
   /**
-   * CU-02 paso 4: al abrir el expediente se cargan los parámetros de la última
-   * consulta como punto de partida de la nueva evolución.
+   * CU-02 paso 4: al abrir el expediente se cargan los parámetros y los
+   * antecedentes de la última consulta como punto de partida. Los antecedentes
+   * no cambian de una visita a otra; el resto de la ficha sí, y se deja vacío.
    */
   const precargarUltima = (d: ExpedienteDetalle) => {
     const ultima = d.evaluaciones[0];
-    if (!ultima?.refracciones?.length) {
+    if (!ultima) {
+      setPrecargadoDe('');
+      return;
+    }
+    setFicha((f) => ({
+      ...f,
+      antOculares: ultima.antOculares ?? '',
+      antFamiliares: ultima.antFamiliares ?? '',
+      antPersonales: ultima.antPersonales ?? '',
+      antMedicamentosos: ultima.antMedicamentosos ?? '',
+    }));
+    if (!ultima.refracciones?.length) {
       setPrecargadoDe('');
       return;
     }
@@ -240,6 +485,11 @@ export const ExpedientesPage = () => {
     limpiarFormulario();
   };
 
+  /** Texto vacío → `undefined`, para no guardar cadenas en blanco. */
+  const texto = (v: string): string | undefined => v.trim() || undefined;
+  const numero = (v: string): number | undefined =>
+    v.trim() === '' ? undefined : Number(v);
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
@@ -258,15 +508,46 @@ export const ExpedientesPage = () => {
         construirRefraccion(Ojo.DERECHO, od),
         construirRefraccion(Ojo.IZQUIERDO, oi),
       ].filter((r): r is NuevaRefraccion => r !== null);
-      const evaluacion = await crearEvaluacion({
+      const movimientos =
+        Object.keys(movOd).length || Object.keys(movOi).length
+          ? { od: movOd, oi: movOi }
+          : undefined;
+      const payload: NuevaEvaluacion = {
         idPaciente,
-        diagnosticos: diagnosticos
+        diagnosticos: ficha.diagnosticos
           .split('\n')
           .map((s) => s.trim())
           .filter(Boolean),
-        notas: notas || undefined,
         refracciones: refracciones.length ? refracciones : undefined,
-      });
+        motivoConsulta: texto(ficha.motivoConsulta),
+        ultimoControl: texto(ficha.ultimoControl),
+        remitidoPor: texto(ficha.remitidoPor),
+        antOculares: texto(ficha.antOculares),
+        antFamiliares: texto(ficha.antFamiliares),
+        antPersonales: texto(ficha.antPersonales),
+        antMedicamentosos: texto(ficha.antMedicamentosos),
+        rxEnUso: texto(ficha.rxEnUso),
+        tiempoUso: texto(ficha.tiempoUso),
+        avScOd: texto(ficha.avScOd),
+        avScOi: texto(ficha.avScOi),
+        avScAo: texto(ficha.avScAo),
+        avCcOd: texto(ficha.avCcOd),
+        avCcOi: texto(ficha.avCcOi),
+        avCcAo: texto(ficha.avCcAo),
+        pioOd: numero(ficha.pioOd),
+        pioOi: numero(ficha.pioOi),
+        movimientosOculares: movimientos,
+        dp: numero(ficha.dp),
+        ppc: numero(ficha.ppc),
+        vergenciasForias: texto(ficha.vergenciasForias),
+        segmentoExterno: texto(ficha.segmentoExterno),
+        oftalmoscopia: texto(ficha.oftalmoscopia),
+        refraccionTexto: texto(ficha.refraccionTexto),
+        recomendaciones: texto(ficha.recomendaciones),
+        control: texto(ficha.control),
+        remisiones: texto(ficha.remisiones),
+      };
+      const evaluacion = await crearEvaluacion(payload);
       // CU-02 paso 7 / CU-16: persistir y generar la receta en la misma acción.
       try {
         await emitirReceta(evaluacion.idEvaluacionClinica);
@@ -285,7 +566,15 @@ export const ExpedientesPage = () => {
 
   /** CU-02 flujo alterno: cancelar exige confirmación y no guarda nada. */
   const pedirCancelar = () => {
-    if (formularioVacio(od) && formularioVacio(oi) && !diagnosticos && !notas) {
+    const fichaVacia = Object.values(ficha).every((v) => v === '');
+    const sinMovimientos =
+      !Object.keys(movOd).length && !Object.keys(movOi).length;
+    if (
+      formularioVacio(od) &&
+      formularioVacio(oi) &&
+      fichaVacia &&
+      sinMovimientos
+    ) {
       limpiarFormulario();
       return;
     }
@@ -314,27 +603,25 @@ export const ExpedientesPage = () => {
     set: (v: RefraccionForm) => void,
   ) => (
     <fieldset className="border border-neutral-200 p-4 dark:border-white/10">
-      <legend className="px-2 text-[10px] font-bold uppercase tracking-widest text-lux-gold">
+      <legend className="px-2 font-clinico text-[11px] font-bold uppercase tracking-wider2 text-lux-gold">
         {etiqueta}
       </legend>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {CAMPOS_REF.map((campo) => (
-          <label key={campo} className="block">
-            <span className="block text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-              {ETIQUETA_REF[campo]}
-            </span>
+        {CAMPOS_REF.map((c) => (
+          <label key={c} className="block">
+            <span className={rotuloClinicoClass}>{ETIQUETA_REF[c]}</span>
             <input
               type="number"
-              step={campo === 'eje' ? '1' : '0.25'}
+              step={c === 'eje' ? '1' : '0.25'}
               className={cx(
                 fieldInputClass,
-                fueraDeRango(campo, valores[campo]) &&
+                fueraDeRango(c, valores[c]) &&
                   '!border-red-500 focus:!ring-red-400',
               )}
-              value={valores[campo]}
-              onChange={(e) => set({ ...valores, [campo]: e.target.value })}
+              value={valores[c]}
+              onChange={(e) => set({ ...valores, [c]: e.target.value })}
             />
-            {fueraDeRango(campo, valores[campo]) ? (
+            {fueraDeRango(c, valores[c]) ? (
               <span className="mt-1 block text-[10px] font-semibold text-red-600">
                 Fuera de rango
               </span>
@@ -345,14 +632,140 @@ export const ExpedientesPage = () => {
     </fieldset>
   );
 
+  /** Agudeza visual en el formato del papel: OD / OI / AO. */
+  const filaAgudeza = (
+    titulo: string,
+    claves: [keyof FichaForm, keyof FichaForm, keyof FichaForm],
+  ) => (
+    <div>
+      <span className={rotuloClinicoClass}>{titulo}</span>
+      <div className="mt-1.5 grid grid-cols-3 gap-3">
+        {(['OD', 'OI', 'AO'] as const).map((ojo, i) => (
+          <label key={ojo} className="block">
+            <span className="font-clinico text-[10px] font-bold uppercase tracking-wider2 text-neutral-400">
+              {ojo}
+            </span>
+            <input
+              className={cx(fieldInputClass, 'mt-1')}
+              placeholder="20/20"
+              value={ficha[claves[i]]}
+              onChange={(e) => campo(claves[i])(e.target.value)}
+            />
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  /** Ficha completa de una evolución ya guardada (solo lectura). */
+  const fichaGuardada = (ev: Evaluacion) => {
+    const movimientos = ev.movimientosOculares;
+    const hayMovimientos =
+      movimientos &&
+      (Object.keys(movimientos.od ?? {}).length ||
+        Object.keys(movimientos.oi ?? {}).length);
+    return (
+      <div className="mt-4 space-y-4 border-t border-neutral-100 pt-4 dark:border-white/5">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <DatoFicha etiqueta="Motivo de consulta" valor={ev.motivoConsulta} />
+          <DatoFicha etiqueta="Último control" valor={ev.ultimoControl} />
+          <DatoFicha etiqueta="Remitido por" valor={ev.remitidoPor} />
+          <DatoFicha etiqueta="Antecedentes oculares" valor={ev.antOculares} />
+          <DatoFicha
+            etiqueta="Antecedentes familiares"
+            valor={ev.antFamiliares}
+          />
+          <DatoFicha
+            etiqueta="Antecedentes personales"
+            valor={ev.antPersonales}
+          />
+          <DatoFicha
+            etiqueta="Antecedentes medicamentosos"
+            valor={ev.antMedicamentosos}
+          />
+          <DatoFicha etiqueta="RX en uso (lesometría)" valor={ev.rxEnUso} />
+          <DatoFicha etiqueta="Tiempo de uso" valor={ev.tiempoUso} />
+          <DatoFicha
+            etiqueta="Agudeza visual sin corrección"
+            valor={
+              ev.avScOd || ev.avScOi || ev.avScAo
+                ? `OD ${textoODefecto(ev.avScOd)} · OI ${textoODefecto(ev.avScOi)} · AO ${textoODefecto(ev.avScAo)}`
+                : null
+            }
+          />
+          <DatoFicha
+            etiqueta="Agudeza visual con corrección"
+            valor={
+              ev.avCcOd || ev.avCcOi || ev.avCcAo
+                ? `OD ${textoODefecto(ev.avCcOd)} · OI ${textoODefecto(ev.avCcOi)} · AO ${textoODefecto(ev.avCcAo)}`
+                : null
+            }
+          />
+          <DatoFicha
+            etiqueta="PIO"
+            valor={
+              ev.pioOd || ev.pioOi
+                ? `OD ${textoODefecto(ev.pioOd)} mmHg · OI ${textoODefecto(ev.pioOi)} mmHg`
+                : null
+            }
+          />
+          <DatoFicha
+            etiqueta="DP / PPC"
+            valor={
+              ev.dp || ev.ppc
+                ? `DP ${textoODefecto(ev.dp)} mm · PPC ${textoODefecto(ev.ppc)} mm`
+                : null
+            }
+          />
+          <DatoFicha
+            etiqueta="Vergencias / forias"
+            valor={ev.vergenciasForias}
+          />
+          <DatoFicha etiqueta="Segmento externo" valor={ev.segmentoExterno} />
+          <DatoFicha etiqueta="Oftalmoscopia directa" valor={ev.oftalmoscopia} />
+          <DatoFicha
+            etiqueta="Refracción (objetiva-subjetiva)"
+            valor={ev.refraccionTexto}
+          />
+          <DatoFicha
+            etiqueta="Recomendaciones especiales"
+            valor={ev.recomendaciones}
+          />
+          <DatoFicha etiqueta="Control" valor={ev.control} />
+          <DatoFicha etiqueta="Remisiones" valor={ev.remisiones} />
+        </div>
+        {hayMovimientos ? (
+          <div>
+            <span className="block font-clinico text-[10px] font-bold uppercase tracking-wider2 text-neutral-400">
+              Movimientos oculares
+            </span>
+            <div className="mt-2 grid gap-4 sm:grid-cols-2">
+              <DiagramaMotilidad
+                ojo="OD"
+                valor={movimientos?.od ?? {}}
+                soloLectura
+              />
+              <DiagramaMotilidad
+                ojo="OI"
+                valor={movimientos?.oi ?? {}}
+                soloLectura
+              />
+            </div>
+          </div>
+        ) : null}
+      </div>
+    );
+  };
+
   return (
     <section className="space-y-10">
       <SectionHeader
         kicker="Historia clínica"
-        title="Expedientes clínicos"
+        title="Expediente clínico"
+        titleClassName="font-clinico font-bold uppercase"
         description={
           puedeDocumentar
-            ? 'Localice al paciente por cédula, revise su evolución optométrica y emita recetas con sello digital.'
+            ? 'Localice al paciente por cédula, documente la consulta con el formato del expediente de la óptica y emita recetas con sello digital.'
             : 'Consulta de historiales clínicos y recetas emitidas. La documentación de evoluciones corresponde al especialista.'
         }
         actions={
@@ -407,10 +820,10 @@ export const ExpedientesPage = () => {
                     <k.icono className="h-4 w-4" strokeWidth={1.5} />
                   </span>
                   <div>
-                    <span className="block font-serif text-2xl italic leading-none text-lux-blue dark:text-white">
+                    <span className="block font-clinico text-2xl font-bold leading-none text-lux-blue dark:text-white">
                       {k.valor.toString().padStart(2, '0')}
                     </span>
-                    <span className="mt-1 block text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                    <span className="mt-1 block font-clinico text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
                       {k.label}
                     </span>
                   </div>
@@ -425,7 +838,7 @@ export const ExpedientesPage = () => {
               <div className="space-y-3">
                 <Kicker>Buscador de pacientes</Kicker>
                 <label className="block max-w-xl">
-                  <span className={fieldLabelClass}>
+                  <span className={rotuloClinicoClass}>
                     Número de cédula o nombre
                   </span>
                   <span className="relative mt-1.5 block">
@@ -456,7 +869,7 @@ export const ExpedientesPage = () => {
                       (h) => (
                         <th
                           key={h}
-                          className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400"
+                          className="px-5 py-3 font-clinico text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400"
                         >
                           {h}
                         </th>
@@ -492,7 +905,7 @@ export const ExpedientesPage = () => {
                         </Badge>
                       </td>
                       <td className="px-5 py-3 text-right">
-                        <span className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-gold">
+                        <span className="transition-luxe font-clinico text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-gold">
                           Abrir
                         </span>
                       </td>
@@ -517,33 +930,88 @@ export const ExpedientesPage = () => {
         </>
       ) : (
         <>
-          {/* ── Ficha del paciente abierto ───────────────────────────────── */}
+          {/* ── Ficha del paciente (encabezado del expediente impreso) ───── */}
           <motion.div {...fadeUp}>
-            <LuxCard className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-4">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center border border-lux-gold/40 text-lux-gold">
-                  <UserRound className="h-5 w-5" strokeWidth={1.5} />
-                </span>
-                <div className="space-y-1">
-                  <Kicker>Expediente activo</Kicker>
-                  <h2 className="font-serif text-2xl italic leading-none text-lux-blue dark:text-white">
-                    {pacienteActivo.nombre}
-                  </h2>
-                  <p className="font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
-                    Cédula {pacienteActivo.cedula}
-                    {pacienteActivo.telefono
-                      ? ` · ${pacienteActivo.telefono}`
-                      : ''}
-                  </p>
+            <LuxCard className="p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-center gap-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center border border-lux-gold/40 text-lux-gold">
+                    <UserRound className="h-5 w-5" strokeWidth={1.5} />
+                  </span>
+                  <div className="space-y-1">
+                    <Kicker>Expediente activo</Kicker>
+                    <h2 className="font-clinico text-2xl font-bold uppercase leading-none text-lux-blue dark:text-white">
+                      {pacienteActivo.nombre}
+                    </h2>
+                    <p className="font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
+                      Cédula {pacienteActivo.cedula}
+                      {pacienteActivo.telefono
+                        ? ` · ${pacienteActivo.telefono}`
+                        : ''}
+                    </p>
+                  </div>
                 </div>
+                <LuxButton
+                  type="button"
+                  variant="ghost"
+                  onClick={volverAlBuscador}
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Cambiar de paciente
+                </LuxButton>
               </div>
-              <LuxButton
-                type="button"
-                variant="ghost"
-                onClick={volverAlBuscador}
-              >
-                <ArrowLeft className="h-3.5 w-3.5" /> Cambiar de paciente
-              </LuxButton>
+
+              <div className="mt-5 grid gap-4 border-t border-neutral-100 pt-4 dark:border-white/5 sm:grid-cols-2 lg:grid-cols-4">
+                <DatoFicha
+                  etiqueta="Fecha de nacimiento"
+                  valor={
+                    pacienteActivo.fechaNacimiento
+                      ? fechaCorta(pacienteActivo.fechaNacimiento)
+                      : null
+                  }
+                />
+                <DatoFicha
+                  etiqueta="Edad"
+                  valor={
+                    edadDesde(pacienteActivo.fechaNacimiento) !== null
+                      ? `${edadDesde(pacienteActivo.fechaNacimiento)} años`
+                      : null
+                  }
+                />
+                <DatoFicha
+                  etiqueta="Ocupación"
+                  valor={pacienteActivo.ocupacion}
+                />
+                <DatoFicha
+                  etiqueta="Dirección completa"
+                  valor={pacienteActivo.direccion}
+                />
+                <DatoFicha
+                  etiqueta="Contacto de emergencia"
+                  valor={
+                    pacienteActivo.contactoEmergencia
+                      ? `${pacienteActivo.contactoEmergencia}${
+                          pacienteActivo.telefonoEmergencia
+                            ? ` · ${pacienteActivo.telefonoEmergencia}`
+                            : ''
+                        }`
+                      : null
+                  }
+                />
+              </div>
+              {!pacienteActivo.ocupacion &&
+              !pacienteActivo.direccion &&
+              !pacienteActivo.contactoEmergencia ? (
+                <p className="mt-3 text-[11px] text-neutral-400">
+                  Los datos personales del encabezado se completan en{' '}
+                  <Link
+                    to="/admin/personas"
+                    className="link-underline text-lux-blue dark:text-lux-gold"
+                  >
+                    Personas
+                  </Link>
+                  .
+                </p>
+              ) : null}
             </LuxCard>
           </motion.div>
 
@@ -556,7 +1024,7 @@ export const ExpedientesPage = () => {
                     className="h-4 w-4 text-lux-gold"
                     strokeWidth={1.5}
                   />
-                  <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
+                  <h2 className="font-clinico text-[13px] font-bold uppercase tracking-wider2 text-neutral-700 dark:text-neutral-200">
                     Nueva evolución clínica
                   </h2>
                 </div>
@@ -568,34 +1036,197 @@ export const ExpedientesPage = () => {
                   </p>
                 ) : null}
                 <form onSubmit={onSubmit} className="space-y-5">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="block">
-                      <span className={fieldLabelClass}>
-                        Diagnósticos (uno por línea)
-                      </span>
-                      <textarea
-                        className={fieldInputClass}
-                        rows={3}
-                        value={diagnosticos}
-                        onChange={(e) => setDiagnosticos(e.target.value)}
+                  <BloqueFicha titulo="Consulta">
+                    <CampoTexto
+                      etiqueta="Motivo de consulta"
+                      valor={ficha.motivoConsulta}
+                      onChange={campo('motivoConsulta')}
+                      filas={2}
+                    />
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <CampoTexto
+                        etiqueta="Último control"
+                        valor={ficha.ultimoControl}
+                        onChange={campo('ultimoControl')}
                       />
-                    </label>
-                    <label className="block">
-                      <span className={fieldLabelClass}>
-                        Notas de evolución
-                      </span>
-                      <textarea
-                        className={fieldInputClass}
-                        rows={3}
-                        value={notas}
-                        onChange={(e) => setNotas(e.target.value)}
+                      <CampoTexto
+                        etiqueta="Remitido por"
+                        valor={ficha.remitidoPor}
+                        onChange={campo('remitidoPor')}
                       />
-                    </label>
-                  </div>
-                  <div className="grid gap-4 lg:grid-cols-2">
-                    {campoRefraccion('Ojo derecho (OD)', od, setOd)}
-                    {campoRefraccion('Ojo izquierdo (OI)', oi, setOi)}
-                  </div>
+                    </div>
+                  </BloqueFicha>
+
+                  <BloqueFicha titulo="Antecedentes">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <CampoTexto
+                        etiqueta="Antecedentes oculares"
+                        valor={ficha.antOculares}
+                        onChange={campo('antOculares')}
+                        filas={2}
+                      />
+                      <CampoTexto
+                        etiqueta="Antecedentes familiares"
+                        valor={ficha.antFamiliares}
+                        onChange={campo('antFamiliares')}
+                        filas={2}
+                      />
+                      <CampoTexto
+                        etiqueta="Antecedentes personales"
+                        valor={ficha.antPersonales}
+                        onChange={campo('antPersonales')}
+                        filas={2}
+                      />
+                      <CampoTexto
+                        etiqueta="Antecedentes medicamentosos"
+                        valor={ficha.antMedicamentosos}
+                        onChange={campo('antMedicamentosos')}
+                        filas={2}
+                      />
+                    </div>
+                  </BloqueFicha>
+
+                  <BloqueFicha titulo="RX en uso (lesometría)">
+                    <CampoTexto
+                      etiqueta="RX en uso"
+                      valor={ficha.rxEnUso}
+                      onChange={campo('rxEnUso')}
+                      filas={2}
+                    />
+                    <CampoTexto
+                      etiqueta="Tiempo de uso"
+                      valor={ficha.tiempoUso}
+                      onChange={campo('tiempoUso')}
+                    />
+                  </BloqueFicha>
+
+                  <BloqueFicha titulo="Agudeza visual">
+                    {filaAgudeza('Sin corrección', [
+                      'avScOd',
+                      'avScOi',
+                      'avScAo',
+                    ])}
+                    {filaAgudeza('Con corrección', [
+                      'avCcOd',
+                      'avCcOi',
+                      'avCcAo',
+                    ])}
+                  </BloqueFicha>
+
+                  <BloqueFicha titulo="Medidas">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      <CampoMedida
+                        etiqueta="PIO OD"
+                        campo="pioOd"
+                        sufijo="mmHg"
+                        valor={ficha.pioOd}
+                        onChange={campo('pioOd')}
+                      />
+                      <CampoMedida
+                        etiqueta="PIO OI"
+                        campo="pioOi"
+                        sufijo="mmHg"
+                        valor={ficha.pioOi}
+                        onChange={campo('pioOi')}
+                      />
+                      <CampoMedida
+                        etiqueta="DP"
+                        campo="dp"
+                        sufijo="mm"
+                        valor={ficha.dp}
+                        onChange={campo('dp')}
+                      />
+                      <CampoMedida
+                        etiqueta="PPC"
+                        campo="ppc"
+                        sufijo="mm"
+                        valor={ficha.ppc}
+                        onChange={campo('ppc')}
+                      />
+                    </div>
+                    <CampoTexto
+                      etiqueta="Vergencias / forias"
+                      valor={ficha.vergenciasForias}
+                      onChange={campo('vergenciasForias')}
+                      filas={2}
+                    />
+                    <CampoTexto
+                      etiqueta="Segmento externo"
+                      valor={ficha.segmentoExterno}
+                      onChange={campo('segmentoExterno')}
+                      filas={2}
+                    />
+                  </BloqueFicha>
+
+                  <BloqueFicha titulo="Movimientos oculares">
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <DiagramaMotilidad
+                        ojo="OD"
+                        valor={movOd}
+                        onChange={setMovOd}
+                      />
+                      <DiagramaMotilidad
+                        ojo="OI"
+                        valor={movOi}
+                        onChange={setMovOi}
+                      />
+                    </div>
+                  </BloqueFicha>
+
+                  <BloqueFicha titulo="Oftalmoscopia directa (sin dilatar)">
+                    <CampoTexto
+                      etiqueta="Hallazgos"
+                      valor={ficha.oftalmoscopia}
+                      onChange={campo('oftalmoscopia')}
+                      filas={3}
+                    />
+                  </BloqueFicha>
+
+                  <BloqueFicha titulo="Refracción (objetiva-subjetiva)">
+                    <CampoTexto
+                      etiqueta="Refracción"
+                      valor={ficha.refraccionTexto}
+                      onChange={campo('refraccionTexto')}
+                      filas={4}
+                    />
+                  </BloqueFicha>
+
+                  {/* La tabla estructurada es el RX Final: lo que se sella en la
+                      receta criptográfica (CU-16). */}
+                  <BloqueFicha titulo="RX Final">
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      {campoRefraccion('Ojo derecho (OD)', od, setOd)}
+                      {campoRefraccion('Ojo izquierdo (OI)', oi, setOi)}
+                    </div>
+                  </BloqueFicha>
+
+                  <BloqueFicha titulo="Cierre de la consulta">
+                    <CampoTexto
+                      etiqueta="Impresión diagnóstica (una por línea)"
+                      valor={ficha.diagnosticos}
+                      onChange={campo('diagnosticos')}
+                      filas={3}
+                    />
+                    <CampoTexto
+                      etiqueta="Recomendaciones especiales"
+                      valor={ficha.recomendaciones}
+                      onChange={campo('recomendaciones')}
+                      filas={3}
+                    />
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <CampoTexto
+                        etiqueta="Control"
+                        valor={ficha.control}
+                        onChange={campo('control')}
+                      />
+                      <CampoTexto
+                        etiqueta="Remisiones"
+                        valor={ficha.remisiones}
+                        onChange={campo('remisiones')}
+                      />
+                    </div>
+                  </BloqueFicha>
+
                   <div className="flex flex-wrap items-center gap-3">
                     <LuxButton
                       type="submit"
@@ -614,7 +1245,7 @@ export const ExpedientesPage = () => {
                     </LuxButton>
                     {hayFueraDeRango ? (
                       <span className="text-xs font-semibold text-red-600">
-                        Hay valores fuera de rango óptico.
+                        Hay valores fuera de rango.
                       </span>
                     ) : null}
                   </div>
@@ -638,7 +1269,7 @@ export const ExpedientesPage = () => {
           {/* ── Historial de evaluaciones ────────────────────────────────── */}
           {detalle ? (
             <div className="space-y-5">
-              <h2 className="font-serif text-xl italic text-lux-blue dark:text-white">
+              <h2 className="font-clinico text-xl font-bold uppercase tracking-wider2 text-lux-blue dark:text-white">
                 Evoluciones registradas
               </h2>
               {detalle.evaluaciones.length === 0 ? (
@@ -650,8 +1281,8 @@ export const ExpedientesPage = () => {
                 <motion.div key={ev.idEvaluacionClinica} {...fadeUp}>
                   <LuxCard className="p-6">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-lux-blue dark:text-white">
-                        {new Date(ev.fecha).toLocaleDateString()} ·{' '}
+                      <span className="font-clinico text-sm font-bold uppercase tracking-wider2 text-lux-blue dark:text-white">
+                        {fechaHora(ev.fecha)} ·{' '}
                         <span className="text-neutral-500">
                           {ev.doctor?.nombre ?? 'Doctor'}
                         </span>
@@ -660,9 +1291,12 @@ export const ExpedientesPage = () => {
                         <Badge tone="green">Receta sellada</Badge>
                       ) : null}
                     </div>
+
                     {ev.diagnosticos?.length ? (
                       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
-                        <span className="text-neutral-400">Diagnósticos: </span>
+                        <span className="font-clinico uppercase tracking-wider2 text-neutral-400">
+                          Impresión diagnóstica:{' '}
+                        </span>
                         {ev.diagnosticos.join(', ')}
                       </p>
                     ) : null}
@@ -672,9 +1306,14 @@ export const ExpedientesPage = () => {
                       </p>
                     ) : null}
 
+                    {fichaGuardada(ev)}
+
                     {ev.refracciones?.length ? (
                       <div className="mt-4 overflow-x-auto">
-                        <table className="w-full max-w-lg text-left text-sm">
+                        <span className="block font-clinico text-[10px] font-bold uppercase tracking-wider2 text-neutral-400">
+                          RX Final
+                        </span>
+                        <table className="mt-2 w-full max-w-lg text-left text-sm">
                           <thead>
                             <tr className="border-b border-neutral-100 dark:border-white/5">
                               {[
@@ -686,7 +1325,7 @@ export const ExpedientesPage = () => {
                               ].map((h) => (
                                 <th
                                   key={h}
-                                  className="py-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400"
+                                  className="py-2 font-clinico text-[10px] font-bold uppercase tracking-widest text-neutral-400"
                                 >
                                   {h}
                                 </th>
@@ -731,7 +1370,7 @@ export const ExpedientesPage = () => {
                             <div className="flex flex-wrap gap-3 pt-1">
                               <Link
                                 to={`/verificar/${ev.receta.hashSha256}`}
-                                className="link-underline text-[11px] font-semibold uppercase tracking-wider text-lux-blue dark:text-lux-gold"
+                                className="link-underline font-clinico text-[11px] font-semibold uppercase tracking-wider text-lux-blue dark:text-lux-gold"
                               >
                                 Verificar
                               </Link>
@@ -739,7 +1378,7 @@ export const ExpedientesPage = () => {
                                 href={`${API_BASE}/recetas/${ev.receta.hashSha256}/pdf`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-lux-blue hover:text-lux-gold dark:text-lux-gold"
+                                className="inline-flex items-center gap-1 font-clinico text-[11px] font-semibold uppercase tracking-wider text-lux-blue hover:text-lux-gold dark:text-lux-gold"
                               >
                                 <Download className="h-3 w-3" /> Descargar PDF
                               </a>
@@ -752,7 +1391,7 @@ export const ExpedientesPage = () => {
                           variant="ghost"
                           onClick={() => emitir(ev.idEvaluacionClinica)}
                         >
-                          Emitir receta con QR
+                          <Eye className="h-3.5 w-3.5" /> Emitir receta con QR
                         </LuxButton>
                       ) : (
                         <span className="text-sm text-neutral-400">

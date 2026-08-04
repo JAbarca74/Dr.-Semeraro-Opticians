@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
 /**
- * Kit de componentes UI con el lenguaje visual EssilorLuxottica
+ * Kit de componentes UI de Óptica Dr. Luigi Semeraro
  * (editorial, sobrio, con acentos dorados y microinteracciones).
  */
 
@@ -39,6 +39,11 @@ interface SectionHeaderProps {
   title: string;
   description?: string;
   actions?: ReactNode;
+  /**
+   * Clases del `<h1>`. Solo para el entorno clínico, que usa la grotesca
+   * condensada del expediente impreso en vez de la serif del resto del sistema.
+   */
+  titleClassName?: string;
 }
 
 export const SectionHeader = ({
@@ -46,6 +51,7 @@ export const SectionHeader = ({
   title,
   description,
   actions,
+  titleClassName,
 }: SectionHeaderProps) => (
   <motion.header
     {...fadeUp}
@@ -53,7 +59,12 @@ export const SectionHeader = ({
   >
     <div className="space-y-2">
       {kicker ? <Kicker>{kicker}</Kicker> : null}
-      <h1 className="font-serif text-3xl italic leading-none tracking-tight text-lux-blue dark:text-white md:text-4xl">
+      <h1
+        className={cx(
+          'text-3xl leading-none tracking-tight text-lux-blue dark:text-white md:text-4xl',
+          titleClassName ?? 'font-serif italic',
+        )}
+      >
         {title}
       </h1>
       {description ? (

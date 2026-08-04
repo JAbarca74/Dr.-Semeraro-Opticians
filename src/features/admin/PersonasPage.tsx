@@ -30,6 +30,12 @@ const FORM_VACIO: PersonaInput = {
   telefono: '',
   correo: '',
   puesto: '',
+  // Datos del encabezado del expediente impreso (solo aplican al paciente).
+  fechaNacimiento: '',
+  ocupacion: '',
+  direccion: '',
+  contactoEmergencia: '',
+  telefonoEmergencia: '',
 };
 
 export const PersonasPage = () => {
@@ -58,6 +64,11 @@ export const PersonasPage = () => {
         telefono: form.telefono || undefined,
         correo: form.correo || undefined,
         puesto: form.puesto || undefined,
+        fechaNacimiento: form.fechaNacimiento || undefined,
+        ocupacion: form.ocupacion || undefined,
+        direccion: form.direccion || undefined,
+        contactoEmergencia: form.contactoEmergencia || undefined,
+        telefonoEmergencia: form.telefonoEmergencia || undefined,
       };
       if (editId) {
         await actualizarPersona(editId, payload);
@@ -83,6 +94,12 @@ export const PersonasPage = () => {
       telefono: p.telefono ?? '',
       correo: p.correo ?? '',
       puesto: p.puesto ?? '',
+      // `fecha_nacimiento` llega como `YYYY-MM-DD` y el input date la acepta así.
+      fechaNacimiento: p.fechaNacimiento?.slice(0, 10) ?? '',
+      ocupacion: p.ocupacion ?? '',
+      direccion: p.direccion ?? '',
+      contactoEmergencia: p.contactoEmergencia ?? '',
+      telefonoEmergencia: p.telefonoEmergencia ?? '',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -171,7 +188,64 @@ export const PersonasPage = () => {
                   onChange={(e) => setForm({ ...form, puesto: e.target.value })}
                 />
               </label>
-            ) : null}
+            ) : (
+              <>
+                {/* Encabezado del expediente clínico impreso (CU-02). */}
+                <label>
+                  <span className={fieldLabelClass}>Fecha de nacimiento</span>
+                  <input
+                    type="date"
+                    className={fieldInputClass}
+                    value={form.fechaNacimiento ?? ''}
+                    onChange={(e) =>
+                      setForm({ ...form, fechaNacimiento: e.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  <span className={fieldLabelClass}>Ocupación</span>
+                  <input
+                    className={fieldInputClass}
+                    value={form.ocupacion ?? ''}
+                    onChange={(e) =>
+                      setForm({ ...form, ocupacion: e.target.value })
+                    }
+                  />
+                </label>
+                <label className="sm:col-span-2">
+                  <span className={fieldLabelClass}>Dirección completa</span>
+                  <input
+                    className={fieldInputClass}
+                    value={form.direccion ?? ''}
+                    onChange={(e) =>
+                      setForm({ ...form, direccion: e.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  <span className={fieldLabelClass}>
+                    Contacto en caso de emergencia
+                  </span>
+                  <input
+                    className={fieldInputClass}
+                    value={form.contactoEmergencia ?? ''}
+                    onChange={(e) =>
+                      setForm({ ...form, contactoEmergencia: e.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  <span className={fieldLabelClass}>Teléfono de emergencia</span>
+                  <input
+                    className={fieldInputClass}
+                    value={form.telefonoEmergencia ?? ''}
+                    onChange={(e) =>
+                      setForm({ ...form, telefonoEmergencia: e.target.value })
+                    }
+                  />
+                </label>
+              </>
+            )}
 
             <div className="col-span-full flex flex-wrap items-center gap-3 pt-2">
               <LuxButton type="submit" disabled={guardando}>
