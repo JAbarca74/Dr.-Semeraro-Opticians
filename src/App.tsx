@@ -7,7 +7,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <RouterProvider router={router} />
+        {/* `v7_startTransition` se configura aquí, no en `createBrowserRouter`:
+            es el único future flag que consume el proveedor. */}
+        <RouterProvider router={router} future={{ v7_startTransition: true }} />
       </AuthProvider>
     </ThemeProvider>
   );

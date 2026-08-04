@@ -73,7 +73,7 @@ export const PacientesPage = () => {
         setOk(`Datos de ${form.nombre} actualizados.`);
       } else {
         await crearPersona(payload);
-        setOk(`Paciente ${form.nombre} registrado en la base de Óptica Dr. Semeraro.`);
+        setOk(`Paciente ${form.nombre} registrado en la base de Óptica Dr. Luigi Semeraro.`);
       }
       setForm(VACIO);
       setEditId(null);
@@ -112,7 +112,7 @@ export const PacientesPage = () => {
       <RecepHeader
         cu="Registro de pacientes · CU-18"
         title="Pacientes"
-        description="Gestione la base demográfica de pacientes de Óptica Dr. Semeraro: registro, contacto y trazabilidad para facturación y citas."
+        description="Gestione la base demográfica de pacientes de Óptica Dr. Luigi Semeraro: registro, contacto y trazabilidad para facturación y citas."
         actions={
           <RecepButton onClick={nuevo}>
             <Plus className="h-4 w-4 text-lux-gold" />

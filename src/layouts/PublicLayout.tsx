@@ -3,6 +3,7 @@ import { Moon, Sun } from 'lucide-react';
 import { useAuth } from '../core/auth/auth.context';
 import { useTheme } from '../core/theme/theme.context';
 import { homePathForRole } from '../core/models/rol';
+import { MarcaOptica } from '../shared/MarcaOptica';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
@@ -21,14 +22,8 @@ export const PublicLayout = () => {
     <div className="flex min-h-screen flex-col bg-lux-cream font-sans text-lux-blue transition-luxe dark:bg-[#0a0a0a] dark:text-zinc-100">
       <header className="transition-luxe sticky top-0 z-30 border-b border-lux-blue/10 bg-[#fcfbf9]/80 blur-backdrop dark:border-white/10 dark:bg-[#0a0a0a]/80">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-6">
-          <Link to="/" className="flex items-center gap-3">
-            <span className="font-display text-sm font-light uppercase tracking-luxe md:text-base">
-              ESSILORLUXOTTICA
-            </span>
-            <span className="text-xs text-lux-gold/40">|</span>
-            <span className="font-serif text-xs italic text-lux-gold md:text-sm">
-              Dr. Semeraro
-            </span>
+          <Link to="/">
+            <MarcaOptica />
           </Link>
           <nav className="flex items-center gap-5 md:gap-6">
             <NavLink to="/" className={navLinkClass} end>
@@ -90,7 +85,7 @@ export const PublicLayout = () => {
 
       <footer className="transition-luxe border-t border-lux-blue/5 bg-lux-gray dark:border-white/5 dark:bg-[#070708]">
         <div className="mx-auto max-w-6xl px-4 py-6 text-[10px] uppercase tracking-widest text-neutral-400 md:px-6">
-          © {new Date().getFullYear()} Óptica Dr. Semeraro — Pérez Zeledón, Costa Rica
+          © {new Date().getFullYear()} Óptica Dr. Luigi Semeraro — Pérez Zeledón, Costa Rica
         </div>
       </footer>
     </div>

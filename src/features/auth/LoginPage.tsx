@@ -17,6 +17,7 @@ import { useAuth } from '../../core/auth/auth.context';
 import { useTheme } from '../../core/theme/theme.context';
 import { homePathForRole } from '../../core/models/rol';
 import { mensajeDeError } from '../../shared/error';
+import { MarcaOptica } from '../../shared/MarcaOptica';
 
 const SLIDES = [
   {
@@ -94,14 +95,8 @@ export const LoginPage = () => {
       {/* Header */}
       <header className="transition-luxe sticky top-0 z-30 border-b border-lux-blue/10 bg-[#fcfbf9]/80 blur-backdrop dark:border-white/10 dark:bg-[#0a0a0a]/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <Link to="/" className="flex items-center gap-3">
-            <span className="font-display text-base font-light uppercase tracking-luxe md:text-lg">
-              ESSILORLUXOTTICA
-            </span>
-            <span className="text-xs text-lux-gold/40">|</span>
-            <span className="font-serif text-sm italic text-lux-gold md:text-base">
-              Socio Clínico Dr. Semeraro
-            </span>
+          <Link to="/">
+            <MarcaOptica tamano="md" />
           </Link>
           <div className="flex items-center gap-5">
             <div className="hidden items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest opacity-60 sm:flex">
@@ -210,7 +205,7 @@ export const LoginPage = () => {
                 Portal interno autenticado
               </span>
               <h1 className="font-serif text-3xl italic leading-none tracking-tight">
-                Óptica Dr. Semeraro
+                Óptica Dr. Luigi Semeraro
               </h1>
               <p className="mt-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
                 Acceda con credenciales clínicas para gestionar fichas de pacientes,
@@ -326,7 +321,7 @@ export const LoginPage = () => {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-6 sm:flex-row">
           <span>EssilorLuxottica Medical Partners © {new Date().getFullYear()}</span>
           <span className="font-semibold text-lux-blue dark:text-lux-gold">
-            Gestionado por Óptica Dr. Semeraro S.A.
+            Gestionado por Óptica Dr. Luigi Semeraro S.A.
           </span>
         </div>
       </footer>

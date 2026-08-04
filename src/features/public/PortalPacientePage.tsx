@@ -169,7 +169,7 @@ export const PortalPacientePage = () => {
               <div className="flex items-start justify-between border-b border-neutral-100 pb-4 dark:border-white/5">
                 <div>
                   <h3 className="font-serif text-2xl font-light text-lux-blue dark:text-white">
-                    Óptica Dr. Semeraro
+                    Óptica Dr. Luigi Semeraro
                   </h3>
                   <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
                     Receta óptica certificada · Pérez Zeledón, Costa Rica

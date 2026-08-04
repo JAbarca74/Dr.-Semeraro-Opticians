@@ -7,6 +7,8 @@ export default {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         display: ['Outfit', 'sans-serif'],
+        // Grotesca del membrete impreso (sustituta libre de Helvetica Neue).
+        marca: ['Archivo', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         serif: ['"Playfair Display"', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },

@@ -23,7 +23,7 @@ export const OverviewPage = () => {
       <RecepHeader
         cu="Panel Central · Recepción"
         title="Buen día, recepción"
-        description="Centro operativo del front desk de Óptica Dr. Semeraro. Gestione el registro de pacientes y verifique la autenticidad de las recetas emitidas."
+        description="Centro operativo del front desk de Óptica Dr. Luigi Semeraro. Gestione el registro de pacientes y verifique la autenticidad de las recetas emitidas."
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
