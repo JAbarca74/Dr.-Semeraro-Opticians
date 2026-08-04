@@ -6,6 +6,7 @@ import { ReceptionLayout } from './layouts/ReceptionLayout';
 import { ProtectedRoute } from './core/guards/ProtectedRoute';
 import { RoleRoute } from './core/guards/RoleRoute';
 import { Rol } from './core/models/rol';
+import { ErrorPage } from './shared/ErrorPage';
 
 import { HomePage } from './features/public/HomePage';
 import { CatalogoPage } from './features/public/CatalogoPage';
@@ -45,9 +46,10 @@ import {
  * Todo lo privado está protegido por sesión y RBAC real.
  */
 export const router = createBrowserRouter([
-  { path: '/login', element: <LoginPage /> },
+  { path: '/login', element: <LoginPage />, errorElement: <ErrorPage /> },
   {
     element: <PublicLayout />,
+    errorElement: <ErrorPage />,
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/catalogo', element: <CatalogoPage /> },
@@ -63,6 +65,7 @@ export const router = createBrowserRouter([
   },
   {
     element: <ProtectedRoute />,
+    errorElement: <ErrorPage />,
     children: [
       {
         element: <RoleRoute roles={[Rol.ADMINISTRADOR, Rol.DOCTOR]} />,

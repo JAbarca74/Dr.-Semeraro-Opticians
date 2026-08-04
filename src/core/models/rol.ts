@@ -10,9 +10,19 @@ export const Rol = {
 
 export type Rol = (typeof Rol)[keyof typeof Rol];
 
-/** Ruta de inicio del entorno privado según el rol (separación de vistas). */
-export const homePathForRole = (rol?: Rol | null): string =>
-  rol === Rol.RECEPCION ? '/recepcion' : '/admin';
+/**
+ * Ruta de inicio del entorno privado según el rol (separación de vistas).
+ *
+ * El `Paciente` va al portal público: no tiene ningún entorno privado, y
+ * mandarlo a `/admin` provocaba un bucle de redirección con `RoleRoute`, que
+ * dejaba la aplicación en blanco.
+ */
+export const homePathForRole = (rol?: Rol | null): string => {
+  if (rol === Rol.RECEPCION) {
+    return '/recepcion';
+  }
+  return rol === Rol.PACIENTE ? '/portal' : '/admin';
+};
 
 /**
  * Etiqueta de presentación del rol (con tilde correcta). El valor del enum
