@@ -11,6 +11,10 @@ describe('homePathForRole', () => {
     expect(homePathForRole(Rol.DOCTOR)).toBe('/admin');
   });
 
+  it('envía al portal público al Paciente, que no tiene entorno privado', () => {
+    expect(homePathForRole(Rol.PACIENTE)).toBe('/portal');
+  });
+
   it('usa /admin por defecto cuando no hay rol', () => {
     expect(homePathForRole(null)).toBe('/admin');
     expect(homePathForRole(undefined)).toBe('/admin');
