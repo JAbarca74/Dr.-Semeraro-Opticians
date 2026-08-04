@@ -63,7 +63,7 @@ export const CatalogoPage = () => (
   <section className="space-y-10">
     <SectionHeader
       kicker="Vitrina de modelos"
-      title="Colección EssilorLuxottica"
+      title="Colección Óptica Dr. Luigi Semeraro"
       description="Selección curada de monturas y lentes de las casas más prestigiosas del mundo. Precios de referencia; consulte disponibilidad y adaptación con el especialista."
     />
 

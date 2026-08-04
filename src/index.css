@@ -26,7 +26,7 @@
 }
 
 @layer utilities {
-  /* Transiciones suaves globales (microinteracciones EssilorLuxottica). */
+  /* Transiciones suaves globales (microinteracciones del sistema). */
   .transition-luxe {
     transition-property: color, background-color, border-color, fill, stroke,
       opacity, box-shadow, transform, filter, backdrop-filter;

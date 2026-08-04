@@ -4,7 +4,7 @@ import { Placeholder } from '../../shared/Placeholder';
 export const InventarioPage = () => (
   <Placeholder
     title="Bodega e inventario"
-    description="Control de stock de monturas y lentes de marcas EssilorLuxottica, con kardex de movimientos y alertas."
+    description="Control de stock de monturas y lentes de la óptica, con kardex de movimientos y alertas."
     icon={Package}
     features={[
       'Catálogo por categoría y marca (Ray-Ban, Oakley, Persol…)',

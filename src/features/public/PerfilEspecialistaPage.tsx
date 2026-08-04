@@ -26,7 +26,7 @@ export const PerfilEspecialistaPage = () => (
     <SectionHeader
       kicker="Dirección clínica"
       title="Dr. Luigi Semeraro"
-      description="Optometrista a cargo de la dirección clínica de la óptica. Une el diagnóstico refractivo de alto nivel con la cartera de marcas EssilorLuxottica."
+      description="Optometrista a cargo de la dirección clínica de Óptica Dr. Luigi Semeraro. Une el diagnóstico refractivo de alto nivel con una cartera de marcas de prestigio."
     />
 
     <div className="grid items-center gap-10 lg:grid-cols-12">

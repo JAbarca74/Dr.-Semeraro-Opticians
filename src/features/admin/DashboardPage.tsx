@@ -89,7 +89,7 @@ export const DashboardPage = () => {
         <div className="absolute inset-0 bg-lux-blue" style={{ mixBlendMode: 'multiply' }}>
           <img
             src="https://images.unsplash.com/photo-1473186578172-c141e6798cf4?auto=format&fit=crop&q=80&w=1500"
-            alt="EssilorLuxottica Lab"
+            alt="Laboratorio óptico"
             referrerPolicy="no-referrer"
             className="h-full w-full object-cover opacity-45 mix-blend-luminosity grayscale"
           />
@@ -97,7 +97,7 @@ export const DashboardPage = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-black/85" />
         <div className="relative z-10 max-w-4xl space-y-6 px-4">
           <span className="block text-[10px] font-bold uppercase tracking-[0.35em] text-lux-gold md:text-xs">
-            EssilorLuxottica Partner Prestige
+            Óptica Dr. Luigi Semeraro
           </span>
           <h1 className="font-serif text-4xl italic leading-none tracking-tight text-white md:text-6xl">
             La belleza de la precisión visual

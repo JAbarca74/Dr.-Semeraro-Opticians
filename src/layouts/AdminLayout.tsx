@@ -49,7 +49,7 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-/** Shell del entorno PRIVADO con identidad EssilorLuxottica. */
+/** Shell del entorno PRIVADO con la identidad de Óptica Dr. Luigi Semeraro. */
 export const AdminLayout = () => {
   const { user, logout, hasRole } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -140,7 +140,7 @@ export const AdminLayout = () => {
         </div>
       </header>
 
-      {/* CUERPO con transición de página spring + blur (firma EssilorLuxottica) */}
+      {/* CUERPO con transición de página spring + blur */}
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 md:px-6 md:py-10">
         <AnimatePresence mode="wait">
           <motion.div
@@ -160,7 +160,7 @@ export const AdminLayout = () => {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 md:flex-row">
           <div className="space-y-1 text-left">
             <span className="block text-[10px] font-medium uppercase tracking-widest text-lux-gold">
-              EssilorLuxottica Prestige Network
+              Óptica Dr. Luigi Semeraro
             </span>
             <span className="block text-[9px] uppercase tracking-wider text-neutral-400">
               Pérez Zeledón, Costa Rica · Coordinación de cristales vía OptiCenter Lab
@@ -192,13 +192,11 @@ export const AdminLayout = () => {
             >
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-lux-gold/20 pb-4">
-                  <div className="flex flex-col">
+                  <div className="flex flex-col gap-1">
                     <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-gold">
                       Menú de Operaciones
                     </span>
-                    <span className="mt-1 font-serif text-lg italic leading-tight">
-                      EssilorLuxottica Portal
-                    </span>
+                    <MarcaOptica tamano="sm" />
                   </div>
                   <button
                     onClick={() => setMenuOpen(false)}

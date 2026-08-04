@@ -39,7 +39,7 @@ export const ExistenciasRecepcionPage = () => (
   <RecepcionPlaceholder
     cu="Existencias · sprint futuro"
     title="Existencias"
-    description="Consulta de stock de monturas y lentes de las marcas EssilorLuxottica disponibles en la óptica."
+    description="Consulta de stock de monturas y lentes disponibles en la óptica."
     icon={Layers}
     features={[
       'Catálogo por categoría y marca',
