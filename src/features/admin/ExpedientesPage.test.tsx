@@ -1,7 +1,13 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  waitFor,
+  cleanup,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { ExpedientesPage } from './ExpedientesPage';
@@ -51,6 +57,12 @@ const mockPacientes = [
     tipo: TipoPersona.PACIENTE,
     correo: '',
     telefono: '',
+    // Encabezado del expediente impreso.
+    fechaNacimiento: '1990-05-20',
+    ocupacion: 'Docente',
+    direccion: 'San Isidro, Pérez Zeledón',
+    contactoEmergencia: 'María Pérez',
+    telefonoEmergencia: '8888-1111',
   },
   {
     idPersona: 2,
@@ -413,7 +425,7 @@ describe('ExpedientesPage', () => {
 
     it('Con formulario relleno, Cancelar abre diálogo. Descartar limpia y muestra aviso', async () => {
       const diagnosticos = screen.getByRole('textbox', {
-        name: /diagnósticos/i,
+        name: /impresión diagnóstica/i,
       });
       await user.type(diagnosticos, 'Miopía leve');
 
@@ -431,13 +443,13 @@ describe('ExpedientesPage', () => {
         ),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('textbox', { name: /diagnósticos/i }),
+        screen.getByRole('textbox', { name: /impresión diagnóstica/i }),
       ).toHaveValue('');
     });
 
     it('Volver cierra sin limpiar', async () => {
       const diagnosticos = screen.getByRole('textbox', {
-        name: /diagnósticos/i,
+        name: /impresión diagnóstica/i,
       });
       await user.type(diagnosticos, 'Miopía leve');
 
@@ -450,7 +462,7 @@ describe('ExpedientesPage', () => {
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       expect(
-        screen.getByRole('textbox', { name: /diagnósticos/i }),
+        screen.getByRole('textbox', { name: /impresión diagnóstica/i }),
       ).toHaveValue('Miopía leve');
     });
 
@@ -480,7 +492,7 @@ describe('ExpedientesPage', () => {
       (emitirReceta as any).mockResolvedValue({});
 
       const diagnosticos = screen.getByRole('textbox', {
-        name: /diagnósticos/i,
+        name: /impresión diagnóstica/i,
       });
       await user.type(diagnosticos, 'Diag 1\n\nDiag 2\n');
 
@@ -517,7 +529,7 @@ describe('ExpedientesPage', () => {
       (emitirReceta as any).mockRejectedValue(new Error('Fallo de red'));
 
       const diagnosticos = screen.getByRole('textbox', {
-        name: /diagnósticos/i,
+        name: /impresión diagnóstica/i,
       });
       await user.type(diagnosticos, 'Diag 1');
 
@@ -536,7 +548,7 @@ describe('ExpedientesPage', () => {
       (crearEvaluacion as any).mockRejectedValue(new Error('Error al crear'));
 
       const diagnosticos = screen.getByRole('textbox', {
-        name: /diagnósticos/i,
+        name: /impresión diagnóstica/i,
       });
       await user.type(diagnosticos, 'Diag 1');
 
@@ -547,6 +559,255 @@ describe('ExpedientesPage', () => {
       await waitFor(() => {
         expect(screen.getByText(/Ocurrió un error/i)).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('7. Ficha del expediente impreso', () => {
+    beforeEach(async () => {
+      mockHasRole.mockImplementation((roles: Rol[]) =>
+        roles.includes(Rol.DOCTOR),
+      );
+      (expedientePorPaciente as any).mockResolvedValue({
+        ...mockDetalleConRefraccion,
+        evaluaciones: [],
+      });
+      renderComponent();
+      await waitFor(() => screen.getByText('Juan Pérez'));
+      await user.click(screen.getByText('Juan Pérez'));
+      await waitFor(() =>
+        screen.getByRole('button', { name: /guardar y generar receta/i }),
+      );
+    });
+
+    it('Están los bloques del papel, en su orden', async () => {
+      for (const bloque of [
+        'Consulta',
+        'Antecedentes',
+        'RX en uso (lesometría)',
+        'Agudeza visual',
+        'Medidas',
+        'Movimientos oculares',
+        'Oftalmoscopia directa (sin dilatar)',
+        'Refracción (objetiva-subjetiva)',
+        'RX Final',
+        'Cierre de la consulta',
+      ]) {
+        expect(screen.getByText(bloque)).toBeInTheDocument();
+      }
+    });
+
+    it('El encabezado muestra los datos del paciente y la edad calculada', () => {
+      expect(screen.getByText('Docente')).toBeInTheDocument();
+      expect(screen.getByText('San Isidro, Pérez Zeledón')).toBeInTheDocument();
+      expect(
+        screen.getByText('María Pérez · 8888-1111'),
+      ).toBeInTheDocument();
+      // La edad se calcula contra la fecha del sistema, así que solo se exige
+      // que se muestre en años.
+      expect(screen.getByText(/\d+ años/)).toBeInTheDocument();
+    });
+
+    it('Los campos del papel viajan en el payload de la evaluación', async () => {
+      (crearEvaluacion as any).mockResolvedValue({ idEvaluacionClinica: 99 });
+      (emitirReceta as any).mockResolvedValue({});
+
+      await user.type(
+        screen.getByRole('textbox', { name: /motivo de consulta/i }),
+        'Visión borrosa de lejos',
+      );
+      await user.type(
+        screen.getByRole('textbox', { name: /antecedentes familiares/i }),
+        'Madre con glaucoma',
+      );
+      await user.type(
+        screen.getByRole('spinbutton', { name: /pio od/i }),
+        '14',
+      );
+      await user.type(screen.getByRole('spinbutton', { name: /^dp/i }), '62');
+      await user.type(
+        screen.getByRole('textbox', { name: /recomendaciones especiales/i }),
+        'Uso permanente',
+      );
+
+      await user.click(
+        screen.getByRole('button', { name: /guardar y generar receta/i }),
+      );
+
+      await waitFor(() =>
+        expect(crearEvaluacion).toHaveBeenCalledWith(
+          expect.objectContaining({
+            idPaciente: 1,
+            motivoConsulta: 'Visión borrosa de lejos',
+            antFamiliares: 'Madre con glaucoma',
+            pioOd: 14,
+            dp: 62,
+            recomendaciones: 'Uso permanente',
+          }),
+        ),
+      );
+    });
+
+    it('La agudeza visual se captura por ojo, sin y con corrección', async () => {
+      (crearEvaluacion as any).mockResolvedValue({ idEvaluacionClinica: 99 });
+      (emitirReceta as any).mockResolvedValue({});
+
+      const sinCorreccion = screen.getByText('Sin corrección').parentElement!;
+      const conCorreccion = screen.getByText('Con corrección').parentElement!;
+      await user.type(within(sinCorreccion).getByLabelText('OD'), '20/40');
+      await user.type(within(conCorreccion).getByLabelText('AO'), '20/20');
+
+      await user.click(
+        screen.getByRole('button', { name: /guardar y generar receta/i }),
+      );
+
+      await waitFor(() =>
+        expect(crearEvaluacion).toHaveBeenCalledWith(
+          expect.objectContaining({ avScOd: '20/40', avCcAo: '20/20' }),
+        ),
+      );
+    });
+
+    it('EX-03 también aplica a las medidas: una PIO imposible bloquea el guardado', async () => {
+      await user.type(
+        screen.getByRole('spinbutton', { name: /pio oi/i }),
+        '120',
+      );
+
+      expect(await screen.findByText('Fuera de rango')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /guardar y generar receta/i }),
+      ).toBeDisabled();
+    });
+  });
+
+  describe('8. Diagramas de movimientos oculares', () => {
+    beforeEach(async () => {
+      mockHasRole.mockImplementation((roles: Rol[]) =>
+        roles.includes(Rol.DOCTOR),
+      );
+      (expedientePorPaciente as any).mockResolvedValue({
+        ...mockDetalleConRefraccion,
+        evaluaciones: [],
+      });
+      renderComponent();
+      await waitFor(() => screen.getByText('Juan Pérez'));
+      await user.click(screen.getByText('Juan Pérez'));
+      await waitFor(() =>
+        screen.getByRole('button', { name: /guardar y generar receta/i }),
+      );
+    });
+
+    it('Hay un diagrama por ojo con las 9 posiciones de mirada', () => {
+      expect(
+        screen.getByRole('group', { name: /movimientos oculares del ojo od/i }),
+      ).toBeInTheDocument();
+      const diagramaOi = screen.getByRole('group', {
+        name: /movimientos oculares del ojo oi/i,
+      });
+      expect(within(diagramaOi).getAllByRole('button')).toHaveLength(9);
+    });
+
+    it('Cada posición cicla sin evaluar → normal → limitado → sin evaluar', async () => {
+      const posicion = screen.getByRole('button', {
+        name: 'OD posición primaria: sin evaluar',
+      });
+
+      await user.click(posicion);
+      expect(
+        await screen.findByRole('button', {
+          name: 'OD posición primaria: normal',
+        }),
+      ).toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole('button', { name: 'OD posición primaria: normal' }),
+      );
+      expect(
+        await screen.findByRole('button', {
+          name: 'OD posición primaria: limitado',
+        }),
+      ).toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole('button', { name: 'OD posición primaria: limitado' }),
+      );
+      expect(
+        await screen.findByRole('button', {
+          name: 'OD posición primaria: sin evaluar',
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('Lo marcado viaja en el payload como movimientosOculares', async () => {
+      (crearEvaluacion as any).mockResolvedValue({ idEvaluacionClinica: 99 });
+      (emitirReceta as any).mockResolvedValue({});
+
+      await user.click(
+        screen.getByRole('button', { name: 'OD arriba: sin evaluar' }),
+      );
+      await user.click(
+        screen.getByRole('button', { name: 'OI izquierda: sin evaluar' }),
+      );
+      await user.click(
+        screen.getByRole('button', { name: 'OI izquierda: normal' }),
+      );
+
+      await user.click(
+        screen.getByRole('button', { name: /guardar y generar receta/i }),
+      );
+
+      await waitFor(() =>
+        expect(crearEvaluacion).toHaveBeenCalledWith(
+          expect.objectContaining({
+            movimientosOculares: {
+              od: { arriba: 'normal' },
+              oi: { izq: 'limitado' },
+            },
+          }),
+        ),
+      );
+    });
+
+    it('Sin marcar nada, el payload no incluye movimientosOculares', async () => {
+      (crearEvaluacion as any).mockResolvedValue({ idEvaluacionClinica: 99 });
+      (emitirReceta as any).mockResolvedValue({});
+
+      await user.click(
+        screen.getByRole('button', { name: /guardar y generar receta/i }),
+      );
+
+      await waitFor(() => expect(crearEvaluacion).toHaveBeenCalled());
+      expect(
+        (crearEvaluacion as any).mock.calls[0][0].movimientosOculares,
+      ).toBeUndefined();
+    });
+  });
+
+  describe('9. Historial con la ficha completa', () => {
+    it('La evolución guardada muestra los campos del papel y sus diagramas en solo lectura', async () => {
+      (expedientePorPaciente as any).mockResolvedValue({
+        ...mockDetalleConRefraccion,
+        evaluaciones: [
+          {
+            ...mockDetalleConRefraccion.evaluaciones[0],
+            motivoConsulta: 'Control anual',
+            segmentoExterno: 'Sin alteraciones',
+            movimientosOculares: { od: { arriba: 'limitado' }, oi: {} },
+          },
+        ],
+      });
+      mockHasRole.mockImplementation(() => false);
+      renderComponent();
+      await waitFor(() => screen.getByText('Juan Pérez'));
+      await user.click(screen.getByText('Juan Pérez'));
+
+      expect(await screen.findByText('Control anual')).toBeInTheDocument();
+      expect(screen.getByText('Sin alteraciones')).toBeInTheDocument();
+      // En solo lectura las posiciones no son accionables.
+      const diagrama = screen.getByRole('group', {
+        name: /movimientos oculares del ojo od/i,
+      });
+      expect(within(diagrama).queryAllByRole('button')).toHaveLength(0);
     });
   });
 });

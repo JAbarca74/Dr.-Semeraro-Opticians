@@ -23,6 +23,12 @@ const VACIO: PersonaInput = {
   tipo: TipoPersona.PACIENTE,
   telefono: '',
   correo: '',
+  // Datos que el expediente clínico impreso pide en su encabezado (CU-02).
+  fechaNacimiento: '',
+  ocupacion: '',
+  direccion: '',
+  contactoEmergencia: '',
+  telefonoEmergencia: '',
 };
 
 export const PacientesPage = () => {
@@ -67,6 +73,11 @@ export const PacientesPage = () => {
         tipo: TipoPersona.PACIENTE,
         telefono: form.telefono || undefined,
         correo: form.correo || undefined,
+        fechaNacimiento: form.fechaNacimiento || undefined,
+        ocupacion: form.ocupacion || undefined,
+        direccion: form.direccion || undefined,
+        contactoEmergencia: form.contactoEmergencia || undefined,
+        telefonoEmergencia: form.telefonoEmergencia || undefined,
       };
       if (editId) {
         await actualizarPersona(editId, payload);
@@ -95,6 +106,11 @@ export const PacientesPage = () => {
       tipo: TipoPersona.PACIENTE,
       telefono: p.telefono ?? '',
       correo: p.correo ?? '',
+      fechaNacimiento: p.fechaNacimiento?.slice(0, 10) ?? '',
+      ocupacion: p.ocupacion ?? '',
+      direccion: p.direccion ?? '',
+      contactoEmergencia: p.contactoEmergencia ?? '',
+      telefonoEmergencia: p.telefonoEmergencia ?? '',
     });
     setMostrarForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -189,6 +205,70 @@ export const PacientesPage = () => {
                         className={recepInputClass}
                         value={form.correo ?? ''}
                         onChange={(e) => setForm({ ...form, correo: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  {/* Encabezado del expediente clínico impreso (CU-02). */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <span className={recepLabelClass}>Fecha de nacimiento</span>
+                      <input
+                        type="date"
+                        className={recepInputClass}
+                        value={form.fechaNacimiento ?? ''}
+                        onChange={(e) =>
+                          setForm({ ...form, fechaNacimiento: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <span className={recepLabelClass}>Ocupación</span>
+                      <input
+                        className={recepInputClass}
+                        value={form.ocupacion ?? ''}
+                        onChange={(e) =>
+                          setForm({ ...form, ocupacion: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <span className={recepLabelClass}>Dirección completa</span>
+                    <input
+                      className={recepInputClass}
+                      value={form.direccion ?? ''}
+                      onChange={(e) =>
+                        setForm({ ...form, direccion: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <span className={recepLabelClass}>
+                        Contacto de emergencia
+                      </span>
+                      <input
+                        className={recepInputClass}
+                        value={form.contactoEmergencia ?? ''}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            contactoEmergencia: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <span className={recepLabelClass}>Tel. de emergencia</span>
+                      <input
+                        className={recepInputClass}
+                        value={form.telefonoEmergencia ?? ''}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            telefonoEmergencia: e.target.value,
+                          })
+                        }
                       />
                     </div>
                   </div>
