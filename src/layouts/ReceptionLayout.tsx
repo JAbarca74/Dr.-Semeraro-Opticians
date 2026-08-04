@@ -220,6 +220,18 @@ export const ReceptionLayout = () => {
                       </button>
                     );
                   })}
+                  {/* Sin esta entrada, el rol Recepción no tenía por dónde
+                      cambiar su contraseña: /admin/cuenta le está vedado. */}
+                  <button
+                    onClick={() => {
+                      navigate('/recepcion/cuenta');
+                      setMenuOpen(false);
+                    }}
+                    className="transition-luxe flex w-full items-center justify-between border-b border-neutral-100 px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:border-white/5 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white"
+                  >
+                    <span>Mi Cuenta</span>
+                    <ChevronRight className="h-3.5 w-3.5 opacity-40" />
+                  </button>
                 </nav>
 
                 <div className="flex items-center gap-1.5 border border-neutral-100 bg-neutral-50 p-4 text-[9px] font-bold uppercase tracking-widest text-lux-gold dark:border-white/5 dark:bg-white/5">
