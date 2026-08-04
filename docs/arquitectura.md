@@ -1,7 +1,7 @@
 # Arquitectura del Sistema de Gestión — Óptica Dr. Semeraro
 
-> Documento vivo. Refleja las decisiones tomadas en el Sprint 3 (Diseño,
-> arquitectura y entorno). Las decisiones puntuales se registran como ADRs en
+> Documento vivo. Refleja el estado del sistema al **2026-08-04**, tras los
+> sprints 3 a 6. Las decisiones puntuales se registran como ADRs en
 > [`docs/adr/`](./adr).
 
 ## 1. Visión general
@@ -14,10 +14,10 @@ se comunican exclusivamente mediante una **API REST** modular.
 ```
                           ┌─────────────────────────────────────────────┐
    NAVEGADOR (SPA)        │   FRONTEND  React 18 + Vite + TypeScript      │
-                          │   ┌──────────────┐     ┌───────────────────┐ │
-                          │   │ Shell PÚBLICO │     │ Shell PRIVADO      │ │
-                          │   │ (portal)      │     │ /admin (gestión)   │ │
-                          │   └──────────────┘     └───────────────────┘ │
+                          │  ┌─────────┐ ┌──────────┐ ┌──────────────┐   │
+                          │  │ PÚBLICO │ │  /admin  │ │  /recepcion  │   │
+                          │  │ (portal)│ │(gestión) │ │ (front desk) │   │
+                          │  └─────────┘ └──────────┘ └──────────────┘   │
                           │   core (auth · api · guards · interceptores)  │
                           │   Tailwind CSS · React Router                 │
                           └───────────────┬─────────────────────────────┘
@@ -92,16 +92,20 @@ src/
 │   ├── auth/       # AuthContext, servicio de login, utilidades de token (JWT)
 │   ├── guards/     # ProtectedRoute (sesión) y RoleRoute (RBAC real)
 │   └── models/     # Tipos Rol y Usuario
-├── layouts/        # PublicLayout (portal) y AdminLayout (panel)
-├── features/       # public/ · auth/ · admin/ (una página por ruta)
-└── shared/         # Componentes reutilizables
+├── layouts/        # PublicLayout · AdminLayout · ReceptionLayout
+├── features/       # public/ · auth/ · admin/ · recepcion/ (una página por ruta)
+└── shared/         # Componentes reutilizables y pantalla de error del router
 ```
 
-- **Separación público/privado:** dos *layouts* y árbol de rutas separado.
+- **Tres entornos:** un *layout* y una rama del árbol de rutas por cada uno
+  (público, `/admin` y `/recepcion`).
 - **RBAC real:** `RoleRoute` decodifica el JWT y verifica el rol (mejora sobre
   el esqueleto inicial, que solo comprobaba la sesión).
 - **Sesión:** el token se decodifica para derivar el usuario; expiración y 401
-  limpian la sesión.
+  limpian la sesión. El backend **revalida la cuenta en cada petición**, así que
+  desactivar a alguien o cambiarle el rol surte efecto de inmediato.
+- **Errores:** el router declara un `errorElement`; un fallo de render muestra
+  una pantalla de disculpa en vez de dejar la página en blanco.
 
 ## 5. Arquitectura de seguridad (Zero-Trust)
 
@@ -109,16 +113,21 @@ src/
   incluir un token válido. El backend no guarda sesiones en memoria.
 - **RBAC en el servidor:** `JwtAuthGuard` + `RolesGuard` + `@Roles()`. Roles:
   `Administrador`, `Recepcion`, `Doctor`, `Paciente`.
-- **Auditoría (CU-08):** entidades `log_auditoria` y `bitacora_acceso` previstas;
-  la escritura mediante interceptores se implementa en el Sprint 5.
+- **Auditoría (CU-08):** implementada. `AuditInterceptor` escribe en
+  `log_auditoria` las operaciones marcadas con `@Audit()` —con el valor anterior
+  y el nuevo— y `bitacora_acceso` registra cada intento de acceso. El
+  Administrador las consulta en `/admin/auditoria`.
 
 ## 6. Base de datos
 
 - Motor **PostgreSQL**, diseño hasta la **3FN**.
 - Convenciones: tablas en **singular**, columnas en `snake_case`, PK con formato
   `id_<tabla>`, integridad con `PRIMARY KEY`, `FOREIGN KEY`, `NOT NULL`, `UNIQUE`.
-- **Migrations-first:** el esquema nunca se sincroniza automáticamente; se versiona
-  con migraciones de TypeORM (Sprint 4).
+- **Migrations-first:** el esquema nunca se sincroniza automáticamente; se
+  versiona con migraciones de TypeORM, ya aplicadas.
+- **Desarrollo local:** `docker compose` levanta PostgreSQL 17 y
+  `npm run db:setup` aplica migraciones y seed. Supabase queda para despliegue y
+  demostraciones.
 
 ## 7. Entornos y configuración
 
@@ -140,5 +149,8 @@ Sprint 3**. Ver [ADR-0003](./adr/0003-despliegue-diferido.md).
 
 - **IA descentralizada** (CU-18/19): análisis biométrico en el navegador
   (TensorFlow.js) y asistente vía microservicio/MCP.
-- **Recetas criptográficas** (CU-16): generación de PDF inmutable con hash y QR
-  de verificación (Sprint 6).
+- **Módulos con interfaz pero sin datos:** agenda, inventario, ventas,
+  laboratorio, métricas y el registro público de pacientes.
+
+> **Ya implementado** y antes listado aquí: las **recetas criptográficas**
+> (CU-16), con hash SHA-256, QR, PDF y verificación pública.

@@ -16,7 +16,7 @@ Sistema de Gestión Óptica Dr. Semeraro
 │   ├─ A5 Entorno de desarrollo reproducible
 │   ├─ A6 Saneamiento de configuración
 │   ├─ A7 CI (lint + build + test)
-│   └─ A8 README / CONTRIBUTING
+│   └─ A8 README de arranque (uno por repositorio)
 ├─ B. Base de Datos & Modelo Relacional              ← Sprint 4
 │   ├─ B1 Modelo relacional 3FN (entidades, relaciones, integridad)
 │   ├─ B2 Migraciones de TypeORM
@@ -47,7 +47,7 @@ Sistema de Gestión Óptica Dr. Semeraro
 | A5 | Entorno reproducible | `.env.example`, scripts de arranque, conexión a BD |
 | A6 | Saneamiento de configuración | CORS por env, filtro de excepciones, config Postgres |
 | A7 | CI | `.github/workflows/ci.yml` en ambos repos |
-| A8 | Documentación de arranque | `README.md`, `CONTRIBUTING.md` |
+| A8 | Documentación de arranque | `README.md` en cada repositorio. *El `CONTRIBUTING.md` se retiró del alcance el 2026-08-03: el proyecto lo desarrolla una sola persona y las convenciones viven en `docs/convenciones.md`.* |
 
 ## 3. Mapeo de casos de uso priorizados
 
