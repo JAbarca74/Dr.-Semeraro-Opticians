@@ -5,8 +5,7 @@ import { Download, ShieldCheck, ShieldX } from 'lucide-react';
 import { verificarReceta } from '../../core/api/expedientes.service';
 import type { VerificacionReceta } from '../../core/models/expediente';
 import { Kicker, LuxButton, LuxCard, fadeUp } from '../../shared/ui';
-
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
+import { API_BASE } from '../../core/api/http';
 
 export const VerificarRecetaPage = () => {
   const { hash = '' } = useParams();

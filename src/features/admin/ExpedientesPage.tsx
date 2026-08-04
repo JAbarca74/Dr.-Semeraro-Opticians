@@ -55,8 +55,7 @@ import {
   stagger,
 } from '../../shared/ui';
 import { DiagramaMotilidad } from './DiagramaMotilidad';
-
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
+import { API_BASE } from '../../core/api/http';
 
 /** Rótulos con la grotesca condensada del expediente en papel. */
 const rotuloClinicoClass =

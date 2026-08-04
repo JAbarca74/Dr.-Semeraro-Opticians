@@ -26,7 +26,9 @@ export default defineConfig({
         'src/core/models/rol.ts',
         'src/shared/**/*.ts',
       ],
-      exclude: [],
+      // Las propias pruebas no cuentan como código cubierto: se medían a sí
+      // mismas al 100 % e inflaban el resultado.
+      exclude: ['**/*.test.ts', '**/*.test.tsx'],
       thresholds: {
         statements: 100,
         branches: 100,
