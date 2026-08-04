@@ -43,11 +43,18 @@ const SLIDES = [
   },
 ];
 
-const DEMO = [
-  { label: 'Administrador del sistema', email: 'admin@optica.local', password: 'admin1234' },
-  { label: 'Dr. Semeraro (Doctor)', email: 'doctor@optica.local', password: 'doctor1234' },
-  { label: 'Recepción (front desk)', email: 'recepcion@optica.local', password: 'recepcion1234' },
-];
+/**
+ * Accesos de demostración del RBAC. Solo existen en desarrollo: la condición
+ * sobre `import.meta.env.DEV` la resuelve Vite al compilar, así que estas
+ * credenciales **no llegan al bundle de producción**.
+ */
+const DEMO = import.meta.env.DEV
+  ? [
+      { label: 'Administrador del sistema', email: 'admin@optica.local', password: 'admin1234' },
+      { label: 'Dr. Semeraro (Doctor)', email: 'doctor@optica.local', password: 'doctor1234' },
+      { label: 'Recepción (front desk)', email: 'recepcion@optica.local', password: 'recepcion1234' },
+    ]
+  : [];
 
 export const LoginPage = () => {
   const { login } = useAuth();
@@ -287,6 +294,7 @@ export const LoginPage = () => {
               </motion.button>
             </form>
 
+            {DEMO.length > 0 ? (
             <div className="mt-8 border-t border-neutral-200/20 pt-6">
               <span className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-lux-gold">
                 <Sparkles className="h-3.5 w-3.5" />
@@ -313,6 +321,7 @@ export const LoginPage = () => {
                 ))}
               </div>
             </div>
+            ) : null}
           </motion.div>
         </section>
       </main>
