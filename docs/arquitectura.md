@@ -113,6 +113,18 @@ src/
   incluir un token válido. El backend no guarda sesiones en memoria.
 - **RBAC en el servidor:** `JwtAuthGuard` + `RolesGuard` + `@Roles()`. Roles:
   `Administrador`, `Recepcion`, `Doctor`, `Paciente`.
+- **Revalidación en cada petición:** `JwtStrategy` no se fía de lo que viene
+  firmado. Relee la cuenta, rechaza las inactivas y toma el rol de la base, de
+  modo que desactivar a alguien o degradarlo surte efecto en el acto y no
+  cuando venza su token.
+- **Granularidad de la autorización.** Las tablas `permiso` y `rol_permiso` del
+  modelo oficial existen y el seed las carga, pero **hoy ningún guard las
+  consulta**: la autorización se resuelve con el enum `Rol`. Es deliberado — con
+  cuatro roles y permisos que no se solapan, una matriz de permisos añadiría una
+  indirección sin cambiar ni una decisión de acceso. Quedan como el punto de
+  extensión para cuando haga falta un permiso suelto que no coincida con ningún
+  rol; ese día `RolesGuard` pasa a consultarlas y `@Roles` convive con un
+  `@Permisos`.
 - **Auditoría (CU-08):** implementada. `AuditInterceptor` escribe en
   `log_auditoria` las operaciones marcadas con `@Audit()` —con el valor anterior
   y el nuevo— y `bitacora_acceso` registra cada intento de acceso. El
