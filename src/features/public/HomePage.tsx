@@ -16,7 +16,7 @@ const SERVICIOS = [
   {
     icon: Glasses,
     title: 'Vitrina de modelos',
-    desc: 'Colección curada de monturas y lentes de las casas EssilorLuxottica, con precios de referencia y disponibilidad.',
+    desc: 'Colección curada de monturas y lentes de la óptica, con precios de referencia y disponibilidad.',
     to: '/catalogo',
     cta: 'Explorar colección',
   },
@@ -73,7 +73,7 @@ export const HomePage = () => {
               Bajo la dirección clínica del{' '}
               <strong className="font-medium text-white">Dr. Luigi Semeraro</strong>,
               fusionamos el diagnóstico refractivo de alto nivel con monturas
-              artesanales distribuidas por el Grupo EssilorLuxottica.
+              artesanales de las mejores casas del mundo.
             </p>
             <div className="flex flex-wrap justify-center gap-4 pt-2 md:justify-start">
               <button

@@ -145,7 +145,7 @@ export const ReceptionLayout = () => {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 md:flex-row">
           <div className="space-y-1 text-left">
             <span className="block text-[10px] font-medium uppercase tracking-widest text-lux-gold">
-              EssilorLuxottica Prestige Network · Recepción
+              Óptica Dr. Luigi Semeraro · Recepción
             </span>
             <span className="block text-[9px] uppercase tracking-wider text-neutral-400">
               Front desk · Pérez Zeledón, Costa Rica · Sello de receta SHA-256
@@ -177,13 +177,11 @@ export const ReceptionLayout = () => {
             >
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-lux-gold/20 pb-4">
-                  <div className="flex flex-col">
+                  <div className="flex flex-col gap-1">
                     <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-gold">
                       Menú de Recepción
                     </span>
-                    <span className="mt-1 font-serif text-lg italic leading-tight">
-                      EssilorLuxottica Portal
-                    </span>
+                    <MarcaOptica tamano="sm" />
                   </div>
                   <button
                     onClick={() => setMenuOpen(false)}

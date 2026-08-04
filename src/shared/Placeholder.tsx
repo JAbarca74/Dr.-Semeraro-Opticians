@@ -10,9 +10,9 @@ interface PlaceholderProps {
 }
 
 /**
- * Presentación premium de un módulo en preparación (estilo editorial
- * EssilorLuxottica). La lógica de backend correspondiente llega en un
- * sprint posterior; esta vista mantiene la identidad visual del panel.
+ * Presentación premium de un módulo en preparación (estilo editorial de la
+ * óptica). La lógica de backend correspondiente llega en un sprint posterior;
+ * esta vista mantiene la identidad visual del panel.
  */
 export const Placeholder = ({
   title,

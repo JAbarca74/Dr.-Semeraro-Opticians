@@ -23,7 +23,7 @@ export default {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
-        // Paleta maestra EssilorLuxottica (analizada del sitio oficial).
+        // Paleta maestra del sistema (azul profundo + dorado).
         lux: {
           blue: '#021a30',
           gold: '#c19f55',

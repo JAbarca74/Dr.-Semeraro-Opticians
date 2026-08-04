@@ -179,16 +179,16 @@ export const LoginPage = () => {
           </div>
 
           <div className="relative z-10 flex items-center justify-between font-mono text-[10px] uppercase tracking-wider">
-            <span className="text-neutral-400">Luxury portfolio · Clinicians</span>
-            <a
-              href="https://www.essilorluxottica.com"
-              target="_blank"
-              rel="noopener noreferrer"
+            <span className="text-neutral-400">
+              Óptica Dr. Luigi Semeraro · Pérez Zeledón
+            </span>
+            <Link
+              to="/"
               className="group flex items-center gap-1 text-lux-gold hover:underline"
             >
-              Visitar sitio global
+              Ir al sitio de la óptica
               <ArrowRight className="transition-luxe h-3 w-3 group-hover:translate-x-0.5" />
-            </a>
+            </Link>
           </div>
         </section>
 
@@ -319,9 +319,11 @@ export const LoginPage = () => {
 
       <footer className="transition-luxe w-full border-t border-neutral-200/50 bg-[#faf9f6] py-6 text-center font-sans text-[9px] uppercase tracking-[0.2em] text-neutral-500 dark:border-white/5 dark:bg-[#080809]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-6 sm:flex-row">
-          <span>EssilorLuxottica Medical Partners © {new Date().getFullYear()}</span>
+          <span>
+            Óptica Dr. Luigi Semeraro © {new Date().getFullYear()}
+          </span>
           <span className="font-semibold text-lux-blue dark:text-lux-gold">
-            Gestionado por Óptica Dr. Luigi Semeraro S.A.
+            Pérez Zeledón, Costa Rica · Tel. 7085-3353
           </span>
         </div>
       </footer>

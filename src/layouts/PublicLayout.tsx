@@ -13,7 +13,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
       : 'text-neutral-600 hover:text-lux-blue dark:text-neutral-400 dark:hover:text-white',
   ].join(' ');
 
-/** Shell del entorno PÚBLICO (portal del paciente) con identidad EssilorLuxottica. */
+/** Shell del entorno PÚBLICO (portal del paciente) con la identidad de la óptica. */
 export const PublicLayout = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const { theme, toggleTheme } = useTheme();
