@@ -41,6 +41,12 @@ const NAV_ITEMS: NavItem[] = [
     drawerLabel: 'Usuarios y Roles (RBAC)',
     roles: [Rol.ADMINISTRADOR],
   },
+  {
+    to: '/admin/auditoria',
+    label: 'Auditoría',
+    drawerLabel: 'Auditoría y Trazabilidad',
+    roles: [Rol.ADMINISTRADOR],
+  },
 ];
 
 /** Shell del entorno PRIVADO con identidad EssilorLuxottica. */
