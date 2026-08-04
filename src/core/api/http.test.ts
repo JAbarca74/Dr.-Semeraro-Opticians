@@ -7,7 +7,7 @@ vi.mock('../auth/token', () => ({
 }));
 
 import { getToken, clearToken } from '../auth/token';
-import api from './http';
+import api, { resolverApiBase } from './http';
 
 const mockGetToken = getToken as ReturnType<typeof vi.fn>;
 const mockClearToken = clearToken as ReturnType<typeof vi.fn>;
@@ -30,6 +30,18 @@ beforeEach(() => {
   });
 });
 afterEach(() => vi.unstubAllGlobals());
+
+describe('resolverApiBase', () => {
+  it('usa la URL configurada en el entorno cuando existe', () => {
+    expect(resolverApiBase('https://api.optica.cr/api')).toBe(
+      'https://api.optica.cr/api',
+    );
+  });
+
+  it('cae al backend local cuando no hay VITE_API_URL', () => {
+    expect(resolverApiBase(undefined)).toBe('http://localhost:3000/api');
+  });
+});
 
 describe('interceptor de request', () => {
   const requestFn = (config: object) =>
