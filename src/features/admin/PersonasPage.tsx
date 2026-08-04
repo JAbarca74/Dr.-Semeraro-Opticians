@@ -12,6 +12,7 @@ import {
   type PersonaInput,
 } from '../../core/models/persona';
 import { mensajeDeError } from '../../shared/error';
+import { sinVacios } from '../../shared/form';
 import {
   Alert,
   Badge,
@@ -36,6 +37,8 @@ const FORM_VACIO: PersonaInput = {
   direccion: '',
   contactoEmergencia: '',
   telefonoEmergencia: '',
+  fechaIngreso: '',
+  observaciones: '',
 };
 
 export const PersonasPage = () => {
@@ -59,21 +62,15 @@ export const PersonasPage = () => {
     setError('');
     setGuardando(true);
     try {
-      const payload: PersonaInput = {
-        ...form,
-        telefono: form.telefono || undefined,
-        correo: form.correo || undefined,
-        puesto: form.puesto || undefined,
-        fechaNacimiento: form.fechaNacimiento || undefined,
-        ocupacion: form.ocupacion || undefined,
-        direccion: form.direccion || undefined,
-        contactoEmergencia: form.contactoEmergencia || undefined,
-        telefonoEmergencia: form.telefonoEmergencia || undefined,
-      };
       if (editId) {
-        await actualizarPersona(editId, payload);
+        // Al editar se manda el formulario tal cual, con las cadenas vacías
+        // incluidas: el backend las interpreta como «borra este campo». Si se
+        // omitieran, `Object.assign` conservaría el valor anterior y el dato
+        // seguiría en la base aunque la pantalla se viera vacía.
+        await actualizarPersona(editId, form);
       } else {
-        await crearPersona(payload);
+        // En un alta sí sobran: una clave vacía no aporta nada al registro nuevo.
+        await crearPersona(sinVacios(form));
       }
       setForm(FORM_VACIO);
       setEditId(null);
@@ -100,6 +97,10 @@ export const PersonasPage = () => {
       direccion: p.direccion ?? '',
       contactoEmergencia: p.contactoEmergencia ?? '',
       telefonoEmergencia: p.telefonoEmergencia ?? '',
+      // Estos tres no se cargaban: al guardar una edición se mandaban vacíos y
+      // el valor previo quedaba huérfano en la base, invisible desde la UI.
+      fechaIngreso: p.fechaIngreso?.slice(0, 10) ?? '',
+      observaciones: p.observaciones ?? '',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
