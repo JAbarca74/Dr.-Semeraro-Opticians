@@ -88,15 +88,15 @@ export const DashboardPage = () => {
       >
         <div className="absolute inset-0 bg-lux-blue" style={{ mixBlendMode: 'multiply' }}>
           <img
-            src="https://images.unsplash.com/photo-1473186578172-c141e6798cf4?auto=format&fit=crop&q=80&w=1500"
-            alt="Laboratorio óptico"
+            src="https://images.unsplash.com/photo-1539036776273-021ec1d78bec?auto=format&fit=crop&q=80&w=1500"
+            alt="Examen de refracción con foróptero"
             referrerPolicy="no-referrer"
-            className="h-full w-full object-cover opacity-45 mix-blend-luminosity grayscale"
+            className="h-full w-full object-cover opacity-70"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-black/85" />
         <div className="relative z-10 max-w-4xl space-y-6 px-4">
-          <span className="block text-[10px] font-bold uppercase tracking-[0.35em] text-lux-gold md:text-xs">
+          <span className="block text-[10px] font-bold uppercase tracking-[0.35em] text-lux-tinta-claro md:text-xs">
             Óptica Dr. Luigi Semeraro
           </span>
           <h1 className="font-serif text-4xl italic leading-none tracking-tight text-white md:text-6xl">
@@ -115,7 +115,7 @@ export const DashboardPage = () => {
             </button>
             <button
               onClick={() => navigate('/admin/expedientes')}
-              className="transition-luxe border border-lux-gold px-6 py-3 text-xs font-semibold uppercase tracking-widest text-lux-gold hover:bg-lux-gold hover:text-black"
+              className="transition-luxe border border-lux-tinta-claro px-6 py-3 text-xs font-semibold uppercase tracking-widest text-lux-tinta-claro hover:bg-lux-tinta-claro hover:text-black"
             >
               Abrir expedientes
             </button>
@@ -125,7 +125,7 @@ export const DashboardPage = () => {
           <span className="font-mono text-[8px] uppercase tracking-widest text-white/50">
             Ver métricas
           </span>
-          <div className="h-6 w-px animate-bounce bg-lux-gold/60" />
+          <div className="h-6 w-px animate-bounce bg-lux-tinta-claro/60" />
         </div>
       </motion.section>
 
@@ -142,7 +142,7 @@ export const DashboardPage = () => {
           {BRANDS.map((b) => (
             <motion.div key={b.name} variants={fadeUpItem}>
               <LuxCard hover className="flex flex-col items-center justify-center p-4 text-center">
-                <span className="font-display text-sm font-bold uppercase tracking-widest text-lux-gold">
+                <span className="font-display text-sm font-bold uppercase tracking-widest text-lux-tinta">
                   {b.name}
                 </span>
                 <span className="mt-1.5 text-[9px] uppercase tracking-wider opacity-60">
@@ -170,8 +170,8 @@ export const DashboardPage = () => {
               <motion.div key={k.label} variants={fadeUpItem}>
                 <LuxCard hover className="group flex flex-col gap-4 p-6">
                   <div className="flex items-center justify-between">
-                    <Icon className="h-5 w-5 text-lux-gold" strokeWidth={1.5} />
-                    <ArrowRight className="transition-luxe h-4 w-4 text-neutral-300 group-hover:translate-x-0.5 group-hover:text-lux-gold dark:text-neutral-600" />
+                    <Icon className="h-5 w-5 text-lux-tinta" strokeWidth={1.5} />
+                    <ArrowRight className="transition-luxe h-4 w-4 text-neutral-300 group-hover:translate-x-0.5 group-hover:text-lux-tinta dark:text-neutral-600" />
                   </div>
                   <div>
                     <span className="font-serif text-4xl italic tracking-tight text-lux-blue dark:text-white">

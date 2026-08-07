@@ -39,7 +39,7 @@ const SLIDES = [
     subtitle: 'Un compromiso con la visión global',
     desc: 'Ayudamos a erradicar los problemas de visión no resueltos, equipando a comunidades con atención de calidad.',
     image:
-      'https://images.unsplash.com/photo-1516062423079-7ca13cca775f?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1517948430535-1e2469d314fe?auto=format&fit=crop&q=80&w=800',
   },
 ];
 
@@ -128,12 +128,12 @@ export const LoginPage = () => {
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-stretch gap-10 px-6 py-12 lg:flex-row">
         {/* Panel izquierdo cinematográfico */}
         <section className="relative hidden flex-1 flex-col justify-between overflow-hidden border border-neutral-200/60 bg-white p-12 dark:border-white/10 dark:bg-[#0d0d0d] lg:flex">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-lux-gold/5 via-transparent to-lux-blue/5" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-lux-tinta/5 via-transparent to-lux-blue/5" />
           <div className="relative z-10">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-lux-gold">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-lux-tinta">
               Innovación y estilo exclusivo
             </span>
-            <div className="mt-3 h-px w-12 bg-lux-gold" />
+            <div className="mt-3 h-px w-12 bg-lux-tinta" />
           </div>
 
           <div className="relative z-10 my-auto flex min-h-[340px] flex-col justify-center py-10">
@@ -151,7 +151,7 @@ export const LoginPage = () => {
                     src={SLIDES[slide].image}
                     alt={SLIDES[slide].title}
                     referrerPolicy="no-referrer"
-                    className="transition-luxe h-full w-full object-cover opacity-90 grayscale hover:scale-105 hover:grayscale-0"
+                    className="transition-luxe h-full w-full object-cover opacity-90 hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
@@ -177,7 +177,7 @@ export const LoginPage = () => {
                   className={[
                     'transition-luxe h-1.5 cursor-pointer',
                     slide === idx
-                      ? 'w-8 bg-lux-gold'
+                      ? 'w-8 bg-lux-tinta'
                       : 'w-2 bg-neutral-200 hover:bg-neutral-300 dark:bg-white/20 dark:hover:bg-white/40',
                   ].join(' ')}
                 />
@@ -191,7 +191,7 @@ export const LoginPage = () => {
             </span>
             <Link
               to="/"
-              className="group flex items-center gap-1 text-lux-gold hover:underline"
+              className="group flex items-center gap-1 text-lux-tinta hover:underline"
             >
               Ir al sitio de la óptica
               <ArrowRight className="transition-luxe h-3 w-3 group-hover:translate-x-0.5" />
@@ -208,7 +208,7 @@ export const LoginPage = () => {
             className="relative w-full max-w-md border border-lux-blue/10 bg-white p-8 shadow-xl dark:border-white/10 dark:bg-[#0f0f10] md:p-10"
           >
             <div className="mb-8">
-              <span className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-lux-gold">
+              <span className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-lux-tinta">
                 Portal interno autenticado
               </span>
               <h1 className="font-serif text-3xl italic leading-none tracking-tight">
@@ -247,7 +247,7 @@ export const LoginPage = () => {
                       setEmail(e.target.value);
                       setError('');
                     }}
-                    className="transition-luxe w-full border border-neutral-200 bg-[#fdfdfc] py-3 pl-10 pr-4 text-xs text-neutral-900 placeholder-neutral-400 focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-gold dark:border-white/10 dark:bg-[#18181a] dark:text-white dark:placeholder-neutral-600 dark:focus:border-lux-gold"
+                    className="transition-luxe w-full border border-neutral-200 bg-[#fdfdfc] py-3 pl-10 pr-4 text-xs text-neutral-900 placeholder-neutral-400 focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-tinta dark:border-white/10 dark:bg-[#18181a] dark:text-white dark:placeholder-neutral-600 dark:focus:border-lux-tinta-claro"
                   />
                 </div>
               </div>
@@ -268,12 +268,12 @@ export const LoginPage = () => {
                       setPassword(e.target.value);
                       setError('');
                     }}
-                    className="transition-luxe w-full border border-neutral-200 bg-[#fdfdfc] py-3 pl-10 pr-10 text-xs text-neutral-900 placeholder-neutral-400 focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-gold dark:border-white/10 dark:bg-[#18181a] dark:text-white dark:placeholder-neutral-600 dark:focus:border-lux-gold"
+                    className="transition-luxe w-full border border-neutral-200 bg-[#fdfdfc] py-3 pl-10 pr-10 text-xs text-neutral-900 placeholder-neutral-400 focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-tinta dark:border-white/10 dark:bg-[#18181a] dark:text-white dark:placeholder-neutral-600 dark:focus:border-lux-tinta-claro"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
-                    className="transition-luxe absolute right-3 top-3 text-gray-400 hover:text-lux-gold"
+                    className="transition-luxe absolute right-3 top-3 text-gray-400 hover:text-lux-tinta"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" strokeWidth={1.2} />
@@ -288,7 +288,7 @@ export const LoginPage = () => {
                 type="submit"
                 disabled={loading}
                 whileTap={loading ? {} : { scale: 0.99 }}
-                className="transition-luxe w-full cursor-pointer bg-lux-blue py-3.5 text-xs font-semibold uppercase tracking-wider2 text-white shadow-md hover:bg-lux-gold disabled:opacity-60 dark:bg-lux-gold dark:text-black dark:hover:bg-white"
+                className="transition-luxe w-full cursor-pointer bg-lux-blue py-3.5 text-xs font-semibold uppercase tracking-wider2 text-white shadow-md hover:bg-lux-tinta disabled:opacity-60 dark:bg-lux-tinta-claro dark:text-black dark:hover:bg-white"
               >
                 {loading ? 'Autenticando…' : 'Autenticar credenciales'}
               </motion.button>
@@ -296,7 +296,7 @@ export const LoginPage = () => {
 
             {DEMO.length > 0 ? (
             <div className="mt-8 border-t border-neutral-200/20 pt-6">
-              <span className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-lux-gold">
+              <span className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-lux-tinta">
                 <Sparkles className="h-3.5 w-3.5" />
                 Acceso directo (demo RBAC)
               </span>
@@ -306,17 +306,17 @@ export const LoginPage = () => {
                     key={d.email}
                     type="button"
                     onClick={() => quickFill(d)}
-                    className="transition-luxe group flex w-full items-center justify-between border border-neutral-200 bg-neutral-50 p-3 text-left hover:border-lux-blue hover:bg-white dark:border-white/5 dark:bg-[#141415] dark:hover:border-lux-gold/60 dark:hover:bg-[#1a1a1c]"
+                    className="transition-luxe group flex w-full items-center justify-between border border-neutral-200 bg-neutral-50 p-3 text-left hover:border-lux-blue hover:bg-white dark:border-white/5 dark:bg-[#141415] dark:hover:border-lux-tinta-claro/60 dark:hover:bg-[#1a1a1c]"
                   >
                     <div>
-                      <span className="transition-luxe block text-xs font-semibold text-neutral-800 group-hover:text-lux-gold dark:text-white">
+                      <span className="transition-luxe block text-xs font-semibold text-neutral-800 group-hover:text-lux-tinta dark:text-white">
                         {d.label}
                       </span>
                       <span className="mt-0.5 block font-mono text-[9px] opacity-50">
                         {d.email}
                       </span>
                     </div>
-                    <Key className="transition-luxe h-3.5 w-3.5 text-lux-gold opacity-40 group-hover:translate-x-0.5 group-hover:opacity-100" />
+                    <Key className="transition-luxe h-3.5 w-3.5 text-lux-tinta opacity-40 group-hover:translate-x-0.5 group-hover:opacity-100" />
                   </button>
                 ))}
               </div>
@@ -331,7 +331,7 @@ export const LoginPage = () => {
           <span>
             Óptica Dr. Luigi Semeraro © {new Date().getFullYear()}
           </span>
-          <span className="font-semibold text-lux-blue dark:text-lux-gold">
+          <span className="font-semibold text-lux-blue dark:text-lux-tinta-claro">
             Pérez Zeledón, Costa Rica · Tel. 7085-3353
           </span>
         </div>

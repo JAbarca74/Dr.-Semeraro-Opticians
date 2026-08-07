@@ -50,9 +50,9 @@ const RESULTADO_ACCESO = {
 
 type ResultadoAcceso = keyof typeof RESULTADO_ACCESO;
 
-const TONO_OPERACION: Record<OperacionAuditoria, 'green' | 'gold' | 'red'> = {
+const TONO_OPERACION: Record<OperacionAuditoria, 'green' | 'tinta' | 'red'> = {
   INSERT: 'green',
-  UPDATE: 'gold',
+  UPDATE: 'tinta',
   DELETE: 'red',
 };
 
@@ -239,8 +239,8 @@ export const AuditoriaPage = () => {
             className={cx(
               'transition-luxe flex cursor-pointer items-center gap-2 border px-4 py-2 text-[11px] font-bold uppercase tracking-widest',
               vista === op.id
-                ? 'border-lux-gold bg-lux-gold/10 text-lux-gold'
-                : 'border-neutral-200 text-neutral-500 hover:border-lux-gold/40 dark:border-white/10 dark:text-neutral-400',
+                ? 'border-lux-tinta bg-lux-tinta/10 text-lux-tinta'
+                : 'border-neutral-200 text-neutral-500 hover:border-lux-tinta/40 dark:border-white/10 dark:text-neutral-400',
             )}
           >
             <op.icono className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -390,7 +390,7 @@ export const AuditoriaPage = () => {
                   <tr
                     key={e.idLogAuditoria}
                     onClick={() => setSeleccionado(e)}
-                    className="transition-luxe cursor-pointer border-b border-neutral-50 last:border-0 hover:bg-lux-gold/5 dark:border-white/5"
+                    className="transition-luxe cursor-pointer border-b border-neutral-50 last:border-0 hover:bg-lux-tinta/5 dark:border-white/5"
                   >
                     <td className="whitespace-nowrap px-5 py-3 text-neutral-500 dark:text-neutral-400">
                       {fechaLarga(e.fecha)}
@@ -509,7 +509,7 @@ export const AuditoriaPage = () => {
           <LuxCard className="p-6">
             <div className="mb-4 flex items-start justify-between gap-4 border-b border-neutral-100 pb-4 dark:border-white/5">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-lux-gold/40 text-lux-gold">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-lux-tinta/40 text-lux-tinta">
                   <Fingerprint className="h-4 w-4" strokeWidth={1.5} />
                 </span>
                 <div>
@@ -545,7 +545,7 @@ export const AuditoriaPage = () => {
                   </pre>
                 ) : (
                   <p className="mt-1.5 flex items-start gap-2 border border-dashed border-neutral-200 p-3 text-[11px] leading-relaxed text-neutral-500 dark:border-white/10 dark:text-neutral-400">
-                    <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-lux-gold" />
+                    <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-lux-tinta" />
                     {seleccionado.operacion === OperacionAuditoria.INSERT
                       ? 'Una creación no tiene valor previo: el registro no existía antes.'
                       : 'No se conservó el valor previo de esta operación.'}

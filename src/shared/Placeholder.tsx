@@ -25,7 +25,7 @@ export const Placeholder = ({
       <Kicker>Módulo del panel clínico</Kicker>
       <div className="flex items-center gap-4">
         {Icon ? (
-          <span className="flex h-12 w-12 items-center justify-center border border-lux-gold/40 text-lux-gold">
+          <span className="flex h-12 w-12 items-center justify-center border border-lux-tinta/40 text-lux-tinta">
             <Icon className="h-5 w-5" strokeWidth={1.5} />
           </span>
         ) : null}
@@ -50,7 +50,7 @@ export const Placeholder = ({
         {features.map((f) => (
           <motion.div key={f} variants={fadeUpItem}>
             <LuxCard hover className="flex items-start gap-3 p-5">
-              <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-lux-gold" />
+              <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-lux-tinta" />
               <span className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
                 {f}
               </span>
@@ -62,7 +62,7 @@ export const Placeholder = ({
 
     <motion.div {...fadeUp}>
       <LuxCard className="flex items-center gap-3 border-dashed p-5">
-        <Sparkles className="h-4 w-4 shrink-0 text-lux-gold" />
+        <Sparkles className="h-4 w-4 shrink-0 text-lux-tinta" />
         <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
           Interfaz lista · integración de datos en sprint próximo
         </p>

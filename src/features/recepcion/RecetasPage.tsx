@@ -58,7 +58,7 @@ export const RecetasPage = () => {
           <RecepCard className="space-y-6 p-8">
             <div className="border-b border-neutral-100 pb-3 dark:border-neutral-800">
               <h3 className="flex items-center gap-2 font-serif text-lg font-medium text-neutral-900 dark:text-white">
-                <ScanLine className="h-4 w-4 text-lux-gold" /> Consultar receta
+                <ScanLine className="h-4 w-4 text-lux-tinta" /> Consultar receta
               </h3>
               <p className="text-xs font-light text-neutral-400">
                 Código SHA-256 o URL del QR de la receta
@@ -153,7 +153,7 @@ export const RecetasPage = () => {
                             key={r.ojo}
                             className="border-b border-neutral-50 last:border-0 dark:border-neutral-800/60"
                           >
-                            <td className="py-2 font-semibold text-lux-gold">{r.ojo}</td>
+                            <td className="py-2 font-semibold text-lux-tinta">{r.ojo}</td>
                             <td className="py-2">{r.esfera}</td>
                             <td className="py-2">{r.cilindro}</td>
                             <td className="py-2">{r.eje}°</td>

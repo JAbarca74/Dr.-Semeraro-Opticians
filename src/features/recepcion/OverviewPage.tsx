@@ -29,7 +29,7 @@ export const OverviewPage = () => {
       <div className="grid gap-6 lg:grid-cols-3">
         <motion.div {...recepFade} className="lg:col-span-1">
           <RecepCard className="flex h-full flex-col justify-between p-7">
-            <Users className="h-5 w-5 text-lux-gold" strokeWidth={1.5} />
+            <Users className="h-5 w-5 text-lux-tinta" strokeWidth={1.5} />
             <div className="mt-6">
               <span className="font-serif text-5xl font-light text-lux-dark dark:text-white">
                 {pacientes.toString().padStart(2, '0')}
@@ -57,21 +57,21 @@ export const OverviewPage = () => {
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <button
                 onClick={() => navigate('/recepcion/pacientes')}
-                className="group flex items-center justify-between border border-neutral-200 px-4 py-4 text-left transition-all duration-300 hover:border-lux-gold hover:bg-lux-ice dark:border-neutral-700 dark:hover:bg-neutral-900"
+                className="group flex items-center justify-between border border-neutral-200 px-4 py-4 text-left transition-all duration-300 hover:border-lux-tinta hover:bg-lux-ice dark:border-neutral-700 dark:hover:bg-neutral-900"
               >
                 <span className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-lux-dark dark:text-neutral-200">
-                  <Users className="h-4 w-4 text-lux-gold" /> Pacientes
+                  <Users className="h-4 w-4 text-lux-tinta" /> Pacientes
                 </span>
-                <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-lux-gold" />
+                <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-lux-tinta" />
               </button>
               <button
                 onClick={() => navigate('/recepcion/recetas')}
-                className="group flex items-center justify-between border border-neutral-200 px-4 py-4 text-left transition-all duration-300 hover:border-lux-gold hover:bg-lux-ice dark:border-neutral-700 dark:hover:bg-neutral-900"
+                className="group flex items-center justify-between border border-neutral-200 px-4 py-4 text-left transition-all duration-300 hover:border-lux-tinta hover:bg-lux-ice dark:border-neutral-700 dark:hover:bg-neutral-900"
               >
                 <span className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-lux-dark dark:text-neutral-200">
-                  <ShieldCheck className="h-4 w-4 text-lux-gold" /> Verificar receta
+                  <ShieldCheck className="h-4 w-4 text-lux-tinta" /> Verificar receta
                 </span>
-                <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-lux-gold" />
+                <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-lux-tinta" />
               </button>
             </div>
           </RecepCard>

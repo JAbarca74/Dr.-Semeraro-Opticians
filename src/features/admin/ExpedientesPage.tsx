@@ -233,7 +233,7 @@ const BloqueFicha = ({
   children: ReactNode;
 }) => (
   <fieldset className="border border-neutral-200 p-4 dark:border-white/10">
-    <legend className="px-2 font-clinico text-[11px] font-bold uppercase tracking-wider2 text-lux-gold">
+    <legend className="px-2 font-clinico text-[11px] font-bold uppercase tracking-wider2 text-lux-tinta">
       {titulo}
     </legend>
     <div className="space-y-4">{children}</div>
@@ -602,7 +602,7 @@ export const ExpedientesPage = () => {
     set: (v: RefraccionForm) => void,
   ) => (
     <fieldset className="border border-neutral-200 p-4 dark:border-white/10">
-      <legend className="px-2 font-clinico text-[11px] font-bold uppercase tracking-wider2 text-lux-gold">
+      <legend className="px-2 font-clinico text-[11px] font-bold uppercase tracking-wider2 text-lux-tinta">
         {etiqueta}
       </legend>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -768,7 +768,7 @@ export const ExpedientesPage = () => {
             : 'Consulta de historiales clínicos y recetas emitidas. La documentación de evoluciones corresponde al especialista.'
         }
         actions={
-          <Badge tone={puedeDocumentar ? 'gold' : 'blue'}>
+          <Badge tone={puedeDocumentar ? 'tinta' : 'blue'}>
             {puedeDocumentar
               ? 'Modo clínico · Doctor'
               : 'Modo supervisión · solo lectura'}
@@ -815,7 +815,7 @@ export const ExpedientesPage = () => {
             ].map((k) => (
               <motion.div key={k.label} variants={fadeUpItem}>
                 <LuxCard hover className="flex items-center gap-4 p-5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-lux-gold/40 text-lux-gold">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-lux-tinta/40 text-lux-tinta">
                     <k.icono className="h-4 w-4" strokeWidth={1.5} />
                   </span>
                   <div>
@@ -881,7 +881,7 @@ export const ExpedientesPage = () => {
                     <tr
                       key={p.idPersona}
                       onClick={() => abrirExpediente(p)}
-                      className="transition-luxe cursor-pointer border-b border-neutral-50 last:border-0 hover:bg-lux-gold/5 dark:border-white/5"
+                      className="transition-luxe cursor-pointer border-b border-neutral-50 last:border-0 hover:bg-lux-tinta/5 dark:border-white/5"
                     >
                       <td className="px-5 py-3 font-mono text-xs text-neutral-500 dark:text-neutral-400">
                         {p.cedula}
@@ -904,7 +904,7 @@ export const ExpedientesPage = () => {
                         </Badge>
                       </td>
                       <td className="px-5 py-3 text-right">
-                        <span className="transition-luxe font-clinico text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-gold">
+                        <span className="transition-luxe font-clinico text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta">
                           Abrir
                         </span>
                       </td>
@@ -934,7 +934,7 @@ export const ExpedientesPage = () => {
             <LuxCard className="p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-center gap-4">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center border border-lux-gold/40 text-lux-gold">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center border border-lux-tinta/40 text-lux-tinta">
                     <UserRound className="h-5 w-5" strokeWidth={1.5} />
                   </span>
                   <div className="space-y-1">
@@ -1004,7 +1004,7 @@ export const ExpedientesPage = () => {
                   Los datos personales del encabezado se completan en{' '}
                   <Link
                     to="/admin/personas"
-                    className="link-underline text-lux-blue dark:text-lux-gold"
+                    className="link-underline text-lux-blue dark:text-lux-tinta-claro"
                   >
                     Personas
                   </Link>
@@ -1020,7 +1020,7 @@ export const ExpedientesPage = () => {
               <LuxCard className="p-6">
                 <div className="mb-5 flex items-center gap-2 border-b border-neutral-100 pb-4 dark:border-white/5">
                   <Stethoscope
-                    className="h-4 w-4 text-lux-gold"
+                    className="h-4 w-4 text-lux-tinta"
                     strokeWidth={1.5}
                   />
                   <h2 className="font-clinico text-[13px] font-bold uppercase tracking-wider2 text-neutral-700 dark:text-neutral-200">
@@ -1028,8 +1028,8 @@ export const ExpedientesPage = () => {
                   </h2>
                 </div>
                 {precargadoDe ? (
-                  <p className="mb-4 flex items-center gap-2 border border-lux-gold/30 bg-lux-gold/5 px-3 py-2 text-[11px] font-medium text-neutral-600 dark:text-neutral-300">
-                    <History className="h-3.5 w-3.5 shrink-0 text-lux-gold" />
+                  <p className="mb-4 flex items-center gap-2 border border-lux-tinta/30 bg-lux-tinta/5 px-3 py-2 text-[11px] font-medium text-neutral-600 dark:text-neutral-300">
+                    <History className="h-3.5 w-3.5 shrink-0 text-lux-tinta" />
                     Se precargaron los parámetros de la consulta del{' '}
                     {precargadoDe}. Ajústelos según la evaluación de hoy.
                   </p>
@@ -1229,7 +1229,7 @@ export const ExpedientesPage = () => {
                   <div className="flex flex-wrap items-center gap-3">
                     <LuxButton
                       type="submit"
-                      variant="gold"
+                      variant="tinta"
                       disabled={guardando || hayFueraDeRango}
                     >
                       <FileText className="h-3.5 w-3.5" /> Guardar y generar
@@ -1254,7 +1254,7 @@ export const ExpedientesPage = () => {
           ) : (
             <motion.div {...fadeUp}>
               <LuxCard className="flex items-start gap-3 border-dashed p-5">
-                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-lux-gold" />
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-lux-tinta" />
                 <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">
                   <span className="font-semibold">Modo supervisión.</span> Puede
                   consultar el historial clínico y las recetas emitidas, pero
@@ -1337,7 +1337,7 @@ export const ExpedientesPage = () => {
                                 key={r.ojo}
                                 className="border-b border-neutral-50 last:border-0 dark:border-white/5"
                               >
-                                <td className="py-2 font-semibold text-lux-gold">
+                                <td className="py-2 font-semibold text-lux-tinta">
                                   {r.ojo}
                                 </td>
                                 <td className="py-2">{r.esfera}</td>
@@ -1369,7 +1369,7 @@ export const ExpedientesPage = () => {
                             <div className="flex flex-wrap gap-3 pt-1">
                               <Link
                                 to={`/verificar/${ev.receta.hashSha256}`}
-                                className="link-underline font-clinico text-[11px] font-semibold uppercase tracking-wider text-lux-blue dark:text-lux-gold"
+                                className="link-underline font-clinico text-[11px] font-semibold uppercase tracking-wider text-lux-blue dark:text-lux-tinta-claro"
                               >
                                 Verificar
                               </Link>
@@ -1377,7 +1377,7 @@ export const ExpedientesPage = () => {
                                 href={`${API_BASE}/recetas/${ev.receta.hashSha256}/pdf`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1 font-clinico text-[11px] font-semibold uppercase tracking-wider text-lux-blue hover:text-lux-gold dark:text-lux-gold"
+                                className="inline-flex items-center gap-1 font-clinico text-[11px] font-semibold uppercase tracking-wider text-lux-blue hover:text-lux-tinta dark:text-lux-tinta-claro"
                               >
                                 <Download className="h-3 w-3" /> Descargar PDF
                               </a>

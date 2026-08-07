@@ -29,7 +29,7 @@ export const ErrorPage = () => {
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-white px-6 py-16 text-center dark:bg-[#0a0a0a]">
       <MarcaOptica />
 
-      <span className="flex h-14 w-14 items-center justify-center border border-lux-gold/40 text-lux-gold">
+      <span className="flex h-14 w-14 items-center justify-center border border-lux-tinta/40 text-lux-tinta">
         <AlertTriangle className="h-6 w-6" strokeWidth={1.5} />
       </span>
 
@@ -51,7 +51,7 @@ export const ErrorPage = () => {
         </Link>
         <Link
           to="/login"
-          className="transition-luxe border border-neutral-200 px-6 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-neutral-500 hover:border-lux-gold hover:text-lux-gold dark:border-white/10 dark:text-neutral-400"
+          className="transition-luxe border border-neutral-200 px-6 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-neutral-500 hover:border-lux-tinta hover:text-lux-tinta dark:border-white/10 dark:text-neutral-400"
         >
           Iniciar sesión
         </Link>

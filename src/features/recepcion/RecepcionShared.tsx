@@ -25,7 +25,7 @@ export const RecepHeader = ({ cu, title, description, actions }: RecepHeaderProp
   >
     <div>
       {cu ? (
-        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-gold">
+        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">
           {cu}
         </p>
       ) : null}
@@ -70,8 +70,8 @@ export const RecepButton = ({
     className={cx(
       'inline-flex cursor-pointer items-center justify-center gap-2.5 px-6 py-3.5 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50',
       variant === 'solid'
-        ? 'bg-lux-dark text-white hover:-translate-y-0.5 hover:bg-lux-blue hover:shadow-md dark:bg-lux-gold dark:text-lux-dark dark:hover:bg-lux-gold/90'
-        : 'border border-neutral-300 text-neutral-700 hover:border-lux-gold hover:text-lux-dark dark:border-neutral-700 dark:text-neutral-300',
+        ? 'bg-lux-dark text-white hover:-translate-y-0.5 hover:bg-lux-blue hover:shadow-md dark:bg-lux-tinta-claro dark:text-lux-dark dark:hover:bg-lux-tinta-claro/90'
+        : 'border border-neutral-300 text-neutral-700 hover:border-lux-tinta hover:text-lux-dark dark:border-neutral-700 dark:text-neutral-300',
       className,
     )}
     {...rest}

@@ -22,7 +22,7 @@ const SERVICIOS = [
   },
   {
     icon: User,
-    title: 'El especialista',
+    title: 'Especialista',
     desc: 'Conozca la trayectoria clínica del Dr. Luigi Semeraro y el estándar de diagnóstico refractivo de la óptica.',
     to: '/especialista',
     cta: 'Ver perfil clínico',
@@ -52,22 +52,16 @@ export const HomePage = () => {
         <div className="absolute inset-0">
           <div className="absolute inset-0 z-10 bg-black/60" />
           <img
-            src="https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?q=80&w=2000&auto=format&fit=crop"
-            alt="Colección de aros premium"
+            src="https://images.unsplash.com/photo-1486250944723-86bca2b15b06?q=80&w=2000&auto=format&fit=crop"
+            alt="Exhibidor de monturas en la óptica"
             referrerPolicy="no-referrer"
             className="h-full w-full object-cover"
           />
         </div>
         <div className="relative z-20 mx-auto w-full max-w-7xl px-6 text-center md:px-10 md:text-left">
           <motion.div {...fadeUp} className="max-w-3xl space-y-7">
-            <span className="inline-flex items-center gap-2 border border-white/20 bg-white/10 px-3 py-1 blur-backdrop">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-lux-gold" />
-              <span className="font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-white md:text-[10px]">
-                Vanguardia ocular · Alta costura italiana
-              </span>
-            </span>
             <h1 className="font-serif text-5xl font-light leading-[1.05] tracking-tight text-white md:text-8xl">
-              La estética de la <span className="italic text-lux-gold">precisión</span>
+              La estética de la <span className="italic text-lux-tinta-claro">precisión</span>
             </h1>
             <p className="max-w-xl text-sm leading-relaxed text-stone-300 md:text-lg">
               Bajo la dirección clínica del{' '}
@@ -86,7 +80,7 @@ export const HomePage = () => {
                 onClick={() => navigate('/portal')}
                 className="transition-luxe flex items-center gap-2 border border-white/40 px-8 py-4 text-xs font-bold uppercase tracking-widest text-white hover:bg-white hover:text-black"
               >
-                <ShieldCheck className="h-4 w-4 text-lux-gold" /> Verificar mi receta
+                <ShieldCheck className="h-4 w-4 text-lux-tinta-claro" /> Verificar mi receta
               </button>
             </div>
           </motion.div>
@@ -123,7 +117,7 @@ export const HomePage = () => {
           <Kicker>Servicios premium</Kicker>
           <h2 className="font-serif text-3xl font-light tracking-tight text-lux-blue dark:text-white md:text-5xl">
             Ecosistema digital de{' '}
-            <span className="italic text-lux-gold">salud visual</span>
+            <span className="italic text-lux-tinta">salud visual</span>
           </h2>
           <p className="mx-auto max-w-lg text-xs leading-relaxed text-neutral-500 dark:text-neutral-400 md:text-sm">
             Conectamos la precisión oftalmológica con herramientas digitales
@@ -144,7 +138,7 @@ export const HomePage = () => {
               <motion.div key={s.title} variants={fadeUpItem}>
                 <LuxCard hover className="flex h-full flex-col justify-between gap-6 p-8">
                   <div className="space-y-4">
-                    <span className="flex h-10 w-10 items-center justify-center border border-neutral-200 text-lux-gold dark:border-white/10">
+                    <span className="flex h-10 w-10 items-center justify-center border border-neutral-200 text-lux-tinta dark:border-white/10">
                       <Icon className="h-5 w-5" strokeWidth={1.5} />
                     </span>
                     <div className="space-y-1.5">
@@ -158,7 +152,7 @@ export const HomePage = () => {
                   </div>
                   <Link
                     to={s.to}
-                    className="link-underline flex items-center gap-1.5 self-start font-mono text-[10px] font-bold uppercase tracking-widest text-lux-blue dark:text-lux-gold"
+                    className="link-underline flex items-center gap-1.5 self-start font-mono text-[10px] font-bold uppercase tracking-widest text-lux-blue dark:text-lux-tinta-claro"
                   >
                     {s.cta} <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
@@ -177,21 +171,21 @@ export const HomePage = () => {
               <Kicker>Protección sanitaria excepcional</Kicker>
               <h3 className="font-serif text-3xl font-light leading-tight tracking-tight text-lux-blue dark:text-white md:text-4xl">
                 Firma hash y certificación del{' '}
-                <span className="italic text-lux-gold">expediente clínico</span>
+                <span className="italic text-lux-tinta">expediente clínico</span>
               </h3>
               <p className="max-w-xl text-xs leading-relaxed text-neutral-600 dark:text-neutral-400 md:text-sm">
                 Cada fórmula refractiva emitida por el Dr. Semeraro está sellada con
                 un hash SHA-256 inmutable y un certificado QR único, garantizando la
                 legitimidad del diagnóstico en cualquier laboratorio.
               </p>
-              <div className="flex items-center gap-2 font-mono text-[10.5px] font-semibold text-lux-blue dark:text-lux-gold">
+              <div className="flex items-center gap-2 font-mono text-[10.5px] font-semibold text-lux-blue dark:text-lux-tinta-claro">
                 <ShieldCheck className="h-4 w-4 shrink-0" />
                 <span>Conforme a la Ley de Protección de Datos N° 8968 de Costa Rica.</span>
               </div>
             </div>
             <div className="flex h-64 items-center justify-center border border-neutral-200 bg-white p-8 text-center dark:border-white/10 dark:bg-black md:col-span-5">
               <div className="space-y-4">
-                <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-neutral-200 text-lux-gold dark:border-white/15">
+                <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-neutral-200 text-lux-tinta dark:border-white/15">
                   <Award className="h-6 w-6" />
                 </span>
                 <p className="font-serif text-2xl font-light uppercase tracking-wider text-lux-blue dark:text-white">

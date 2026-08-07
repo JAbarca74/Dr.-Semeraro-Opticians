@@ -98,7 +98,7 @@ export const VerificarRecetaPage = () => {
                 <tbody>
                   {resultado.refracciones.map((r) => (
                     <tr key={r.ojo} className="border-b border-neutral-50 last:border-0 dark:border-white/5">
-                      <td className="py-2 font-semibold text-lux-gold">{r.ojo}</td>
+                      <td className="py-2 font-semibold text-lux-tinta">{r.ojo}</td>
                       <td className="py-2">{r.esfera}</td>
                       <td className="py-2">{r.cilindro}</td>
                       <td className="py-2">{r.eje}°</td>

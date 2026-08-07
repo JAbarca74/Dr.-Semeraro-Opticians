@@ -82,10 +82,10 @@ export const CatalogoPage = () => (
                 src={m.img}
                 alt={m.nombre}
                 referrerPolicy="no-referrer"
-                className="transition-luxe h-full w-full object-cover grayscale group-hover:scale-105 group-hover:grayscale-0"
+                className="transition-luxe h-full w-full object-cover group-hover:scale-105"
               />
               <div className="absolute left-3 top-3">
-                <Badge tone="gold">{m.marca}</Badge>
+                <Badge tone="tinta">{m.marca}</Badge>
               </div>
             </div>
             <div className="flex flex-1 flex-col justify-between gap-4 p-5">
@@ -98,7 +98,7 @@ export const CatalogoPage = () => (
                 </p>
               </div>
               <div className="flex items-center justify-between border-t border-neutral-100 pt-3 dark:border-white/5">
-                <span className="font-mono text-sm font-bold text-lux-gold">
+                <span className="font-mono text-sm font-bold text-lux-tinta">
                   {colones(m.precio)}
                 </span>
                 <span className="font-mono text-[9px] uppercase tracking-widest text-neutral-400">
@@ -125,7 +125,7 @@ export const CatalogoPage = () => (
         </div>
         <Link
           to="/portal"
-          className="transition-luxe inline-flex items-center gap-2 bg-lux-blue px-6 py-3 text-[11px] font-semibold uppercase tracking-wider2 text-white hover:bg-lux-gold dark:bg-lux-gold dark:text-black dark:hover:bg-white"
+          className="transition-luxe inline-flex items-center gap-2 bg-lux-blue px-6 py-3 text-[11px] font-semibold uppercase tracking-wider2 text-white hover:bg-lux-tinta dark:bg-lux-tinta-claro dark:text-black dark:hover:bg-white"
         >
           Ir a mi receta <ArrowRight className="h-3.5 w-3.5" />
         </Link>

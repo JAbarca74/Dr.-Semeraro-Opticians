@@ -64,15 +64,15 @@ export const CuentaPage = () => {
         {/* Tarjeta de identidad */}
         <motion.div {...fadeUp}>
           <LuxCard className="flex flex-col items-center gap-4 p-8 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-lux-gold font-serif text-xl font-bold uppercase text-black">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-lux-tinta font-serif text-xl font-bold uppercase text-white">
               {iniciales}
             </div>
             <div>
-              <UserCircle className="mx-auto mb-2 h-4 w-4 text-lux-gold" strokeWidth={1.5} />
+              <UserCircle className="mx-auto mb-2 h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
               <span className="block text-sm font-bold text-lux-blue dark:text-white">
                 {user?.email}
               </span>
-              <span className="mt-1 block font-mono text-[10px] uppercase tracking-widest text-lux-gold">
+              <span className="mt-1 block font-mono text-[10px] uppercase tracking-widest text-lux-tinta">
                 {rolLabel(user?.rol)} · Autenticado
               </span>
             </div>
@@ -83,7 +83,7 @@ export const CuentaPage = () => {
         <motion.div {...fadeUp} className="lg:col-span-2">
           <LuxCard className="p-6">
             <div className="mb-5 flex items-center gap-2 border-b border-neutral-100 pb-4 dark:border-white/5">
-              <KeyRound className="h-4 w-4 text-lux-gold" strokeWidth={1.5} />
+              <KeyRound className="h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
               <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
                 Cambiar contraseña
               </h2>

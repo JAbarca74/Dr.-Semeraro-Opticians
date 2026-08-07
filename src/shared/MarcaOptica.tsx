@@ -8,13 +8,23 @@ type Props = {
 };
 
 const ALTURA = {
-  sm: 'h-8 w-auto md:h-9',
+  sm: 'h-7 w-auto md:h-8',
   md: 'h-9 w-auto md:h-10',
 } as const;
 
+/**
+ * Un único tamaño por variante: «ÓPTICA» y «DR. LUIGI SEMERARO» se componen
+ * **igual**. En el membrete impreso son la misma tipografía y la misma tinta;
+ * tenerlas con pesos, cajas y tamaños distintos las hacía parecer dos marcas.
+ *
+ * `sm` es deliberadamente pequeño: el nombre completo en caja alta y con
+ * `tracking` ancho mide ~25 caracteres, y a mayor tamaño la marca invadía los
+ * enlaces de la barra de navegación. `md` (solo el login) puede ser mayor
+ * porque ahí la marca va sola.
+ */
 const TEXTO = {
-  sm: { optica: 'text-sm md:text-base', doctor: 'text-xs md:text-sm' },
-  md: { optica: 'text-base md:text-lg', doctor: 'text-sm md:text-base' },
+  sm: 'text-[10px] md:text-[11px]',
+  md: 'text-base md:text-lg',
 } as const;
 
 /**
@@ -28,17 +38,22 @@ const TEXTO = {
  * seguido y **sin separador**: no son dos entidades distintas. La tipografía es
  * `font-marca` (Archivo), la grotesca del membrete impreso; ver
  * `.contexto/Imagenes/IDENTIDAD-PAPELERIA.md`.
+ *
+ * Las dos palabras se componen **idénticas** —misma familia, peso, caja,
+ * `tracking`, tamaño y color— porque el impreso es monocromo y de una sola
+ * tipografía. El isotipo va dentro del mismo `text-lux-tinta` y lo toma por
+ * `currentColor`, así que búho y texto son siempre la misma tinta.
  */
 export function MarcaOptica({ className = '', tamano = 'sm' }: Props) {
+  // `whitespace-nowrap`: con el `tracking` ancho, «DR. LUIGI SEMERARO» partía
+  // en dos líneas al competir con la barra de navegación.
+  const texto = `whitespace-nowrap font-marca font-medium uppercase tracking-luxe ${TEXTO[tamano]}`;
+
   return (
-    <span className={`flex items-center gap-3 ${className}`}>
-      <LogoBuho className={ALTURA[tamano]} />
-      <span className={`font-marca font-medium uppercase tracking-luxe ${TEXTO[tamano].optica}`}>
-        Óptica
-      </span>
-      <span className={`font-marca font-normal text-lux-gold ${TEXTO[tamano].doctor}`}>
-        Dr. Luigi Semeraro
-      </span>
+    <span className={`flex shrink-0 items-center gap-3 text-lux-tinta ${className}`}>
+      <LogoBuho className={`shrink-0 ${ALTURA[tamano]}`} />
+      <span className={texto}>Óptica</span>
+      <span className={texto}>Dr. Luigi Semeraro</span>
     </span>
   );
 }

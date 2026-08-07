@@ -118,7 +118,7 @@ export const UsuariosPage = () => {
   };
 
   const selectMini =
-    'transition-luxe border border-neutral-200 bg-white px-2 py-1 text-xs focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-gold dark:border-white/10 dark:bg-[#18181a] dark:text-white';
+    'transition-luxe border border-neutral-200 bg-white px-2 py-1 text-xs focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-tinta dark:border-white/10 dark:bg-[#18181a] dark:text-white';
 
   return (
     <section className="space-y-10">
@@ -131,7 +131,7 @@ export const UsuariosPage = () => {
       <motion.div {...fadeUp}>
         <LuxCard className="p-6">
           <div className="mb-5 flex items-center gap-2 border-b border-neutral-100 pb-4 dark:border-white/5">
-            <ShieldCheck className="h-4 w-4 text-lux-gold" strokeWidth={1.5} />
+            <ShieldCheck className="h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
             <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
               Nuevo usuario
             </h2>
@@ -202,7 +202,7 @@ export const UsuariosPage = () => {
       {aviso ? (
         <motion.p
           {...fadeUp}
-          className="border border-lux-gold/40 bg-lux-gold/5 p-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-300"
+          className="border border-lux-tinta/40 bg-lux-tinta/5 p-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-300"
         >
           {aviso}
         </motion.p>
@@ -227,7 +227,7 @@ export const UsuariosPage = () => {
               {usuarios.map((u) => (
                 <tr
                   key={u.idUsuario}
-                  className="transition-luxe border-b border-neutral-50 last:border-0 hover:bg-lux-gold/5 dark:border-white/5"
+                  className="transition-luxe border-b border-neutral-50 last:border-0 hover:bg-lux-tinta/5 dark:border-white/5"
                 >
                   <td className="px-5 py-3 font-medium text-lux-blue dark:text-white">
                     {u.email}
@@ -278,14 +278,14 @@ export const UsuariosPage = () => {
                           <button
                             type="button"
                             onClick={() => restablecerPassword(u)}
-                            className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-lux-gold hover:text-lux-blue"
+                            className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-lux-tinta hover:text-lux-blue"
                           >
                             Guardar
                           </button>
                           <button
                             type="button"
                             onClick={() => setReset(null)}
-                            className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-400 hover:text-lux-gold"
+                            className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-400 hover:text-lux-tinta"
                           >
                             Cancelar
                           </button>
@@ -294,7 +294,7 @@ export const UsuariosPage = () => {
                         <button
                           type="button"
                           onClick={() => setReset({ id: u.idUsuario, valor: '' })}
-                          className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-gold"
+                          className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta"
                         >
                           Restablecer contraseña
                         </button>
@@ -307,7 +307,7 @@ export const UsuariosPage = () => {
                         <button
                           type="button"
                           onClick={() => alternarActivo(u)}
-                          className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-gold"
+                          className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta"
                         >
                           {u.activo ? 'Desactivar' : 'Activar'}
                         </button>
