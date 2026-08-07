@@ -34,11 +34,12 @@ export const PerfilEspecialistaPage = () => (
         {...fadeUp}
         className="relative aspect-[4/5] overflow-hidden border border-lux-blue/10 dark:border-white/10 lg:col-span-5"
       >
+        {/* Foto real del doctor, servida desde `public/`. Antes había una foto
+            de stock de Unsplash haciendo de suplente. */}
         <img
-          src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=900&auto=format&fit=crop"
+          src="/dr-luigi-semeraro.jpg"
           alt="Dr. Luigi Semeraro"
-          referrerPolicy="no-referrer"
-          className="transition-luxe h-full w-full object-cover grayscale hover:grayscale-0"
+          className="transition-luxe h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
         <span className="absolute bottom-5 left-5 font-mono text-[9px] uppercase tracking-widest text-white/80">
@@ -72,7 +73,7 @@ export const PerfilEspecialistaPage = () => (
         return (
           <motion.div key={c.title} variants={fadeUpItem}>
             <LuxCard hover className="flex h-full flex-col gap-4 p-7">
-              <span className="flex h-10 w-10 items-center justify-center border border-neutral-200 text-lux-gold dark:border-white/10">
+              <span className="flex h-10 w-10 items-center justify-center border border-neutral-200 text-lux-tinta dark:border-white/10">
                 <Icon className="h-5 w-5" strokeWidth={1.5} />
               </span>
               <div className="space-y-1.5">
@@ -92,14 +93,14 @@ export const PerfilEspecialistaPage = () => (
     <motion.div {...fadeUp}>
       <LuxCard className="flex flex-col items-center justify-between gap-4 bg-lux-gray p-8 text-center dark:bg-[#0e0e0e] sm:flex-row sm:text-left">
         <div className="flex items-center gap-3">
-          <Award className="h-6 w-6 text-lux-gold" strokeWidth={1.2} />
+          <Award className="h-6 w-6 text-lux-tinta" strokeWidth={1.2} />
           <p className="font-serif text-xl font-light text-lux-blue dark:text-white">
             Atención por cita en Pérez Zeledón, Costa Rica
           </p>
         </div>
         <Link
           to="/catalogo"
-          className="transition-luxe inline-flex items-center gap-2 border border-lux-blue px-6 py-3 text-[11px] font-semibold uppercase tracking-wider2 text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-gold dark:text-lux-gold dark:hover:bg-lux-gold dark:hover:text-black"
+          className="transition-luxe inline-flex items-center gap-2 border border-lux-blue px-6 py-3 text-[11px] font-semibold uppercase tracking-wider2 text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-tinta-claro dark:text-lux-tinta-claro dark:hover:bg-lux-tinta-claro dark:hover:text-black"
         >
           Ver la colección
         </Link>

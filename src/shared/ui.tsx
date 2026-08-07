@@ -3,7 +3,7 @@ import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
 /**
  * Kit de componentes UI de Óptica Dr. Luigi Semeraro
- * (editorial, sobrio, con acentos dorados y microinteracciones).
+ * (editorial, sobrio, con acentos en la tinta del impreso y microinteracciones).
  */
 
 const cx = (...classes: Array<string | false | null | undefined>): string =>
@@ -26,9 +26,9 @@ export const fadeUpItem = {
   transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const },
 };
 
-// ── Kicker (rótulo dorado en mayúsculas) ─────────────────────────────────────
+// ── Kicker (rótulo de acento en mayúsculas) ──────────────────────────────────
 export const Kicker = ({ children }: { children: ReactNode }) => (
-  <span className="block text-[10px] font-bold uppercase tracking-[0.25em] text-lux-gold">
+  <span className="block text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">
     {children}
   </span>
 );
@@ -92,7 +92,7 @@ export const LuxCard = ({
     className={cx(
       'transition-luxe border bg-white dark:bg-[#0f0f11]',
       'border-neutral-200/80 dark:border-white/10',
-      hover && 'hover:-translate-y-1 hover:border-lux-gold hover:shadow-xl',
+      hover && 'hover:-translate-y-1 hover:border-lux-tinta hover:shadow-xl',
       className,
     )}
     {...rest}
@@ -102,7 +102,7 @@ export const LuxCard = ({
 );
 
 // ── Botón ────────────────────────────────────────────────────────────────────
-type ButtonVariant = 'primary' | 'gold' | 'ghost' | 'danger';
+type ButtonVariant = 'primary' | 'tinta' | 'ghost' | 'danger';
 
 interface LuxButtonProps extends ComponentPropsWithoutRef<'button'> {
   variant?: ButtonVariant;
@@ -110,10 +110,12 @@ interface LuxButtonProps extends ComponentPropsWithoutRef<'button'> {
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'bg-lux-blue text-white hover:bg-lux-gold hover:text-white dark:bg-lux-gold dark:text-black dark:hover:bg-white dark:hover:text-black',
-  gold: 'bg-lux-gold text-black hover:bg-lux-blue hover:text-white',
+    'bg-lux-blue text-white hover:bg-lux-tinta hover:text-white dark:bg-lux-tinta-claro dark:text-black dark:hover:bg-white dark:hover:text-black',
+  // El relleno pasó de dorado a la tinta del impreso, así que el rótulo va en
+  // blanco: sobre `lux.tinta` el texto negro se quedaba en 1.6:1.
+  tinta: 'bg-lux-tinta text-white hover:bg-lux-blue hover:text-white',
   ghost:
-    'border border-lux-blue text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-gold dark:text-lux-gold dark:hover:bg-lux-gold dark:hover:text-black',
+    'border border-lux-blue text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-tinta-claro dark:text-lux-tinta-claro dark:hover:bg-lux-tinta-claro dark:hover:text-black',
   danger:
     'border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40',
 };
@@ -144,17 +146,18 @@ export const fieldLabelClass =
 
 export const fieldInputClass =
   'transition-luxe mt-1.5 w-full border bg-[#fdfdfc] px-3.5 py-2.5 text-sm text-neutral-900 ' +
-  'border-neutral-200 placeholder-neutral-400 focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-gold ' +
-  'dark:bg-[#18181a] dark:text-white dark:border-white/10 dark:placeholder-neutral-600 dark:focus:border-lux-gold';
+  'border-neutral-200 placeholder-neutral-400 focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-tinta ' +
+  'dark:bg-[#18181a] dark:text-white dark:border-white/10 dark:placeholder-neutral-600 dark:focus:border-lux-tinta-claro';
 
 // ── Etiqueta de estado (badge) ───────────────────────────────────────────────
 interface BadgeProps {
   children: ReactNode;
-  tone?: 'gold' | 'green' | 'red' | 'blue' | 'neutral';
+  tone?: 'tinta' | 'green' | 'red' | 'blue' | 'neutral';
 }
 
 const BADGE_TONES: Record<NonNullable<BadgeProps['tone']>, string> = {
-  gold: 'bg-lux-gold/15 text-lux-gold border-lux-gold/30',
+  // Sin variante `dark:`: `lux.tinta` ya se aclara solo en tema oscuro.
+  tinta: 'bg-lux-tinta/15 text-lux-tinta border-lux-tinta/30',
   green:
     'bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400',
   red: 'bg-red-500/10 text-red-600 border-red-500/30 dark:text-red-400',

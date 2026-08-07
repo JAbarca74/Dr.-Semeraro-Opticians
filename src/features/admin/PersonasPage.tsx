@@ -123,7 +123,7 @@ export const PersonasPage = () => {
       <motion.div {...fadeUp}>
         <LuxCard className="p-6">
           <div className="mb-5 flex items-center gap-2 border-b border-neutral-100 pb-4 dark:border-white/5">
-            <UserPlus className="h-4 w-4 text-lux-gold" strokeWidth={1.5} />
+            <UserPlus className="h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
             <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
               {editId ? 'Editar persona' : 'Nueva persona'}
             </h2>
@@ -283,14 +283,14 @@ export const PersonasPage = () => {
               {personas.map((p) => (
                 <tr
                   key={p.idPersona}
-                  className="transition-luxe border-b border-neutral-50 last:border-0 hover:bg-lux-gold/5 dark:border-white/5"
+                  className="transition-luxe border-b border-neutral-50 last:border-0 hover:bg-lux-tinta/5 dark:border-white/5"
                 >
                   <td className="px-5 py-3 font-mono text-xs text-neutral-500">{p.cedula}</td>
                   <td className="px-5 py-3 font-medium text-lux-blue dark:text-white">
                     {p.nombre}
                   </td>
                   <td className="px-5 py-3">
-                    <Badge tone={p.tipo === TipoPersona.PACIENTE ? 'blue' : 'gold'}>
+                    <Badge tone={p.tipo === TipoPersona.PACIENTE ? 'blue' : 'tinta'}>
                       {p.tipo}
                     </Badge>
                   </td>
@@ -301,7 +301,7 @@ export const PersonasPage = () => {
                     <button
                       type="button"
                       onClick={() => editar(p)}
-                      className="transition-luxe inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-gold"
+                      className="transition-luxe inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta"
                     >
                       <Pencil className="h-3 w-3" /> Editar
                     </button>

@@ -97,7 +97,7 @@ export const PortalPacientePage = () => {
                 </form>
               </div>
               <div className="space-y-2 border border-neutral-200 bg-lux-gray p-4 dark:border-white/10 dark:bg-white/5">
-                <span className="flex items-center gap-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-lux-gold">
+                <span className="flex items-center gap-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-lux-tinta">
                   <ShieldCheck className="h-3.5 w-3.5" /> Estándar de seguridad clínica
                 </span>
                 <p className="text-[10px] leading-relaxed text-neutral-500 dark:text-neutral-400">
@@ -122,7 +122,7 @@ export const PortalPacientePage = () => {
                   'Puede descargar el PDF oficial y presentarlo en cualquier laboratorio.',
                 ].map((t) => (
                   <li key={t} className="flex items-start gap-3">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-neutral-200 bg-white text-lux-gold dark:border-white/10 dark:bg-black">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-neutral-200 bg-white text-lux-tinta dark:border-white/10 dark:bg-black">
                       <ShieldCheck className="h-4 w-4" />
                     </span>
                     <span>{t}</span>
@@ -174,7 +174,7 @@ export const PortalPacientePage = () => {
                     Receta óptica certificada · Pérez Zeledón, Costa Rica
                   </p>
                 </div>
-                <ShieldCheck className="h-8 w-8 text-lux-gold" strokeWidth={1.2} />
+                <ShieldCheck className="h-8 w-8 text-lux-tinta" strokeWidth={1.2} />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
@@ -217,7 +217,7 @@ export const PortalPacientePage = () => {
                         key={r.ojo}
                         className="border-b border-neutral-50 last:border-0 dark:border-white/5"
                       >
-                        <td className="py-2 font-semibold text-lux-gold">{r.ojo}</td>
+                        <td className="py-2 font-semibold text-lux-tinta">{r.ojo}</td>
                         <td className="py-2">{r.esfera}</td>
                         <td className="py-2">{r.cilindro}</td>
                         <td className="py-2">{r.eje}°</td>

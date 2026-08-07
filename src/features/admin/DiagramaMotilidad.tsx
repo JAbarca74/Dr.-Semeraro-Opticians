@@ -81,7 +81,7 @@ export const DiagramaMotilidad = ({
 
   return (
     <figure className="space-y-2">
-      <figcaption className="font-clinico text-[11px] font-bold uppercase tracking-wider2 text-lux-gold">
+      <figcaption className="font-clinico text-[11px] font-bold uppercase tracking-wider2 text-lux-tinta">
         Ojo {ojo === 'OD' ? 'derecho (OD)' : 'izquierdo (OI)'}
       </figcaption>
       <svg
@@ -139,13 +139,13 @@ export const DiagramaMotilidad = ({
               }}
               className={cx(
                 'transition-luxe outline-none',
-                !soloLectura && 'cursor-pointer focus-visible:stroke-lux-gold',
+                !soloLectura && 'cursor-pointer focus-visible:stroke-lux-tinta',
                 estado === EstadoMotilidad.NORMAL &&
                   'fill-emerald-500/80 stroke-emerald-600',
                 estado === EstadoMotilidad.LIMITADO &&
                   'fill-red-500/80 stroke-red-600',
                 !estado &&
-                  'fill-white stroke-neutral-400 hover:stroke-lux-gold dark:fill-neutral-900',
+                  'fill-white stroke-neutral-400 hover:stroke-lux-tinta dark:fill-neutral-900',
               )}
               strokeWidth="1.5"
             />

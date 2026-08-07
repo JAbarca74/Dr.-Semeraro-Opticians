@@ -9,7 +9,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
     'transition-luxe text-[11px] font-semibold uppercase tracking-wider2',
     isActive
-      ? 'text-lux-gold'
+      ? 'text-lux-tinta'
       : 'text-neutral-600 hover:text-lux-blue dark:text-neutral-400 dark:hover:text-white',
   ].join(' ');
 
@@ -21,7 +21,9 @@ export const PublicLayout = () => {
   return (
     <div className="flex min-h-screen flex-col bg-lux-cream font-sans text-lux-blue transition-luxe dark:bg-[#0a0a0a] dark:text-zinc-100">
       <header className="transition-luxe sticky top-0 z-30 border-b border-lux-blue/10 bg-[#fcfbf9]/80 blur-backdrop dark:border-white/10 dark:bg-[#0a0a0a]/80">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-6">
+        {/* `gap-6`: sin separación mínima la marca llegaba a tocar el primer
+            enlace cuando la barra se quedaba justa de ancho. */}
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-4 md:px-6">
           <Link to="/">
             <MarcaOptica />
           </Link>
@@ -30,7 +32,7 @@ export const PublicLayout = () => {
               Inicio
             </NavLink>
             <NavLink to="/especialista" className={navLinkClass}>
-              El Especialista
+              Especialista
             </NavLink>
             <NavLink to="/catalogo" className={navLinkClass}>
               Vitrina
@@ -41,7 +43,7 @@ export const PublicLayout = () => {
             <button
               onClick={toggleTheme}
               title="Tema visual"
-              className="transition-luxe cursor-pointer rounded-full p-2 text-lux-gold hover:bg-lux-gold/10"
+              className="transition-luxe cursor-pointer rounded-full p-2 text-lux-tinta hover:bg-lux-tinta/10"
             >
               {theme === 'light' ? (
                 <Moon className="h-4 w-4" strokeWidth={1.5} />
@@ -74,7 +76,7 @@ export const PublicLayout = () => {
                 </NavLink>
                 <Link
                   to="/login"
-                  className="transition-luxe border border-lux-blue px-4 py-2 text-[11px] font-semibold uppercase tracking-wider2 text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-gold dark:text-lux-gold dark:hover:bg-lux-gold dark:hover:text-black"
+                  className="transition-luxe border border-lux-blue px-4 py-2 text-[11px] font-semibold uppercase tracking-wider2 text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-tinta-claro dark:text-lux-tinta-claro dark:hover:bg-lux-tinta-claro dark:hover:text-black"
                 >
                   Iniciar sesión
                 </Link>

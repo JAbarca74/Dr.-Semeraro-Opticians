@@ -23,11 +23,27 @@ export default {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
-        // Paleta maestra del sistema (azul profundo + dorado).
+        // Paleta maestra del sistema (azul profundo + la tinta del impreso).
         lux: {
           blue: '#021a30',
-          gold: '#c19f55',
-          'gold-light': '#f7f4ea',
+          // Azul de marca de la óptica: **`#3c497d`**, fijado por el cliente el
+          // 2026-08-06. Es el mismo tono de la tinta del expediente impreso
+          // pero más saturado y luminoso: la medición sobre la fotografía daba
+          // `#33405F` (hsl 222, 30 %, 29 %) y se leía casi negro en pantalla.
+          // Ver `.contexto/Imagenes/IDENTIDAD-PAPELERIA.md` §3.1.
+          //
+          // Se resuelve por variable CSS (canales RGB, para que sigan
+          // funcionando los modificadores de opacidad tipo `bg-lux-tinta/15`):
+          // en tema claro vale el azul de marca y en oscuro se aclara solo. Es
+          // el mismo recurso del isotipo, que se adapta vía `currentColor`, y
+          // evita tener que duplicar cada uso con una variante `dark:`.
+          tinta: 'rgb(var(--lux-tinta) / <alpha-value>)',
+          // El mismo azul subido a 72 % de luminosidad, conservando hue (228°)
+          // y saturación (35 %). Es el acento sobre fondos oscuros. Contraste
+          // 8.6:1 sobre `#0a0a0a`. Es un valor **fijo**: se usa donde el fondo
+          // es oscuro en los dos temas (el hero del panel), donde `lux.tinta`
+          // no serviría porque en tema claro se resolvería al azul oscuro.
+          'tinta-claro': '#9FA9D1',
           dark: '#0b1a30',
           cream: '#fcfbf9',
           gray: '#f5f4ef',

@@ -95,7 +95,7 @@ export const AdminLayout = () => {
                   [
                     'relative whitespace-nowrap py-1.5 text-[11px] font-semibold uppercase tracking-wider2 transition-luxe',
                     isActive
-                      ? 'text-lux-gold'
+                      ? 'text-lux-tinta'
                       : 'text-neutral-600 hover:text-lux-blue dark:text-neutral-400 dark:hover:text-white',
                   ].join(' ')
                 }
@@ -106,7 +106,7 @@ export const AdminLayout = () => {
                     {isActive ? (
                       <motion.span
                         layoutId="navIndicator"
-                        className="absolute inset-x-0 -bottom-0.5 h-px bg-lux-gold"
+                        className="absolute inset-x-0 -bottom-0.5 h-px bg-lux-tinta"
                         transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                       />
                     ) : null}
@@ -124,7 +124,7 @@ export const AdminLayout = () => {
             <button
               onClick={toggleTheme}
               title="Tema visual"
-              className="transition-luxe cursor-pointer rounded-full p-2 text-lux-gold hover:bg-lux-gold/10"
+              className="transition-luxe cursor-pointer rounded-full p-2 text-lux-tinta hover:bg-lux-tinta/10"
             >
               {theme === 'light' ? (
                 <Moon className="h-4 w-4" strokeWidth={1.5} />
@@ -134,9 +134,9 @@ export const AdminLayout = () => {
             </button>
             <button
               onClick={() => setMenuOpen(true)}
-              className="transition-luxe flex cursor-pointer items-center gap-1.5 border border-lux-blue px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-gold dark:text-lux-gold dark:hover:bg-lux-gold dark:hover:text-black"
+              className="transition-luxe flex cursor-pointer items-center gap-1.5 border border-lux-blue px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-tinta-claro dark:text-lux-tinta-claro dark:hover:bg-lux-tinta-claro dark:hover:text-black"
             >
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-lux-gold" />
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-lux-tinta" />
               <Menu className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Menú</span>
             </button>
@@ -163,7 +163,7 @@ export const AdminLayout = () => {
       <footer className="transition-luxe border-t border-lux-blue/5 bg-lux-gray py-8 text-center dark:border-white/5 dark:bg-[#070708]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 md:flex-row">
           <div className="space-y-1 text-left">
-            <span className="block text-[10px] font-medium uppercase tracking-widest text-lux-gold">
+            <span className="block text-[10px] font-medium uppercase tracking-widest text-lux-tinta">
               Óptica Dr. Luigi Semeraro
             </span>
             <span className="block text-[9px] uppercase tracking-wider text-neutral-400">
@@ -195,9 +195,9 @@ export const AdminLayout = () => {
               className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col justify-between border-l border-lux-blue/10 bg-lux-cream p-8 shadow-2xl dark:border-white/10 dark:bg-[#0a0a0b]"
             >
               <div className="space-y-6">
-                <div className="flex items-center justify-between border-b border-lux-gold/20 pb-4">
+                <div className="flex items-center justify-between border-b border-lux-tinta/20 pb-4">
                   <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-gold">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">
                       Menú de Operaciones
                     </span>
                     <MarcaOptica tamano="sm" />
@@ -227,13 +227,13 @@ export const AdminLayout = () => {
                           'transition-luxe flex w-full items-center justify-between border-b px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest',
                           'border-neutral-100 dark:border-white/5',
                           active
-                            ? 'bg-lux-gold/5 text-lux-gold'
+                            ? 'bg-lux-tinta/5 text-lux-tinta'
                             : 'text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white',
                         ].join(' ')}
                       >
                         <span>{item.drawerLabel}</span>
                         {active ? (
-                          <span className="h-1.5 w-1.5 rounded-full bg-lux-gold" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-lux-tinta" />
                         ) : (
                           <ChevronRight className="h-3.5 w-3.5 opacity-40" />
                         )}
@@ -252,23 +252,23 @@ export const AdminLayout = () => {
                   </button>
                 </nav>
 
-                <div className="flex items-center gap-1.5 border border-neutral-100 bg-neutral-50 p-4 text-[9px] font-bold uppercase tracking-widest text-lux-gold dark:border-white/5 dark:bg-white/5">
+                <div className="flex items-center gap-1.5 border border-neutral-100 bg-neutral-50 p-4 text-[9px] font-bold uppercase tracking-widest text-lux-tinta dark:border-white/5 dark:bg-white/5">
                   <Sparkles className="h-3.5 w-3.5" />
                   Sesión clínica autenticada · RBAC activo
                 </div>
               </div>
 
               {/* Tarjeta de usuario + logout */}
-              <div className="space-y-4 border-t border-lux-gold/20 pt-6">
+              <div className="space-y-4 border-t border-lux-tinta/20 pt-6">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-lux-gold font-serif font-bold uppercase text-black">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-lux-tinta font-serif font-bold uppercase text-white">
                     {iniciales}
                   </div>
                   <div className="overflow-hidden">
                     <span className="block max-w-[200px] truncate text-xs font-bold">
                       {user?.email}
                     </span>
-                    <span className="mt-1 block font-mono text-[9px] uppercase leading-none tracking-wider text-lux-gold">
+                    <span className="mt-1 block font-mono text-[9px] uppercase leading-none tracking-wider text-lux-tinta">
                       {rolLabel(user?.rol)} · Autenticado
                     </span>
                   </div>

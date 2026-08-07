@@ -124,7 +124,7 @@ export const PacientesPage = () => {
         description="Gestione la base demográfica de pacientes de Óptica Dr. Luigi Semeraro: registro, contacto y trazabilidad para facturación y citas."
         actions={
           <RecepButton onClick={nuevo}>
-            <Plus className="h-4 w-4 text-lux-gold" />
+            <Plus className="h-4 w-4 text-lux-tinta" />
             {mostrarForm ? 'Cerrar registro' : 'Nuevo paciente'}
           </RecepButton>
         }
