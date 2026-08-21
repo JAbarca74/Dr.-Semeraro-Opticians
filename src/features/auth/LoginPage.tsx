@@ -53,6 +53,9 @@ const DEMO = import.meta.env.DEV
       { label: 'Administrador del sistema', email: 'admin@optica.local', password: 'admin1234' },
       { label: 'Dr. Semeraro (Doctor)', email: 'doctor@optica.local', password: 'doctor1234' },
       { label: 'Recepción (front desk)', email: 'recepcion@optica.local', password: 'recepcion1234' },
+      // Cuarto rol del sistema. Su destino no es el panel interno sino el
+      // portal público (`homePathForRole` → `/portal`).
+      { label: 'Paciente (portal)', email: 'paciente@optica.local', password: 'paciente1234' },
     ]
   : [];
 
