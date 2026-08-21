@@ -44,6 +44,23 @@ export interface CitaInput {
   motivo?: string;
 }
 
+/** Un cupo del bloque en una fecha concreta (CU-06 paso 6). */
+export interface Cupo {
+  hora: string;
+  ocupado: boolean;
+  idCita: number | null;
+}
+
+/**
+ * Reprogramar exige cupo destino: el backend rechaza el cambio de estado sin
+ * `nuevaFechaHora` porque mover una cita es moverla, no reetiquetarla.
+ */
+export interface ReprogramacionInput {
+  nuevaFechaHora: string;
+  idDisponibilidad?: number;
+  motivoCambio?: string;
+}
+
 export interface HistorialCita {
   idHistorialCita: number;
   idCita: number;

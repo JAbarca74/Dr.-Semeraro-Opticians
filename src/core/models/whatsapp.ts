@@ -23,4 +23,10 @@ export interface ComunicacionWhatsapp {
   mensaje: string;
   estadoEnvio: EstadoEnvio;
   enviadoEn: string | null;
+  /**
+   * Enlace `wa.me` con el mensaje ya escrito (CU-05 paso 8). Lo calcula la API
+   * al generar el recordatorio; es `null` si la cita no tiene un teléfono
+   * utilizable, y no viene en las comunicaciones que solo se listan.
+   */
+  urlWhatsapp?: string | null;
 }

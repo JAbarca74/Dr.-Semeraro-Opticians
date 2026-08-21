@@ -1,36 +1,25 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Bell,
-  CalendarClock,
-  CalendarPlus,
-  Check,
-  Clock,
-  Pencil,
-  X,
-} from 'lucide-react';
+import { CalendarClock, Clock, Pencil, X } from 'lucide-react';
 import {
   actualizarDisponibilidad,
-  cambiarEstadoCita,
-  crearCita,
   crearDisponibilidad,
   desactivarDisponibilidad,
   listarCitas,
   listarDisponibilidad,
 } from '../../core/api/agenda.service';
-import { generarRecordatorios } from '../../core/api/whatsapp.service';
 import { listarPersonas } from '../../core/api/personas.service';
 import {
   DIAS_SEMANA,
-  EstadoCita,
-  TRANSICIONES_ESTADO,
   type Cita,
   type DisponibilidadInput,
   type DisponibilidadMedica,
 } from '../../core/models/agenda';
 import { TipoPersona, type Persona } from '../../core/models/persona';
-import type { ComunicacionWhatsapp } from '../../core/models/whatsapp';
+import { Rol } from '../../core/models/rol';
+import { useAuth } from '../../core/auth/auth.context';
 import { mensajeDeError } from '../../shared/error';
+import { PanelCitas } from './AgendaCitasPanel';
 import {
   Alert,
   Badge,
@@ -44,13 +33,6 @@ import {
 
 const hoyISO = () => new Date().toISOString().slice(0, 10);
 
-const TONO_ESTADO: Record<EstadoCita, 'neutral' | 'green' | 'red' | 'blue'> = {
-  [EstadoCita.SOLICITADA]: 'neutral',
-  [EstadoCita.CONFIRMADA]: 'green',
-  [EstadoCita.CANCELADA]: 'red',
-  [EstadoCita.REPROGRAMADA]: 'blue',
-};
-
 const FORM_DISPONIBILIDAD_VACIO: DisponibilidadInput = {
   idEmpleado: 0,
   diaSemana: 1,
@@ -60,27 +42,28 @@ const FORM_DISPONIBILIDAD_VACIO: DisponibilidadInput = {
   activo: true,
 };
 
-interface FormCita {
-  idPaciente: number;
-  idDisponibilidad: number;
-  fecha: string;
-  hora: string;
-  telefono: string;
-  motivo: string;
-}
-
-const FORM_CITA_VACIO: FormCita = {
-  idPaciente: 0,
-  idDisponibilidad: 0,
-  fecha: hoyISO(),
-  hora: '09:00',
-  telefono: '',
-  motivo: '',
-};
-
 type Tab = 'citas' | 'disponibilidad';
 
+/**
+ * Agenda del consultorio, compartida por los entornos `/admin` y `/recepcion`.
+ *
+ * **Decisión del PO (2026-08-20):** configurar la disponibilidad (CU-06) queda
+ * abierto a **Administrador, Recepción y Doctor**, y cerrado al **Paciente**.
+ * El TFM lo describía como «exclusivo del Doctor»; la desviación es consciente
+ * —en el mostrador también se ajustan horarios— y coincide con los `@Roles` del
+ * `DisponibilidadController`. Queda pendiente formalizarla ante el CCC.
+ *
+ * La comprobación se conserva aunque hoy la cumplan todos los que llegan aquí:
+ * el día que un rol nuevo alcance esta página, el valor por defecto será *no
+ * poder configurar*, que es el lado seguro.
+ */
 export const AgendaPage = () => {
+  const { hasRole } = useAuth();
+  const puedeConfigurar = hasRole([
+    Rol.ADMINISTRADOR,
+    Rol.RECEPCION,
+    Rol.DOCTOR,
+  ]);
   const [tab, setTab] = useState<Tab>('citas');
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [disponibilidad, setDisponibilidad] = useState<DisponibilidadMedica[]>([]);
@@ -105,8 +88,6 @@ export const AgendaPage = () => {
     () => new Map(disponibilidad.map((d) => [d.idDisponibilidadMedica, d])),
     [disponibilidad],
   );
-  const etiquetaBloque = (d: DisponibilidadMedica) =>
-    `${DIAS_SEMANA[d.diaSemana]} ${d.horaInicio.slice(0, 5)}–${d.horaFin.slice(0, 5)} · ${nombrePersona(d.idEmpleado)}`;
 
   const cargarBase = () => {
     listarPersonas()
@@ -129,9 +110,13 @@ export const AgendaPage = () => {
   return (
     <section className="space-y-10">
       <SectionHeader
-        kicker="CU-05 · CU-06"
+        kicker={puedeConfigurar ? 'CU-05 · CU-06' : 'CU-05'}
         title="Agenda"
-        description="Bloques de disponibilidad del especialista, coordinación de citas y sus recordatorios por WhatsApp."
+        description={
+          puedeConfigurar
+            ? 'Bloques de disponibilidad del especialista, coordinación de citas y sus recordatorios por WhatsApp.'
+            : 'Coordinación de citas del especialista y sus recordatorios por WhatsApp.'
+        }
         actions={
           <div className="flex gap-2">
             <LuxButton
@@ -140,12 +125,14 @@ export const AgendaPage = () => {
             >
               <CalendarClock className="h-3.5 w-3.5" /> Citas
             </LuxButton>
-            <LuxButton
-              variant={tab === 'disponibilidad' ? 'primary' : 'ghost'}
-              onClick={() => setTab('disponibilidad')}
-            >
-              <Clock className="h-3.5 w-3.5" /> Disponibilidad
-            </LuxButton>
+            {puedeConfigurar ? (
+              <LuxButton
+                variant={tab === 'disponibilidad' ? 'primary' : 'ghost'}
+                onClick={() => setTab('disponibilidad')}
+              >
+                <Clock className="h-3.5 w-3.5" /> Disponibilidad
+              </LuxButton>
+            ) : null}
           </div>
         }
       />
@@ -153,7 +140,7 @@ export const AgendaPage = () => {
       {error ? <Alert>{error}</Alert> : null}
       {aviso ? <Alert>{aviso}</Alert> : null}
 
-      {tab === 'disponibilidad' ? (
+      {tab === 'disponibilidad' && puedeConfigurar ? (
         <PanelDisponibilidad
           empleados={empleados}
           disponibilidad={disponibilidad}
@@ -171,7 +158,6 @@ export const AgendaPage = () => {
           pacientes={pacientes}
           disponibilidad={disponibilidad}
           disponibilidadPorId={disponibilidadPorId}
-          etiquetaBloque={etiquetaBloque}
           nombrePersona={nombrePersona}
           citas={citas}
           fechaFiltro={fechaFiltro}
@@ -206,8 +192,15 @@ const PanelDisponibilidad = ({
   const [editId, setEditId] = useState<number | null>(null);
   const [guardando, setGuardando] = useState(false);
 
+  // CU-06 paso 4. El backend lo valida también —es quien manda—, pero avisar
+  // aquí ahorra el viaje y señala el campo exacto que está mal.
+  const rangoInvalido = form.horaFin <= form.horaInicio;
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (rangoInvalido) {
+      return;
+    }
     onError('');
     setGuardando(true);
     try {
@@ -312,11 +305,17 @@ const PanelDisponibilidad = ({
               <span className={fieldLabelClass}>Hora fin</span>
               <input
                 type="time"
-                className={fieldInputClass}
+                className={`${fieldInputClass} ${rangoInvalido ? 'border-red-400 text-red-600' : ''}`}
                 value={form.horaFin}
                 onChange={(e) => setForm({ ...form, horaFin: e.target.value })}
+                aria-invalid={rangoInvalido}
                 required
               />
+              {rangoInvalido ? (
+                <span className="mt-1 block text-[11px] font-semibold text-red-600">
+                  La hora de fin debe ser posterior a la de inicio.
+                </span>
+              ) : null}
             </label>
             <label>
               <span className={fieldLabelClass}>Duración por cita (min)</span>
@@ -340,7 +339,7 @@ const PanelDisponibilidad = ({
             </label>
 
             <div className="col-span-full flex items-center gap-3 pt-2">
-              <LuxButton type="submit" disabled={guardando}>
+              <LuxButton type="submit" disabled={guardando || rangoInvalido}>
                 {editId ? 'Guardar cambios' : 'Crear bloque'}
               </LuxButton>
               {editId ? (
@@ -424,283 +423,3 @@ const PanelDisponibilidad = ({
   );
 };
 
-// ── Panel: citas (DSO-34 / DSO-35 / DSO-36) ─────────────────────────────────
-const PanelCitas = ({
-  pacientes,
-  disponibilidad,
-  disponibilidadPorId,
-  etiquetaBloque,
-  nombrePersona,
-  citas,
-  fechaFiltro,
-  setFechaFiltro,
-  onCambio,
-  onError,
-  onAviso,
-}: {
-  pacientes: Persona[];
-  disponibilidad: DisponibilidadMedica[];
-  disponibilidadPorId: Map<number, DisponibilidadMedica>;
-  etiquetaBloque: (d: DisponibilidadMedica) => string;
-  nombrePersona: (id: number) => string;
-  citas: Cita[];
-  fechaFiltro: string;
-  setFechaFiltro: (f: string) => void;
-  onCambio: () => void;
-  onError: (m: string) => void;
-  onAviso: (m: string) => void;
-}) => {
-  const [form, setForm] = useState<FormCita>(FORM_CITA_VACIO);
-  const [guardando, setGuardando] = useState(false);
-  const [generando, setGenerando] = useState(false);
-  const [ultimosRecordatorios, setUltimosRecordatorios] = useState<
-    ComunicacionWhatsapp[] | null
-  >(null);
-
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    onError('');
-    setGuardando(true);
-    try {
-      await crearCita({
-        idPaciente: form.idPaciente,
-        idDisponibilidad: form.idDisponibilidad,
-        fechaHora: `${form.fecha}T${form.hora}:00`,
-        telefono: form.telefono,
-        motivo: form.motivo || undefined,
-      });
-      setForm({ ...FORM_CITA_VACIO, fecha: fechaFiltro });
-      onCambio();
-    } catch (e) {
-      onError(mensajeDeError(e));
-    } finally {
-      setGuardando(false);
-    }
-  };
-
-  const cambiar = async (cita: Cita, estado: EstadoCita) => {
-    onError('');
-    try {
-      await cambiarEstadoCita(cita.idCita, estado);
-      onCambio();
-    } catch (e) {
-      onError(mensajeDeError(e));
-    }
-  };
-
-  const onGenerarRecordatorios = async () => {
-    onError('');
-    setGenerando(true);
-    try {
-      const generados = await generarRecordatorios();
-      setUltimosRecordatorios(generados);
-      onAviso(
-        generados.length > 0
-          ? `${generados.length} recordatorio(s) generado(s) para citas confirmadas de las próximas 24 horas.`
-          : 'No hay citas confirmadas en las próximas 24 horas sin recordatorio.',
-      );
-    } catch (e) {
-      onError(mensajeDeError(e));
-    } finally {
-      setGenerando(false);
-    }
-  };
-
-  return (
-    <>
-      <motion.div {...fadeUp}>
-        <LuxCard className="p-6">
-          <h2 className="mb-5 flex items-center gap-2 border-b border-neutral-100 pb-4 text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:border-white/5 dark:text-neutral-200">
-            <CalendarPlus className="h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
-            Nueva cita
-          </h2>
-          <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <label>
-              <span className={fieldLabelClass}>Paciente</span>
-              <select
-                className={fieldInputClass}
-                value={form.idPaciente || ''}
-                onChange={(e) => setForm({ ...form, idPaciente: Number(e.target.value) })}
-                required
-              >
-                <option value="" disabled>
-                  Seleccionar…
-                </option>
-                {pacientes.map((p) => (
-                  <option key={p.idPersona} value={p.idPersona}>
-                    {p.nombre}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="lg:col-span-2">
-              <span className={fieldLabelClass}>Bloque de disponibilidad</span>
-              <select
-                className={fieldInputClass}
-                value={form.idDisponibilidad || ''}
-                onChange={(e) =>
-                  setForm({ ...form, idDisponibilidad: Number(e.target.value) })
-                }
-                required
-              >
-                <option value="" disabled>
-                  Seleccionar…
-                </option>
-                {disponibilidad
-                  .filter((d) => d.activo)
-                  .map((d) => (
-                    <option key={d.idDisponibilidadMedica} value={d.idDisponibilidadMedica}>
-                      {etiquetaBloque(d)}
-                    </option>
-                  ))}
-              </select>
-            </label>
-            <label>
-              <span className={fieldLabelClass}>Fecha</span>
-              <input
-                type="date"
-                className={fieldInputClass}
-                value={form.fecha}
-                onChange={(e) => setForm({ ...form, fecha: e.target.value })}
-                required
-              />
-            </label>
-            <label>
-              <span className={fieldLabelClass}>Hora</span>
-              <input
-                type="time"
-                className={fieldInputClass}
-                value={form.hora}
-                onChange={(e) => setForm({ ...form, hora: e.target.value })}
-                required
-              />
-            </label>
-            <label>
-              <span className={fieldLabelClass}>Teléfono de contacto</span>
-              <input
-                className={fieldInputClass}
-                value={form.telefono}
-                onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                required
-              />
-            </label>
-            <label className="col-span-full">
-              <span className={fieldLabelClass}>Motivo (opcional)</span>
-              <input
-                className={fieldInputClass}
-                value={form.motivo}
-                onChange={(e) => setForm({ ...form, motivo: e.target.value })}
-              />
-            </label>
-            <div className="col-span-full pt-2">
-              <LuxButton type="submit" disabled={guardando}>
-                Agendar cita
-              </LuxButton>
-            </div>
-          </form>
-        </LuxCard>
-      </motion.div>
-
-      <motion.div {...fadeUp} className="flex flex-wrap items-center justify-between gap-4">
-        <label className="flex items-center gap-3">
-          <span className={fieldLabelClass}>Ver citas del</span>
-          <input
-            type="date"
-            className={fieldInputClass}
-            value={fechaFiltro}
-            onChange={(e) => setFechaFiltro(e.target.value)}
-          />
-        </label>
-        <LuxButton variant="tinta" onClick={onGenerarRecordatorios} disabled={generando}>
-          <Bell className="h-3.5 w-3.5" />
-          Generar recordatorios (próximas 24 h)
-        </LuxButton>
-      </motion.div>
-
-      {ultimosRecordatorios && ultimosRecordatorios.length > 0 ? (
-        <motion.div {...fadeUp}>
-          <LuxCard className="p-4">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-lux-tinta">
-              Recordatorios generados en esta corrida
-            </p>
-            <ul className="space-y-1 text-xs text-neutral-500">
-              {ultimosRecordatorios.map((c) => (
-                <li key={c.idComunicacionWhatsapp}>
-                  {nombrePersona(c.idPaciente)} — {c.mensaje}
-                </li>
-              ))}
-            </ul>
-          </LuxCard>
-        </motion.div>
-      ) : null}
-
-      <motion.div {...fadeUp}>
-        <LuxCard className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr className="border-b border-neutral-100 bg-neutral-50/60 text-left dark:border-white/5 dark:bg-white/5">
-                {['Hora', 'Paciente', 'Doctor', 'Estado', 'Motivo', ''].map((h) => (
-                  <th
-                    key={h}
-                    className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {citas.map((c) => {
-                const bloque = disponibilidadPorId.get(c.idDisponibilidad);
-                return (
-                  <tr
-                    key={c.idCita}
-                    className="transition-luxe border-b border-neutral-50 last:border-0 hover:bg-lux-tinta/5 dark:border-white/5"
-                  >
-                    <td className="px-5 py-3 font-mono text-xs text-neutral-500">
-                      {new Date(c.fechaHora).toLocaleTimeString('es-CR', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </td>
-                    <td className="px-5 py-3 font-medium text-lux-blue dark:text-white">
-                      {nombrePersona(c.idPaciente)}
-                    </td>
-                    <td className="px-5 py-3 text-neutral-500">
-                      {bloque ? nombrePersona(bloque.idEmpleado) : '—'}
-                    </td>
-                    <td className="px-5 py-3">
-                      <Badge tone={TONO_ESTADO[c.estado]}>{c.estado}</Badge>
-                    </td>
-                    <td className="px-5 py-3 text-neutral-500">{c.motivo || '—'}</td>
-                    <td className="px-5 py-3 text-right">
-                      <div className="flex justify-end gap-3">
-                        {TRANSICIONES_ESTADO[c.estado].map((siguiente) => (
-                          <button
-                            key={siguiente}
-                            type="button"
-                            onClick={() => cambiar(c, siguiente)}
-                            className="transition-luxe inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta"
-                          >
-                            <Check className="h-3 w-3" /> {siguiente}
-                          </button>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-              {citas.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-5 py-10 text-center text-sm text-neutral-400">
-                    Sin citas para esta fecha.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </LuxCard>
-      </motion.div>
-    </>
-  );
-};
