@@ -250,6 +250,21 @@ export const AdminLayout = () => {
                     <span>Mi Cuenta</span>
                     <ChevronRight className="h-3.5 w-3.5 opacity-40" />
                   </button>
+                  {/* El Administrador tiene permiso sobre el front desk
+                      (`RoleRoute [RECEPCION, ADMINISTRADOR]`), pero hasta ahora
+                      solo se llegaba escribiendo la URL: una ruta huérfana. */}
+                  {hasRole([Rol.ADMINISTRADOR]) ? (
+                    <button
+                      onClick={() => {
+                        navigate('/recepcion');
+                        setMenuOpen(false);
+                      }}
+                      className="transition-luxe flex w-full items-center justify-between border-b border-neutral-100 px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:border-white/5 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white"
+                    >
+                      <span>Ir a Recepción</span>
+                      <ChevronRight className="h-3.5 w-3.5 opacity-40" />
+                    </button>
+                  ) : null}
                 </nav>
 
                 <div className="flex items-center gap-1.5 border border-neutral-100 bg-neutral-50 p-4 text-[9px] font-bold uppercase tracking-widest text-lux-tinta dark:border-white/5 dark:bg-white/5">

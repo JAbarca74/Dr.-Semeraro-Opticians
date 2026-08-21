@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, FileText, ShieldCheck, Activity, ArrowRight } from 'lucide-react';
+import {
+  Users,
+  FileText,
+  ShieldCheck,
+  Activity,
+  ArrowRight,
+  CalendarClock,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { listarPersonas } from '../../core/api/personas.service';
 import { listarExpedientes } from '../../core/api/expedientes.service';
+import { listarCitas } from '../../core/api/agenda.service';
 import { TipoPersona } from '../../core/models/persona';
+import { EstadoCita } from '../../core/models/agenda';
 import { useAuth } from '../../core/auth/auth.context';
 import { Rol } from '../../core/models/rol';
 import {
@@ -37,6 +46,7 @@ export const DashboardPage = () => {
   const [pacientes, setPacientes] = useState(0);
   const [empleados, setEmpleados] = useState(0);
   const [expedientes, setExpedientes] = useState(0);
+  const [citasHoy, setCitasHoy] = useState(0);
 
   useEffect(() => {
     listarPersonas()
@@ -44,6 +54,11 @@ export const DashboardPage = () => {
         setPacientes(ps.filter((p) => p.tipo === TipoPersona.PACIENTE).length);
         setEmpleados(ps.filter((p) => p.tipo === TipoPersona.EMPLEADO).length);
       })
+      .catch(() => undefined);
+    // Las canceladas no cuentan: el panel responde «a cuánta gente se atiende
+    // hoy», no «cuántas filas hay en la tabla».
+    listarCitas({ fecha: new Date().toISOString().slice(0, 10) })
+      .then((cs) => setCitasHoy(cs.filter((c) => c.estado !== EstadoCita.CANCELADA).length))
       .catch(() => undefined);
     if (hasRole([Rol.DOCTOR, Rol.ADMINISTRADOR])) {
       listarExpedientes()
@@ -64,6 +79,12 @@ export const DashboardPage = () => {
       value: expedientes.toString().padStart(2, '0'),
       caption: 'Con evaluaciones y refracción',
       icon: FileText,
+    },
+    {
+      label: 'Citas de hoy',
+      value: citasHoy.toString().padStart(2, '0'),
+      caption: 'Sin contar las canceladas',
+      icon: CalendarClock,
     },
     {
       label: 'Personal de clínica',
