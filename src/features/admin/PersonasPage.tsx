@@ -13,6 +13,7 @@ import {
 } from '../../core/models/persona';
 import { mensajeDeError } from '../../shared/error';
 import { sinVacios } from '../../shared/form';
+import { TelefonoInput } from '../../shared/TelefonoInput';
 import {
   Alert,
   Badge,
@@ -163,14 +164,13 @@ export const PersonasPage = () => {
                 ))}
               </select>
             </label>
-            <label>
-              <span className={fieldLabelClass}>Teléfono</span>
-              <input
-                className={fieldInputClass}
-                value={form.telefono ?? ''}
-                onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-              />
-            </label>
+            <TelefonoInput
+              etiqueta="Teléfono"
+              valor={form.telefono}
+              onChange={(telefono) => setForm({ ...form, telefono })}
+              labelClass={fieldLabelClass}
+              inputClass={fieldInputClass}
+            />
             <label>
               <span className={fieldLabelClass}>Correo</span>
               <input
@@ -235,16 +235,15 @@ export const PersonasPage = () => {
                     }
                   />
                 </label>
-                <label>
-                  <span className={fieldLabelClass}>Teléfono de emergencia</span>
-                  <input
-                    className={fieldInputClass}
-                    value={form.telefonoEmergencia ?? ''}
-                    onChange={(e) =>
-                      setForm({ ...form, telefonoEmergencia: e.target.value })
-                    }
-                  />
-                </label>
+                <TelefonoInput
+                  etiqueta="Teléfono de emergencia"
+                  valor={form.telefonoEmergencia}
+                  onChange={(telefonoEmergencia) =>
+                    setForm({ ...form, telefonoEmergencia })
+                  }
+                  labelClass={fieldLabelClass}
+                  inputClass={fieldInputClass}
+                />
               </>
             )}
 
