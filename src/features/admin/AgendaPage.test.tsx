@@ -180,7 +180,13 @@ describe('AgendaPage', () => {
       render(<AgendaPage />);
       await user.click(await screen.findByRole('button', { name: /08:00 Libre/i }));
       expect(await screen.findByLabelText(/Paciente/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Teléfono de contacto/i)).toBeInTheDocument();
+      expect(
+        screen.getByRole('textbox', { name: /Teléfono de contacto/i }),
+      ).toBeInTheDocument();
+      // El selector de país es un campo aparte, con su propia etiqueta.
+      expect(
+        screen.getByRole('combobox', { name: /Código de país/i }),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText(/Motivo/i)).toBeInTheDocument();
     });
 
@@ -190,7 +196,10 @@ describe('AgendaPage', () => {
       render(<AgendaPage />);
       await user.click(await screen.findByRole('button', { name: /08:30 Libre/i }));
       await user.selectOptions(await screen.findByLabelText(/Paciente/i), '5');
-      await user.type(screen.getByLabelText(/Teléfono de contacto/i), '8710-1122');
+      await user.type(
+        screen.getByRole('textbox', { name: /Teléfono de contacto/i }),
+        '8710-1122',
+      );
       await user.click(screen.getByRole('button', { name: /Guardar cita/i }));
 
       await waitFor(() =>
@@ -204,6 +213,48 @@ describe('AgendaPage', () => {
       );
     });
 
+    it('guarda el teléfono con código de país, que es lo que WhatsApp exige', async () => {
+      const user = usuario();
+      vi.mocked(crearCita).mockResolvedValue(citaDe9 as never);
+      render(<AgendaPage />);
+      await user.click(await screen.findByRole('button', { name: /08:30 Libre/i }));
+      await user.selectOptions(await screen.findByLabelText(/Paciente/i), '5');
+      await user.type(
+        screen.getByRole('textbox', { name: /Teléfono de contacto/i }),
+        '72221959',
+      );
+      await user.click(screen.getByRole('button', { name: /Guardar cita/i }));
+
+      await waitFor(() =>
+        expect(crearCita).toHaveBeenCalledWith(
+          expect.objectContaining({ telefono: '+506 72221959' }),
+        ),
+      );
+    });
+
+    it('permite elegir otro país para un paciente extranjero', async () => {
+      const user = usuario();
+      vi.mocked(crearCita).mockResolvedValue(citaDe9 as never);
+      render(<AgendaPage />);
+      await user.click(await screen.findByRole('button', { name: /08:30 Libre/i }));
+      await user.selectOptions(await screen.findByLabelText(/Paciente/i), '5');
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: /Código de país/i }),
+        '+34',
+      );
+      await user.type(
+        screen.getByRole('textbox', { name: /Teléfono de contacto/i }),
+        '600123123',
+      );
+      await user.click(screen.getByRole('button', { name: /Guardar cita/i }));
+
+      await waitFor(() =>
+        expect(crearCita).toHaveBeenCalledWith(
+          expect.objectContaining({ telefono: '+34 600123123' }),
+        ),
+      );
+    });
+
     it('muestra el error del servidor si el cupo se ocupó mientras tanto (EX-06)', async () => {
       const user = usuario();
       vi.mocked(crearCita).mockRejectedValue({
@@ -212,7 +263,10 @@ describe('AgendaPage', () => {
       render(<AgendaPage />);
       await user.click(await screen.findByRole('button', { name: /08:30 Libre/i }));
       await user.selectOptions(await screen.findByLabelText(/Paciente/i), '5');
-      await user.type(screen.getByLabelText(/Teléfono de contacto/i), '8710-1122');
+      await user.type(
+        screen.getByRole('textbox', { name: /Teléfono de contacto/i }),
+        '8710-1122',
+      );
       await user.click(screen.getByRole('button', { name: /Guardar cita/i }));
 
       expect(await screen.findByText(/ya está ocupado/i)).toBeInTheDocument();

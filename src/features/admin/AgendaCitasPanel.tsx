@@ -21,6 +21,7 @@ import {
 import type { Persona } from '../../core/models/persona';
 import { EstadoEnvio, type ComunicacionWhatsapp } from '../../core/models/whatsapp';
 import { mensajeDeError } from '../../shared/error';
+import { TelefonoInput } from '../../shared/TelefonoInput';
 import {
   Badge,
   LuxButton,
@@ -351,15 +352,16 @@ export const PanelCitas = ({
                   ))}
                 </select>
               </label>
-              <label>
-                <span className={fieldLabelClass}>Teléfono de contacto</span>
-                <input
-                  className={fieldInputClass}
-                  value={form.telefono}
-                  onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                  required
-                />
-              </label>
+              {/* De este número sale el enlace del recordatorio: sin código de
+                  país, WhatsApp rechaza la URL. */}
+              <TelefonoInput
+                etiqueta="Teléfono de contacto"
+                valor={form.telefono}
+                onChange={(telefono) => setForm({ ...form, telefono })}
+                labelClass={fieldLabelClass}
+                inputClass={fieldInputClass}
+                requerido
+              />
               <label>
                 <span className={fieldLabelClass}>Motivo (opcional)</span>
                 <input

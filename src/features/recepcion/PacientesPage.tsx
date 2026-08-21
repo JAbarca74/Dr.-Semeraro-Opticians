@@ -9,6 +9,7 @@ import {
 import { TipoPersona, type Persona, type PersonaInput } from '../../core/models/persona';
 import { mensajeDeError } from '../../shared/error';
 import { sinVacios } from '../../shared/form';
+import { TelefonoInput } from '../../shared/TelefonoInput';
 import {
   RecepButton,
   RecepCard,
@@ -183,14 +184,13 @@ export const PacientesPage = () => {
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <span className={recepLabelClass}>Teléfono</span>
-                      <input
-                        className={recepInputClass}
-                        value={form.telefono ?? ''}
-                        onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                      />
-                    </div>
+                    <TelefonoInput
+                      etiqueta="Teléfono"
+                      valor={form.telefono}
+                      onChange={(telefono) => setForm({ ...form, telefono })}
+                      labelClass={recepLabelClass}
+                      inputClass={recepInputClass}
+                    />
                     <div>
                       <span className={recepLabelClass}>Correo</span>
                       <input
@@ -251,19 +251,15 @@ export const PacientesPage = () => {
                         }
                       />
                     </div>
-                    <div>
-                      <span className={recepLabelClass}>Tel. de emergencia</span>
-                      <input
-                        className={recepInputClass}
-                        value={form.telefonoEmergencia ?? ''}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            telefonoEmergencia: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
+                    <TelefonoInput
+                      etiqueta="Tel. de emergencia"
+                      valor={form.telefonoEmergencia}
+                      onChange={(telefonoEmergencia) =>
+                        setForm({ ...form, telefonoEmergencia })
+                      }
+                      labelClass={recepLabelClass}
+                      inputClass={recepInputClass}
+                    />
                   </div>
                   {error ? (
                     <p className="border border-rose-100 bg-rose-50 p-3 text-[11px] font-medium text-rose-800 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400">
