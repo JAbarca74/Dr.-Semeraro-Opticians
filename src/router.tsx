@@ -32,7 +32,6 @@ import { OverviewPage } from './features/recepcion/OverviewPage';
 import { PacientesPage as PacientesRecepcionPage } from './features/recepcion/PacientesPage';
 import { RecetasPage as RecetasRecepcionPage } from './features/recepcion/RecetasPage';
 import {
-  AgendaRecepcionPage,
   VentasRecepcionPage,
   ExistenciasRecepcionPage,
   LaboratorioRecepcionPage,
@@ -104,7 +103,11 @@ export const router = createBrowserRouter([
               // `CuentaPage` no depende del entorno: solo cambia la contraseña
               // de quien tiene la sesión abierta, sea cual sea su rol.
               { path: '/recepcion/cuenta', element: <CuentaPage /> },
-              { path: '/recepcion/agenda', element: <AgendaRecepcionPage /> },
+              // La misma agenda que ve el consultorio, no una copia: CU-05 es
+              // el módulo de Recepción. `AgendaPage` se adapta al rol y le
+              // muestra solo la pestaña de citas, porque configurar los
+              // horarios (CU-06) es del Doctor.
+              { path: '/recepcion/agenda', element: <AgendaPage /> },
               { path: '/recepcion/ventas', element: <VentasRecepcionPage /> },
               { path: '/recepcion/existencias', element: <ExistenciasRecepcionPage /> },
               { path: '/recepcion/laboratorio', element: <LaboratorioRecepcionPage /> },

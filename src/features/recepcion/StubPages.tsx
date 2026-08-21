@@ -1,22 +1,8 @@
-import { Calendar, Layers, ShieldAlert, ShoppingBag } from 'lucide-react';
+import { Layers, ShieldAlert, ShoppingBag } from 'lucide-react';
 import { RecepcionPlaceholder } from './RecepcionPlaceholder';
 
-export const AgendaRecepcionPage = () => (
-  <RecepcionPlaceholder
-    cu="Agenda Médica · sprint futuro"
-    title="Agenda Médica"
-    description="Coordinación de citas del especialista: disponibilidad, confirmaciones y recordatorios al paciente."
-    icon={Calendar}
-    features={[
-      'Bloques de disponibilidad del Dr. Semeraro',
-      'Agendar, confirmar, reprogramar y cancelar citas',
-      'Recordatorios automáticos por WhatsApp',
-      'Vista diaria y semanal del consultorio',
-      'Vínculo de la cita con el expediente del paciente',
-      'Estados con código de color',
-    ]}
-  />
-);
+// La agenda ya no vive aquí: `/recepcion/agenda` monta la `AgendaPage` real
+// desde el sprint 7. Dejó de ser un placeholder el 2026-08-20.
 
 export const VentasRecepcionPage = () => (
   <RecepcionPlaceholder
