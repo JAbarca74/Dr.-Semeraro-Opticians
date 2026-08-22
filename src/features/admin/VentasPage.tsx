@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertTriangle,
+  FlaskConical,
   Minus,
   Plus,
   Receipt,
@@ -52,6 +54,8 @@ import {
  * esos dos entornos.
  */
 export const VentasPage = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [busqueda, setBusqueda] = useState('');
   const [resultados, setResultados] = useState<Producto[]>([]);
   const [buscando, setBuscando] = useState(false);
@@ -61,6 +65,7 @@ export const VentasPage = () => {
   const [idPaciente, setIdPaciente] = useState('');
 
   const [ventas, setVentas] = useState<Venta[]>([]);
+  const [filtroPaciente, setFiltroPaciente] = useState('');
   const [seleccionada, setSeleccionada] = useState<Venta | null>(null);
   const [motivoAnulacion, setMotivoAnulacion] = useState('');
   const [anulando, setAnulando] = useState(false);
@@ -69,9 +74,19 @@ export const VentasPage = () => {
   const [ok, setOk] = useState('');
   const [cobrando, setCobrando] = useState(false);
 
-  const cargarVentas = async () => {
+  /**
+   * CU-04 paso 7: la salida queda vinculada al historial del paciente. Filtrar
+   * por paciente es lo que hace visible esa vinculación — sin esto, el vínculo
+   * existe en la base y no se ve en ninguna pantalla.
+   */
+  const cargarVentas = async (idPacienteFiltro = filtroPaciente) => {
     try {
-      setVentas(await listarVentas({ limite: 20 }));
+      setVentas(
+        await listarVentas({
+          limite: 20,
+          ...(idPacienteFiltro ? { idPaciente: Number(idPacienteFiltro) } : {}),
+        }),
+      );
     } catch (e) {
       setError(mensajeDeError(e, 'No se pudieron cargar las ventas'));
     }
@@ -79,6 +94,10 @@ export const VentasPage = () => {
 
   useEffect(() => {
     void cargarVentas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtroPaciente]);
+
+  useEffect(() => {
     // CU-04 paso 2: el buscador de pacientes es opcional, pero se precarga para
     // que vincular la salida no obligue a otra búsqueda en mitad del cobro.
     listarPersonas()
@@ -87,6 +106,19 @@ export const VentasPage = () => {
         // Que no haya lista de pacientes no impide cobrar de mostrador.
       });
   }, []);
+
+  /**
+   * CU-07 depende funcionalmente de CU-04: la orden de laboratorio nace de una
+   * venta. Se salta al tablero con el número ya puesto en vez de obligar a
+   * quien cobra a memorizarlo y teclearlo en la otra pantalla.
+   *
+   * El destino depende del entorno en que esté montada la caja: el guard de
+   * `/recepcion` deja fuera al Doctor, y el de `/admin` es el otro entorno.
+   */
+  const abrirOrdenDeLaboratorio = (venta: Venta) => {
+    const base = pathname.startsWith('/recepcion') ? '/recepcion' : '/admin';
+    navigate(`${base}/laboratorio?venta=${venta.idVenta}`);
+  };
 
   const buscarProductos = async (e: FormEvent) => {
     e.preventDefault();
@@ -368,6 +400,28 @@ export const VentasPage = () => {
         </div>
 
         <div className="space-y-6">
+          <LuxCard className="p-4">
+            <label className={fieldLabelClass} htmlFor="filtroPaciente">
+              Historial por paciente
+            </label>
+            <select
+              id="filtroPaciente"
+              className={fieldInputClass}
+              value={filtroPaciente}
+              onChange={(e) => {
+                setFiltroPaciente(e.target.value);
+                setSeleccionada(null);
+              }}
+            >
+              <option value="">Todas las ventas</option>
+              {pacientes.map((p) => (
+                <option key={p.idPersona} value={p.idPersona}>
+                  {p.nombre} · {p.cedula}
+                </option>
+              ))}
+            </select>
+          </LuxCard>
+
           <LuxCard className="overflow-x-auto">
             <table className="w-full min-w-[320px] text-left text-xs">
               <thead className="border-b border-neutral-200 text-[10px] uppercase tracking-wider text-neutral-500 dark:border-white/10">
@@ -382,7 +436,9 @@ export const VentasPage = () => {
                 {ventas.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-4 py-10 text-center text-neutral-500">
-                      Todavía no hay ventas registradas.
+                      {filtroPaciente
+                        ? 'Este paciente no tiene compras registradas.'
+                        : 'Todavía no hay ventas registradas.'}
                     </td>
                   </tr>
                 ) : (
@@ -465,6 +521,18 @@ export const VentasPage = () => {
                       {colones(seleccionada.total)}
                     </span>
                   </div>
+
+                  {seleccionada.estado === EstadoVenta.ACTIVA ? (
+                    <LuxButton
+                      type="button"
+                      variant="ghost"
+                      className="mb-4 w-full"
+                      onClick={() => abrirOrdenDeLaboratorio(seleccionada)}
+                    >
+                      <FlaskConical size={13} />
+                      Abrir orden de laboratorio
+                    </LuxButton>
+                  ) : null}
 
                   {seleccionada.estado === EstadoVenta.ANULADA ? (
                     <p className="border border-neutral-200 bg-stone-50 px-3 py-2.5 text-[11px] text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-400">

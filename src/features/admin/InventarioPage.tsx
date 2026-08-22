@@ -5,6 +5,7 @@ import {
   ClipboardList,
   Package,
   PackagePlus,
+  Pencil,
   Plus,
   Scale,
   Search,
@@ -88,6 +89,8 @@ export const InventarioPage = () => {
   const [stockFinal, setStockFinal] = useState('');
   const [motivo, setMotivo] = useState('');
 
+  const [editando, setEditando] = useState(false);
+  const [edicion, setEdicion] = useState<ProductoInput | null>(null);
   const [mostrarAlta, setMostrarAlta] = useState(false);
   const [alta, setAlta] = useState<ProductoInput>(ALTA_VACIA);
   const [error, setError] = useState('');
@@ -120,6 +123,8 @@ export const InventarioPage = () => {
 
   const abrir = async (producto: Producto) => {
     setSeleccionado(producto);
+    setEditando(false);
+    setEdicion(null);
     setOperacion('entrada');
     setCantidad('');
     setReferencia('');
@@ -176,6 +181,59 @@ export const InventarioPage = () => {
     } finally {
       setGuardando(false);
     }
+  };
+
+  /**
+   * CU-03, flujo alterno «Actualizar producto»: corrige los datos maestros.
+   *
+   * ⚠️ **`stock` no está aquí y no es un olvido**: el backend lo rechaza con un
+   * 400 y `actualizarProducto()` lo excluye en su propio tipo. Las existencias
+   * se mueven por entrada o por ajuste, que son las que dejan kardex.
+   */
+  const guardarDatosMaestros = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!seleccionado || !edicion) return;
+    setError('');
+    setOk('');
+    setGuardando(true);
+    try {
+      const actualizado = await actualizarProducto(seleccionado.idProducto, {
+        sku: normalizarSku(edicion.sku),
+        nombre: edicion.nombre.trim(),
+        marca: edicion.marca.trim(),
+        categoria: edicion.categoria,
+        precio: Number(edicion.precio),
+        umbralMinimo: Number(edicion.umbralMinimo ?? 0),
+        // Vaciar el campo significa «borra la imagen», no «déjala como está»:
+        // se manda cadena vacía, que el DTO convierte a null.
+        imagenUrl: edicion.imagenUrl?.trim() ?? '',
+      });
+      setSeleccionado(actualizado);
+      setEditando(false);
+      setEdicion(null);
+      setOk(`${actualizado.sku} actualizado.`);
+      await cargar();
+    } catch (err) {
+      setError(mensajeDeError(err, 'No se pudo actualizar el producto'));
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const empezarEdicion = () => {
+    if (!seleccionado) return;
+    setError('');
+    setOk('');
+    setEdicion({
+      sku: seleccionado.sku,
+      nombre: seleccionado.nombre,
+      marca: seleccionado.marca,
+      categoria: seleccionado.categoria,
+      precio: seleccionado.precio,
+      umbralMinimo: seleccionado.umbralMinimo,
+      imagenUrl: seleccionado.imagenUrl ?? '',
+    });
+    setEditando(true);
   };
 
   /**
@@ -536,18 +594,167 @@ export const InventarioPage = () => {
                     {colones(seleccionado.precio)}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  aria-label="Cerrar detalle"
-                  onClick={() => {
-                    setSeleccionado(null);
-                    setKardex([]);
-                  }}
-                  className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
-                >
-                  <X size={16} />
-                </button>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    aria-label="Editar datos del producto"
+                    onClick={empezarEdicion}
+                    className="text-neutral-400 hover:text-lux-tinta"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Cerrar detalle"
+                    onClick={() => {
+                      setSeleccionado(null);
+                      setKardex([]);
+                      setEditando(false);
+                    }}
+                    className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               </div>
+
+              {editando && edicion ? (
+                <form
+                  onSubmit={guardarDatosMaestros}
+                  className="mb-5 grid gap-3 border-y border-neutral-150 py-4 sm:grid-cols-2 dark:border-white/10"
+                >
+                  <div>
+                    <label className={fieldLabelClass} htmlFor="editSku">
+                      SKU *
+                    </label>
+                    <input
+                      id="editSku"
+                      required
+                      maxLength={50}
+                      className={fieldInputClass}
+                      value={edicion.sku}
+                      onChange={(e) => setEdicion({ ...edicion, sku: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className={fieldLabelClass} htmlFor="editNombre">
+                      Nombre *
+                    </label>
+                    <input
+                      id="editNombre"
+                      required
+                      maxLength={150}
+                      className={fieldInputClass}
+                      value={edicion.nombre}
+                      onChange={(e) => setEdicion({ ...edicion, nombre: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className={fieldLabelClass} htmlFor="editMarca">
+                      Marca *
+                    </label>
+                    <input
+                      id="editMarca"
+                      required
+                      maxLength={100}
+                      className={fieldInputClass}
+                      value={edicion.marca}
+                      onChange={(e) => setEdicion({ ...edicion, marca: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className={fieldLabelClass} htmlFor="editCategoria">
+                      Categoría *
+                    </label>
+                    <select
+                      id="editCategoria"
+                      className={fieldInputClass}
+                      value={edicion.categoria}
+                      onChange={(e) =>
+                        setEdicion({
+                          ...edicion,
+                          categoria: e.target.value as CategoriaProducto,
+                        })
+                      }
+                    >
+                      {CATEGORIAS.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={fieldLabelClass} htmlFor="editPrecio">
+                      Precio (₡) *
+                    </label>
+                    <input
+                      id="editPrecio"
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      required
+                      className={fieldInputClass}
+                      value={edicion.precio}
+                      onChange={(e) =>
+                        setEdicion({ ...edicion, precio: Number(e.target.value) })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className={fieldLabelClass} htmlFor="editUmbral">
+                      Umbral mínimo
+                    </label>
+                    <input
+                      id="editUmbral"
+                      type="number"
+                      min={0}
+                      className={fieldInputClass}
+                      value={edicion.umbralMinimo ?? 0}
+                      onChange={(e) =>
+                        setEdicion({ ...edicion, umbralMinimo: Number(e.target.value) })
+                      }
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={fieldLabelClass} htmlFor="editImagen">
+                      Imagen (URL)
+                    </label>
+                    <input
+                      id="editImagen"
+                      maxLength={500}
+                      placeholder="https://…"
+                      className={fieldInputClass}
+                      value={edicion.imagenUrl ?? ''}
+                      onChange={(e) =>
+                        setEdicion({ ...edicion, imagenUrl: e.target.value })
+                      }
+                    />
+                    <p className="mt-1 text-[10px] text-neutral-400">
+                      Vaciarla quita la foto del catálogo público.
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-neutral-400 sm:col-span-2">
+                    Las existencias no se editan aquí: use «Entrada» o «Ajuste», que
+                    dejan asiento en el kardex.
+                  </p>
+                  <div className="flex justify-end gap-3 sm:col-span-2">
+                    <LuxButton
+                      type="button"
+                      variant="ghost"
+                      onClick={() => {
+                        setEditando(false);
+                        setEdicion(null);
+                      }}
+                    >
+                      Cancelar
+                    </LuxButton>
+                    <LuxButton type="submit" disabled={guardando}>
+                      {guardando ? 'Guardando…' : 'Guardar cambios'}
+                    </LuxButton>
+                  </div>
+                </form>
+              ) : null}
 
               <div className="mb-5 flex items-center gap-4 border-y border-neutral-150 py-3 dark:border-white/10">
                 <div>
