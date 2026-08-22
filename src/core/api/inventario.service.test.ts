@@ -44,6 +44,8 @@ const producto: Producto = {
   filtro: null,
   tratamiento: null,
   formasRostroCompatibles: null,
+  esPublico: false,
+  imagenUrl: null,
 };
 
 const asiento: MovimientoInventario = {
