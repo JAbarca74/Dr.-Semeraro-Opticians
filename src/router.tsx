@@ -34,8 +34,8 @@ import { RecetasPage as RecetasRecepcionPage } from './features/recepcion/Receta
 import {
   VentasRecepcionPage,
   ExistenciasRecepcionPage,
-  LaboratorioRecepcionPage,
 } from './features/recepcion/StubPages';
+import { LaboratorioPage } from './features/recepcion/LaboratorioPage';
 
 /**
  * Rutas divididas en tres entornos:
@@ -78,6 +78,10 @@ export const router = createBrowserRouter([
               { path: '/admin/inventario', element: <InventarioPage /> },
               { path: '/admin/ventas', element: <VentasPage /> },
               { path: '/admin/metricas', element: <MetricasPage /> },
+              // El mismo tablero que ve Recepción, no una copia: CU-07 nombra a
+              // «Doctor/Recepción», y el guard de `/recepcion` deja fuera al
+              // Doctor. Sin esta ruta, el caso de uso quedaría a medias.
+              { path: '/admin/laboratorio', element: <LaboratorioPage /> },
               { path: '/admin/cuenta', element: <CuentaPage /> },
               { path: '/admin/expedientes', element: <ExpedientesPage /> },
               {
@@ -110,7 +114,7 @@ export const router = createBrowserRouter([
               { path: '/recepcion/agenda', element: <AgendaPage /> },
               { path: '/recepcion/ventas', element: <VentasRecepcionPage /> },
               { path: '/recepcion/existencias', element: <ExistenciasRecepcionPage /> },
-              { path: '/recepcion/laboratorio', element: <LaboratorioRecepcionPage /> },
+              { path: '/recepcion/laboratorio', element: <LaboratorioPage /> },
             ],
           },
         ],

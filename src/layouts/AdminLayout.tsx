@@ -37,6 +37,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/admin/inventario', label: 'Bodega', drawerLabel: 'Depósito y Bodega' },
   { to: '/admin/ventas', label: 'Caja & Ventas', drawerLabel: 'Caja y Cobro Diario' },
   { to: '/admin/agenda', label: 'Citas', drawerLabel: 'Coordinación de Citas' },
+  { to: '/admin/laboratorio', label: 'Lab', drawerLabel: 'Control de Laboratorio' },
   {
     to: '/admin/usuarios',
     label: 'Usuarios',
