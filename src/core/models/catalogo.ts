@@ -1,5 +1,5 @@
 /**
- * Catálogo público (CU-09) y solicitud por WhatsApp (patrón de CU-11).
+ * Catálogo público (CU-09).
  *
  * Espejo de `ProductoVitrina` del backend. ⚠️ **No tiene `stock` ni nada de
  * costo, y no es un olvido**: el endpoint público no los devuelve, para no
@@ -25,90 +25,34 @@ export interface ProductoVitrina {
   imagenUrl: string | null;
 }
 
-/** Una línea del carrito del visitante. */
-export interface LineaApartado {
-  idProducto: number;
-  sku: string;
-  nombre: string;
-  marca: string;
-  precio: number;
-  cantidad: number;
-}
-
-/** Quién escribe. CU-11 paso 2 pide identificarse antes de redirigir. */
-export interface DatosSolicitante {
-  nombre: string;
-  telefono: string;
-}
-
 /** Parámetros públicos que sirve `GET /configuracion/publicos`. */
 export interface ParametrosPublicos {
   'optica.nombre'?: string;
   'optica.whatsapp'?: string;
 }
 
-export const totalApartado = (lineas: LineaApartado[]): number => {
-  const suma = lineas.reduce((t, l) => t + l.cantidad * l.precio, 0);
-  return Math.round(suma * 100) / 100;
-};
-
-/** Añade al carrito sumando la cantidad si el producto ya estaba. */
-export const agregarAlApartado = (
-  lineas: LineaApartado[],
-  nueva: LineaApartado,
-): LineaApartado[] => {
-  const existente = lineas.find((l) => l.idProducto === nueva.idProducto);
-  if (!existente) {
-    return [...lineas, nueva];
-  }
-  return lineas.map((l) =>
-    l.idProducto === nueva.idProducto
-      ? { ...l, cantidad: l.cantidad + nueva.cantidad }
-      : l,
-  );
-};
-
-const colonesTexto = (monto: number): string =>
-  new Intl.NumberFormat('es-CR', {
-    style: 'currency',
-    currency: 'CRC',
-    minimumFractionDigits: 2,
-  }).format(monto);
-
 /**
- * El mensaje que recibe Recepción.
+ * El mensaje de «Consultar por WhatsApp» (CU-09 pasos 7–8).
  *
- * Se redacta aquí, en una función pura, y no dentro del componente, porque es
- * **lo único que la óptica llega a ver** de todo este flujo: si sale incompleto,
- * quien atiende no sabe qué apartar ni a quién llamar. Lleva, en este orden,
- * quién escribe y cómo contactarlo, qué quiere con cantidades y precios, y el
- * total de referencia.
+ * El caso de uso pide que abra el enlace **«con el nombre del producto ya
+ * incluido en el mensaje»**, y eso es exactamente lo que lleva: qué modelo,
+ * de qué marca y su SKU, para que quien atienda sepa de cuál se habla sin
+ * tener que adivinar entre dos monturas parecidas.
+ *
+ * ⚠️ **No pide ni incluye datos del visitante.** La vista es informativa: la
+ * conversación la abre la persona desde su propio WhatsApp, que ya lleva su
+ * número. Pedirle nombre y teléfono para algo que el canal ya aporta sería
+ * recoger datos personales sin necesidad.
  */
-export const construirMensajeApartado = (
-  lineas: LineaApartado[],
-  solicitante: DatosSolicitante,
-  nombreOptica = 'la óptica',
-): string => {
-  const detalle = lineas
-    .map(
-      (l) =>
-        `• ${l.cantidad} × ${l.nombre} (${l.marca}) — ${l.sku} — ${colonesTexto(l.precio)} c/u`,
-    )
-    .join('\n');
-
-  return [
-    `Hola, soy ${solicitante.nombre.trim()} (tel. ${solicitante.telefono.trim()}).`,
-    `Me interesa apartar lo siguiente en ${nombreOptica}:`,
-    '',
-    detalle,
-    '',
-    `Total de referencia: ${colonesTexto(totalApartado(lineas))}`,
-    '¿Me confirman disponibilidad y el paso siguiente? Gracias.',
-  ].join('\n');
-};
+export const construirMensajeConsulta = (
+  producto: ProductoVitrina,
+  nombreOptica = 'su catálogo',
+): string =>
+  `Hola, me interesa el modelo ${producto.nombre} de ${producto.marca} ` +
+  `(${producto.sku}) que vi en ${nombreOptica}. ¿Me brindan más información?`;
 
 /**
- * URL de `wa.me` con el mensaje ya escrito (CU-09 paso 8, CU-11 paso 5).
+ * URL de `wa.me` con el mensaje ya escrito (CU-09 paso 8).
  *
  * `wa.me` no admite espacios ni signos en el número: se deja solo en dígitos,
  * igual que hace el backend con los recordatorios.
@@ -116,7 +60,12 @@ export const construirMensajeApartado = (
 export const enlaceWhatsapp = (numero: string, mensaje: string): string =>
   `https://wa.me/${numero.replace(/\D/g, '')}?text=${encodeURIComponent(mensaje)}`;
 
-/** Formato legible del número, para EX-13 cuando el navegador bloquea la apertura. */
+/**
+ * Formato legible del número, para cuando el navegador bloquea la apertura.
+ *
+ * Es el mismo trato que CU-11 le da a **EX-13** en su propio flujo: si la
+ * redirección falla, se muestra el número para contactar a mano.
+ */
 export const numeroLegible = (numero: string): string => {
   const digitos = numero.replace(/\D/g, '');
   // Los números de Costa Rica son 8 dígitos tras el código de país (506).
