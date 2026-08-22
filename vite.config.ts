@@ -37,6 +37,7 @@ export default defineConfig({
         'src/core/models/rol.ts',
         'src/core/models/laboratorio.ts',
         'src/core/models/inventario.ts',
+        'src/core/models/venta.ts',
         'src/shared/**/*.ts',
         'src/features/admin/AgendaPage.tsx',
         'src/features/admin/AgendaCitasPanel.tsx',
@@ -44,6 +45,7 @@ export default defineConfig({
         'src/features/admin/AuditoriaPage.tsx',
         'src/features/admin/DiagramaMotilidad.tsx',
         'src/features/admin/InventarioPage.tsx',
+        'src/features/admin/VentasPage.tsx',
         'src/features/recepcion/LaboratorioPage.tsx',
       ],
       // Las propias pruebas no cuentan como código cubierto: se medían a sí
