@@ -31,7 +31,6 @@ import { CuentaPage } from './features/admin/CuentaPage';
 import { OverviewPage } from './features/recepcion/OverviewPage';
 import { PacientesPage as PacientesRecepcionPage } from './features/recepcion/PacientesPage';
 import { RecetasPage as RecetasRecepcionPage } from './features/recepcion/RecetasPage';
-import { VentasRecepcionPage } from './features/recepcion/StubPages';
 import { LaboratorioPage } from './features/recepcion/LaboratorioPage';
 
 /**
@@ -109,7 +108,9 @@ export const router = createBrowserRouter([
               // muestra solo la pestaña de citas, porque configurar los
               // horarios (CU-06) es del Doctor.
               { path: '/recepcion/agenda', element: <AgendaPage /> },
-              { path: '/recepcion/ventas', element: <VentasRecepcionPage /> },
+              // La misma caja que ve la administración: CU-04 nombra a
+              // «Administrador o Recepción» y son los dos entornos que la usan.
+              { path: '/recepcion/ventas', element: <VentasPage /> },
               // La misma vista de bodega que ve la administración, no una
               // copia: el mostrador consulta existencias tanto como el
               // consultorio, y CU-03 no distingue entre los dos.
