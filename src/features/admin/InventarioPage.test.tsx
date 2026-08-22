@@ -60,6 +60,8 @@ const producto = (cambios: Partial<Producto> = {}): Producto => ({
   filtro: null,
   tratamiento: null,
   formasRostroCompatibles: null,
+  esPublico: false,
+  imagenUrl: null,
   ...cambios,
 });
 

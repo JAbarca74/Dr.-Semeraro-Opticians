@@ -38,6 +38,9 @@ export interface Producto {
   filtro: string | null;
   tratamiento: string | null;
   formasRostroCompatibles: string[] | null;
+  /** CU-09 paso 2: si el producto se muestra en el catálogo público. */
+  esPublico: boolean;
+  imagenUrl: string | null;
 }
 
 /**
@@ -59,6 +62,8 @@ export interface ProductoInput {
   indiceRefraccion?: number;
   filtro?: string;
   tratamiento?: string;
+  esPublico?: boolean;
+  imagenUrl?: string;
   formasRostroCompatibles?: string[];
 }
 

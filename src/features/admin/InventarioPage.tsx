@@ -11,6 +11,7 @@ import {
   X,
 } from 'lucide-react';
 import {
+  actualizarProducto,
   ajustarStock,
   crearProducto,
   listarProductos,
@@ -52,6 +53,8 @@ const ALTA_VACIA: ProductoInput = {
   precio: 0,
   stock: 0,
   umbralMinimo: 0,
+  esPublico: false,
+  imagenUrl: '',
 };
 
 const TONO_MOVIMIENTO: Record<TipoMovimiento, 'green' | 'red' | 'blue'> = {
@@ -175,6 +178,34 @@ export const InventarioPage = () => {
     }
   };
 
+  /**
+   * CU-09 paso 2. Se guarda en el acto, sin botón de confirmar: es un
+   * interruptor de una sola cosa y pedir «guardar» aparte solo añade un paso
+   * en el que olvidarse.
+   */
+  const cambiarVisibilidad = async (esPublico: boolean) => {
+    if (!seleccionado) return;
+    setError('');
+    setOk('');
+    setGuardando(true);
+    try {
+      const actualizado = await actualizarProducto(seleccionado.idProducto, {
+        esPublico,
+      });
+      setSeleccionado(actualizado);
+      setOk(
+        esPublico
+          ? `${actualizado.sku} ya se muestra en el catálogo público.`
+          : `${actualizado.sku} se retiró del catálogo público.`,
+      );
+      await cargar();
+    } catch (err) {
+      setError(mensajeDeError(err, 'No se pudo cambiar la visibilidad'));
+    } finally {
+      setGuardando(false);
+    }
+  };
+
   const registrarProducto = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
@@ -183,6 +214,8 @@ export const InventarioPage = () => {
     try {
       const creado = await crearProducto({
         ...alta,
+        // Una cadena vacía no es una URL: se manda ausente, no vacía.
+        imagenUrl: alta.imagenUrl?.trim() || undefined,
         sku: normalizarSku(alta.sku),
         nombre: alta.nombre.trim(),
         marca: alta.marca.trim(),
@@ -340,6 +373,27 @@ export const InventarioPage = () => {
                     Si es mayor que cero, queda asentada en el kardex.
                   </p>
                 </div>
+                <div className="md:col-span-2">
+                  <label className={fieldLabelClass} htmlFor="imagenUrl">
+                    Imagen (URL)
+                  </label>
+                  <input
+                    id="imagenUrl"
+                    maxLength={500}
+                    placeholder="https://…"
+                    className={fieldInputClass}
+                    value={alta.imagenUrl ?? ''}
+                    onChange={(e) => setAlta({ ...alta, imagenUrl: e.target.value })}
+                  />
+                </div>
+                <label className="flex cursor-pointer items-center gap-2 pb-3 text-xs text-neutral-600 dark:text-neutral-300 md:col-span-1">
+                  <input
+                    type="checkbox"
+                    checked={alta.esPublico ?? false}
+                    onChange={(e) => setAlta({ ...alta, esPublico: e.target.checked })}
+                  />
+                  Visible en el catálogo público
+                </label>
                 <div className="flex items-end justify-end gap-3 md:col-span-2">
                   <LuxButton type="button" variant="ghost" onClick={() => setMostrarAlta(false)}>
                     Cancelar
@@ -515,6 +569,16 @@ export const InventarioPage = () => {
                   <Badge tone="green">Suficiente</Badge>
                 )}
               </div>
+
+              <label className="mb-4 flex cursor-pointer items-center gap-2 border border-neutral-150 px-3 py-2.5 text-xs text-neutral-600 dark:border-white/10 dark:text-neutral-300">
+                <input
+                  type="checkbox"
+                  checked={seleccionado.esPublico}
+                  disabled={guardando}
+                  onChange={(e) => void cambiarVisibilidad(e.target.checked)}
+                />
+                Visible en el catálogo público (CU-09)
+              </label>
 
               <div className="mb-3 flex gap-2">
                 <button
