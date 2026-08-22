@@ -5,6 +5,7 @@ import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { InventarioPage } from './InventarioPage';
 import {
+  actualizarProducto,
   ajustarStock,
   crearProducto,
   listarProductos,
@@ -83,6 +84,7 @@ const mockKardex = vi.mocked(movimientosDeProducto);
 const mockEntrada = vi.mocked(registrarEntrada);
 const mockAjuste = vi.mocked(ajustarStock);
 const mockCrear = vi.mocked(crearProducto);
+const mockActualizar = vi.mocked(actualizarProducto);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -297,6 +299,94 @@ describe('InventarioPage', () => {
 
     expect(
       screen.getByText('Seleccione un producto para mover existencias y ver su kardex.'),
+    ).toBeInTheDocument();
+  });
+
+  it('CU-03: se pueden corregir los datos maestros, incluido el umbral', async () => {
+    mockActualizar.mockResolvedValue(producto({ precio: 210, umbralMinimo: 8 }));
+    const usuario = userEvent.setup();
+    render(<InventarioPage />);
+    await abrirDetalle(usuario);
+
+    await usuario.click(screen.getByRole('button', { name: 'Editar datos del producto' }));
+
+    const precio = screen.getByLabelText('Precio (₡) *');
+    await usuario.clear(precio);
+    await usuario.type(precio, '210');
+    const umbral = screen.getByLabelText('Umbral mínimo');
+    await usuario.clear(umbral);
+    await usuario.type(umbral, '8');
+    await usuario.click(screen.getByRole('button', { name: /Guardar cambios/ }));
+
+    await waitFor(() =>
+      expect(mockActualizar).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ precio: 210, umbralMinimo: 8 }),
+      ),
+    );
+    expect(await screen.findByRole('status')).toHaveTextContent('actualizado');
+  });
+
+  it('la edición NUNCA manda stock: eso rompería el kardex', async () => {
+    mockActualizar.mockResolvedValue(producto());
+    const usuario = userEvent.setup();
+    render(<InventarioPage />);
+    await abrirDetalle(usuario);
+
+    await usuario.click(screen.getByRole('button', { name: 'Editar datos del producto' }));
+    // El formulario ni siquiera ofrece el campo.
+    expect(screen.queryByLabelText(/^Existencias/)).not.toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('button', { name: /Guardar cambios/ }));
+
+    await waitFor(() => expect(mockActualizar).toHaveBeenCalled());
+    expect(mockActualizar.mock.calls[0][1]).not.toHaveProperty('stock');
+  });
+
+  it('vaciar la imagen manda cadena vacía, que el backend lee como «bórrala»', async () => {
+    mockListar.mockResolvedValue([producto({ imagenUrl: 'https://ejemplo/aro.jpg' })]);
+    mockActualizar.mockResolvedValue(producto({ imagenUrl: null }));
+    const usuario = userEvent.setup();
+    render(<InventarioPage />);
+    await abrirDetalle(usuario);
+
+    await usuario.click(screen.getByRole('button', { name: 'Editar datos del producto' }));
+    await usuario.clear(screen.getByLabelText('Imagen (URL)'));
+    await usuario.click(screen.getByRole('button', { name: /Guardar cambios/ }));
+
+    await waitFor(() =>
+      expect(mockActualizar).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ imagenUrl: '' }),
+      ),
+    );
+  });
+
+  it('cancelar la edición no guarda nada', async () => {
+    const usuario = userEvent.setup();
+    render(<InventarioPage />);
+    await abrirDetalle(usuario);
+
+    await usuario.click(screen.getByRole('button', { name: 'Editar datos del producto' }));
+    await usuario.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    expect(screen.queryByLabelText('Precio (₡) *')).not.toBeInTheDocument();
+    expect(mockActualizar).not.toHaveBeenCalled();
+  });
+
+  it('EX-04 también al corregir el SKU', async () => {
+    mockActualizar.mockRejectedValue({
+      response: { data: { message: 'Ya existe un producto con el SKU «OK-1».' } },
+    });
+    const usuario = userEvent.setup();
+    render(<InventarioPage />);
+    await abrirDetalle(usuario);
+
+    await usuario.click(screen.getByRole('button', { name: 'Editar datos del producto' }));
+    await usuario.click(screen.getByRole('button', { name: /Guardar cambios/ }));
+
+    expect(
+      await screen.findByText('Ya existe un producto con el SKU «OK-1».'),
     ).toBeInTheDocument();
   });
 

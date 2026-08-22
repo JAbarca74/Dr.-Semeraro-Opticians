@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { VentasPage } from './VentasPage';
 import { listarProductos } from '../../core/api/inventario.service';
 import { listarPersonas } from '../../core/api/personas.service';
@@ -93,6 +94,23 @@ const paciente: Persona = {
   tipo: TipoPersona.PACIENTE,
 } as Persona;
 
+/**
+ * La caja navega al tablero de laboratorio, así que necesita un router. Se monta
+ * en `/recepcion/ventas` porque es el entorno donde de verdad se cobra, y así el
+ * destino del salto queda comprobado en su forma real.
+ */
+const montar = (ruta = '/recepcion/ventas') =>
+  render(
+    <MemoryRouter initialEntries={[ruta]}>
+      <Routes>
+        <Route path="/recepcion/ventas" element={<VentasPage />} />
+        <Route path="/admin/ventas" element={<VentasPage />} />
+        <Route path="/recepcion/laboratorio" element={<p>tablero de recepción</p>} />
+        <Route path="/admin/laboratorio" element={<p>tablero de administración</p>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
 const mockProductos = vi.mocked(listarProductos);
 const mockPersonas = vi.mocked(listarPersonas);
 const mockVentas = vi.mocked(listarVentas);
@@ -118,14 +136,14 @@ const agregarAlCarrito = async (usuario: ReturnType<typeof userEvent.setup>) => 
 
 describe('VentasPage', () => {
   it('carga las ventas recientes al entrar', async () => {
-    render(<VentasPage />);
+    montar();
 
     await waitFor(() => expect(mockVentas).toHaveBeenCalledWith({ limite: 20 }));
     expect(await screen.findByText('#7')).toBeInTheDocument();
   });
 
   it('el carrito arranca vacío con una indicación', async () => {
-    render(<VentasPage />);
+    montar();
 
     expect(
       await screen.findByText('Busque un producto y agréguelo para iniciar la venta.'),
@@ -134,7 +152,7 @@ describe('VentasPage', () => {
 
   it('busca en bodega y muestra el stock disponible', async () => {
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
 
     await usuario.type(screen.getByLabelText('Buscar en bodega'), 'ray');
     await usuario.click(screen.getByRole('button', { name: /^Buscar$/ }));
@@ -146,7 +164,7 @@ describe('VentasPage', () => {
   it('un producto sin existencias no se puede agregar', async () => {
     mockProductos.mockResolvedValue([producto({ stock: 0 })]);
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
 
     await usuario.type(screen.getByLabelText('Buscar en bodega'), 'ray');
     await usuario.click(screen.getByRole('button', { name: /^Buscar$/ }));
@@ -156,7 +174,7 @@ describe('VentasPage', () => {
 
   it('agregar dos veces el mismo producto consolida la línea', async () => {
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
     await usuario.click(screen.getByRole('button', { name: 'Agregar' }));
 
@@ -167,7 +185,7 @@ describe('VentasPage', () => {
 
   it('los botones de cantidad suman y restan', async () => {
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
 
     await usuario.click(screen.getByRole('button', { name: /Agregar una unidad/ }));
@@ -179,7 +197,7 @@ describe('VentasPage', () => {
 
   it('bajar la cantidad a cero saca la línea del carrito', async () => {
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
 
     await usuario.click(screen.getByRole('button', { name: /Quitar una unidad/ }));
@@ -191,7 +209,7 @@ describe('VentasPage', () => {
 
   it('el bote de basura vacía la línea completa', async () => {
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
 
     await usuario.click(screen.getByRole('button', { name: /del carrito/ }));
@@ -204,7 +222,7 @@ describe('VentasPage', () => {
   it('avisa y bloquea el cobro si el carrito pide más de lo que hay', async () => {
     mockProductos.mockResolvedValue([producto({ stock: 1 })]);
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
 
     await usuario.click(screen.getByRole('button', { name: /Agregar una unidad/ }));
@@ -216,7 +234,7 @@ describe('VentasPage', () => {
   it('registra la venta mandando solo producto y cantidad', async () => {
     mockRegistrar.mockResolvedValue(venta());
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
 
     await usuario.click(screen.getByRole('button', { name: /Confirmar venta y entrega/ }));
@@ -233,7 +251,7 @@ describe('VentasPage', () => {
     // El carrito mostraría ₡100 (1 × 100); el servidor responde 300.
     mockRegistrar.mockResolvedValue(venta({ total: 300 }));
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
 
     await usuario.click(screen.getByRole('button', { name: /Confirmar venta y entrega/ }));
@@ -246,7 +264,7 @@ describe('VentasPage', () => {
   it('vacía el carrito después de cobrar', async () => {
     mockRegistrar.mockResolvedValue(venta());
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
 
     await usuario.click(screen.getByRole('button', { name: /Confirmar venta y entrega/ }));
@@ -259,7 +277,7 @@ describe('VentasPage', () => {
   it('vincula la venta al paciente elegido', async () => {
     mockRegistrar.mockResolvedValue(venta({ idPaciente: 5, nombrePaciente: 'Ana Rojas' }));
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
 
     await usuario.selectOptions(screen.getByLabelText('Paciente (opcional)'), '5');
@@ -282,7 +300,7 @@ describe('VentasPage', () => {
       },
     });
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
 
     await usuario.click(screen.getByRole('button', { name: /Confirmar venta y entrega/ }));
@@ -294,7 +312,7 @@ describe('VentasPage', () => {
 
   it('al elegir una venta muestra sus líneas y el total cobrado', async () => {
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
 
     await usuario.click(await screen.findByText('#7'));
 
@@ -304,7 +322,7 @@ describe('VentasPage', () => {
 
   it('anular exige motivo de al menos tres caracteres', async () => {
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await usuario.click(await screen.findByText('#7'));
 
     const boton = screen.getByRole('button', { name: /Revertir venta/ });
@@ -317,7 +335,7 @@ describe('VentasPage', () => {
   it('revierte la venta y avisa que el stock volvió', async () => {
     mockAnular.mockResolvedValue(venta({ estado: EstadoVenta.ANULADA }));
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await usuario.click(await screen.findByText('#7'));
 
     await usuario.type(screen.getByLabelText('Motivo de la anulación *'), 'Devolución');
@@ -332,7 +350,7 @@ describe('VentasPage', () => {
   it('una venta anulada ya no ofrece revertirse', async () => {
     mockVentas.mockResolvedValue([venta({ estado: EstadoVenta.ANULADA })]);
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
 
     await usuario.click(await screen.findByText('#7'));
 
@@ -350,7 +368,7 @@ describe('VentasPage', () => {
       },
     });
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await usuario.click(await screen.findByText('#7'));
 
     await usuario.type(screen.getByLabelText('Motivo de la anulación *'), 'Devolución');
@@ -363,7 +381,7 @@ describe('VentasPage', () => {
 
   it('el botón de cerrar oculta el detalle', async () => {
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await usuario.click(await screen.findByText('#7'));
 
     await usuario.click(screen.getByRole('button', { name: 'Cerrar detalle' }));
@@ -371,9 +389,66 @@ describe('VentasPage', () => {
     expect(screen.queryByText('Total cobrado')).not.toBeInTheDocument();
   });
 
+  it('CU-04 paso 7: filtra el historial de compras por paciente', async () => {
+    const usuario = userEvent.setup();
+    montar();
+    await screen.findByText('#7');
+
+    await usuario.selectOptions(screen.getByLabelText('Historial por paciente'), '5');
+
+    await waitFor(() =>
+      expect(mockVentas).toHaveBeenCalledWith({ limite: 20, idPaciente: 5 }),
+    );
+  });
+
+  it('un paciente sin compras lo dice, en vez del vacío genérico', async () => {
+    mockVentas.mockResolvedValue([]);
+    const usuario = userEvent.setup();
+    montar();
+    // La lista de pacientes llega por separado: hay que esperarla antes de elegir.
+    await screen.findByRole('option', { name: /Ana Rojas/ });
+
+    await usuario.selectOptions(screen.getByLabelText('Historial por paciente'), '5');
+
+    expect(
+      await screen.findByText('Este paciente no tiene compras registradas.'),
+    ).toBeInTheDocument();
+  });
+
+  it('desde una venta activa se salta al tablero de laboratorio', async () => {
+    const usuario = userEvent.setup();
+    montar('/recepcion/ventas');
+    await usuario.click(await screen.findByText('#7'));
+
+    await usuario.click(screen.getByRole('button', { name: /Abrir orden de laboratorio/ }));
+
+    expect(await screen.findByText('tablero de recepción')).toBeInTheDocument();
+  });
+
+  it('desde administración salta al tablero de administración, no al de recepción', async () => {
+    const usuario = userEvent.setup();
+    montar('/admin/ventas');
+    await usuario.click(await screen.findByText('#7'));
+
+    await usuario.click(screen.getByRole('button', { name: /Abrir orden de laboratorio/ }));
+
+    expect(await screen.findByText('tablero de administración')).toBeInTheDocument();
+  });
+
+  it('una venta anulada no ofrece abrir orden de laboratorio', async () => {
+    mockVentas.mockResolvedValue([venta({ estado: EstadoVenta.ANULADA })]);
+    const usuario = userEvent.setup();
+    montar();
+    await usuario.click(await screen.findByText('#7'));
+
+    expect(
+      screen.queryByRole('button', { name: /Abrir orden de laboratorio/ }),
+    ).not.toBeInTheDocument();
+  });
+
   it('avisa si el listado de ventas falla', async () => {
     mockVentas.mockRejectedValue({ response: { data: { message: 'Token inválido' } } });
-    render(<VentasPage />);
+    montar();
 
     expect(await screen.findByText('Token inválido')).toBeInTheDocument();
   });
@@ -381,7 +456,7 @@ describe('VentasPage', () => {
   it('avisa si la búsqueda en bodega falla', async () => {
     mockProductos.mockRejectedValue({ response: { data: { message: 'Sin conexión' } } });
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
 
     await usuario.click(screen.getByRole('button', { name: /^Buscar$/ }));
 
@@ -392,7 +467,7 @@ describe('VentasPage', () => {
     mockPersonas.mockRejectedValue(new Error('sin permiso'));
     mockRegistrar.mockResolvedValue(venta());
     const usuario = userEvent.setup();
-    render(<VentasPage />);
+    montar();
     await agregarAlCarrito(usuario);
 
     await usuario.click(screen.getByRole('button', { name: /Confirmar venta y entrega/ }));

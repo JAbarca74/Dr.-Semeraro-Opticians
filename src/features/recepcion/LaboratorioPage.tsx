@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, ClipboardList, Plus, RefreshCw, X } from 'lucide-react';
 import {
@@ -78,6 +79,7 @@ const ALTA_VACIA: OrdenInput = {
  * de uso quedaría a medias. Mismo criterio que se aplicó a la agenda (CU-05).
  */
 export const LaboratorioPage = () => {
+  const [parametrosUrl, setParametrosUrl] = useSearchParams();
   const [ordenes, setOrdenes] = useState<OrdenLaboratorio[]>([]);
   const [filtro, setFiltro] = useState('pendientes');
   const [seleccionada, setSeleccionada] = useState<OrdenLaboratorio | null>(null);
@@ -112,6 +114,21 @@ export const LaboratorioPage = () => {
     void cargar(filtro);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtro]);
+
+  /**
+   * La caja (CU-04) enlaza aquí con `?venta=N` al cobrar unos lentes. Se abre
+   * el alta con el número ya puesto y se limpia el parámetro, para que recargar
+   * la página no vuelva a abrir el formulario.
+   */
+  useEffect(() => {
+    const venta = Number(parametrosUrl.get('venta'));
+    if (!venta) return;
+    setAlta({ ...ALTA_VACIA, idVenta: venta });
+    setMostrarAlta(true);
+    parametrosUrl.delete('venta');
+    setParametrosUrl(parametrosUrl, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const abrir = async (orden: OrdenLaboratorio) => {
     setSeleccionada(orden);

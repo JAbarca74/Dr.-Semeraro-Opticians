@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { LaboratorioPage } from './LaboratorioPage';
 import {
   cambiarEstadoOrden,
@@ -47,6 +48,14 @@ const orden = (cambios: Partial<OrdenLaboratorio> = {}): OrdenLaboratorio => ({
   ...cambios,
 });
 
+/** El tablero lee `?venta=N` de la URL, así que necesita un router. */
+const montar = (ruta = '/recepcion/laboratorio') =>
+  render(
+    <MemoryRouter initialEntries={[ruta]}>
+      <LaboratorioPage />
+    </MemoryRouter>,
+  );
+
 const mockListar = vi.mocked(listarOrdenes);
 const mockHistorial = vi.mocked(historialDeOrden);
 const mockCambiar = vi.mocked(cambiarEstadoOrden);
@@ -70,7 +79,7 @@ const abrirDetalle = async (usuario: ReturnType<typeof userEvent.setup>) => {
 
 describe('LaboratorioPage', () => {
   it('arranca mostrando solo las órdenes pendientes (CU-07 paso 2)', async () => {
-    render(<LaboratorioPage />);
+    montar();
 
     await waitFor(() =>
       expect(mockListar).toHaveBeenCalledWith({ pendientes: true }),
@@ -79,7 +88,7 @@ describe('LaboratorioPage', () => {
   });
 
   it('muestra los estados con el vocabulario del caso de uso, sin guion bajo', async () => {
-    render(<LaboratorioPage />);
+    montar();
 
     expect(await screen.findByText('En proceso')).toBeInTheDocument();
     expect(screen.queryByText('En_proceso')).not.toBeInTheDocument();
@@ -87,7 +96,7 @@ describe('LaboratorioPage', () => {
 
   it('cambiar de filtro vuelve a consultar con el filtro nuevo', async () => {
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await screen.findByText('Óptica Lab CR');
 
     await usuario.click(screen.getByRole('button', { name: 'Retrasadas' }));
@@ -99,7 +108,7 @@ describe('LaboratorioPage', () => {
 
   it('sin resultados avisa en vez de dejar la tabla muda', async () => {
     mockListar.mockResolvedValue([]);
-    render(<LaboratorioPage />);
+    montar();
 
     expect(
       await screen.findByText('No hay órdenes con este filtro.'),
@@ -119,7 +128,7 @@ describe('LaboratorioPage', () => {
       },
     ]);
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await abrirDetalle(usuario);
 
     expect(screen.getByText('Progresivos antirreflejo')).toBeInTheDocument();
@@ -128,7 +137,7 @@ describe('LaboratorioPage', () => {
 
   it('EX-09: el desplegable no ofrece «Listo» desde «En proceso»', async () => {
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await abrirDetalle(usuario);
 
     const select = screen.getByLabelText('Cambiar estado');
@@ -141,7 +150,7 @@ describe('LaboratorioPage', () => {
   it('avanza el estado por el camino normal', async () => {
     mockCambiar.mockResolvedValue(orden({ estado: EstadoOrden.RECIBIDO }));
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await abrirDetalle(usuario);
 
     await usuario.selectOptions(
@@ -157,7 +166,7 @@ describe('LaboratorioPage', () => {
 
   it('marcar retraso exige motivo antes de dejar confirmar', async () => {
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await abrirDetalle(usuario);
 
     await usuario.selectOptions(
@@ -192,7 +201,7 @@ describe('LaboratorioPage', () => {
       }),
     ]);
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await abrirDetalle(usuario);
 
     expect(screen.getByText(/Detenida hace 3 día\(s\)/)).toBeInTheDocument();
@@ -201,7 +210,7 @@ describe('LaboratorioPage', () => {
   it('una orden «Listo» no ofrece cambios de estado', async () => {
     mockListar.mockResolvedValue([orden({ estado: EstadoOrden.LISTO })]);
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await abrirDetalle(usuario);
 
     expect(screen.queryByLabelText('Cambiar estado')).not.toBeInTheDocument();
@@ -215,7 +224,7 @@ describe('LaboratorioPage', () => {
       response: { data: { message: 'No se puede pasar de «En proceso» a «Listo para entrega».' } },
     });
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await abrirDetalle(usuario);
 
     await usuario.selectOptions(
@@ -232,7 +241,7 @@ describe('LaboratorioPage', () => {
   it('abre una orden nueva sin mandar los campos opcionales vacíos', async () => {
     mockCrear.mockResolvedValue(orden({ idOrdenLaboratorio: 43 }));
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await screen.findByText('Óptica Lab CR');
 
     await usuario.click(screen.getByRole('button', { name: /Nueva orden/ }));
@@ -253,7 +262,7 @@ describe('LaboratorioPage', () => {
 
   it('el botón de cerrar oculta el detalle sin recargar la tabla', async () => {
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await abrirDetalle(usuario);
     expect(screen.getByText('Progresivos antirreflejo')).toBeInTheDocument();
 
@@ -267,7 +276,7 @@ describe('LaboratorioPage', () => {
 
   it('«Actualizar» vuelve a pedir el listado con el filtro vigente', async () => {
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await screen.findByText('Óptica Lab CR');
     mockListar.mockClear();
 
@@ -280,7 +289,7 @@ describe('LaboratorioPage', () => {
 
   it('cancelar el alta cierra el formulario sin crear nada', async () => {
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await screen.findByText('Óptica Lab CR');
 
     await usuario.click(screen.getByRole('button', { name: /Nueva orden/ }));
@@ -295,7 +304,7 @@ describe('LaboratorioPage', () => {
   it('el alta manda los campos opcionales cuando sí se llenan', async () => {
     mockCrear.mockResolvedValue(orden({ idOrdenLaboratorio: 44 }));
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await screen.findByText('Óptica Lab CR');
 
     await usuario.click(screen.getByRole('button', { name: /Nueva orden/ }));
@@ -327,7 +336,7 @@ describe('LaboratorioPage', () => {
       },
     });
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await screen.findByText('Óptica Lab CR');
 
     await usuario.click(screen.getByRole('button', { name: /Nueva orden/ }));
@@ -346,7 +355,7 @@ describe('LaboratorioPage', () => {
       response: { data: { message: 'La orden #42 no existe.' } },
     });
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await waitFor(() => expect(screen.getByText('Óptica Lab CR')).toBeInTheDocument());
     await usuario.click(screen.getByText('Óptica Lab CR'));
 
@@ -366,17 +375,31 @@ describe('LaboratorioPage', () => {
       },
     ]);
     const usuario = userEvent.setup();
-    render(<LaboratorioPage />);
+    montar();
     await abrirDetalle(usuario);
 
     expect(screen.getByText('«El lab no tiene material»')).toBeInTheDocument();
+  });
+
+  it('llegando desde la caja con ?venta=, abre el alta con el número puesto', async () => {
+    montar('/recepcion/laboratorio?venta=13');
+
+    const campo = await screen.findByLabelText('Venta *');
+    expect(campo).toHaveValue(13);
+  });
+
+  it('sin el parámetro, el alta no se abre sola', async () => {
+    montar();
+    await screen.findByText('Óptica Lab CR');
+
+    expect(screen.queryByLabelText('Venta *')).not.toBeInTheDocument();
   });
 
   it('avisa si el listado falla', async () => {
     mockListar.mockRejectedValue({
       response: { data: { message: 'Token inválido' } },
     });
-    render(<LaboratorioPage />);
+    montar();
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Token inválido');
   });
