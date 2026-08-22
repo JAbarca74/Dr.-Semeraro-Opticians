@@ -31,10 +31,7 @@ import { CuentaPage } from './features/admin/CuentaPage';
 import { OverviewPage } from './features/recepcion/OverviewPage';
 import { PacientesPage as PacientesRecepcionPage } from './features/recepcion/PacientesPage';
 import { RecetasPage as RecetasRecepcionPage } from './features/recepcion/RecetasPage';
-import {
-  VentasRecepcionPage,
-  ExistenciasRecepcionPage,
-} from './features/recepcion/StubPages';
+import { VentasRecepcionPage } from './features/recepcion/StubPages';
 import { LaboratorioPage } from './features/recepcion/LaboratorioPage';
 
 /**
@@ -113,7 +110,10 @@ export const router = createBrowserRouter([
               // horarios (CU-06) es del Doctor.
               { path: '/recepcion/agenda', element: <AgendaPage /> },
               { path: '/recepcion/ventas', element: <VentasRecepcionPage /> },
-              { path: '/recepcion/existencias', element: <ExistenciasRecepcionPage /> },
+              // La misma vista de bodega que ve la administración, no una
+              // copia: el mostrador consulta existencias tanto como el
+              // consultorio, y CU-03 no distingue entre los dos.
+              { path: '/recepcion/existencias', element: <InventarioPage /> },
               { path: '/recepcion/laboratorio', element: <LaboratorioPage /> },
             ],
           },
