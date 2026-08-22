@@ -1,102 +1,62 @@
 import { describe, expect, it } from 'vitest';
 import {
-  agregarAlApartado,
-  construirMensajeApartado,
+  construirMensajeConsulta,
   enlaceWhatsapp,
   numeroLegible,
-  totalApartado,
-  type LineaApartado,
+  type ProductoVitrina,
 } from './catalogo';
+import { CategoriaProducto } from './inventario';
 
-const linea = (cambios: Partial<LineaApartado> = {}): LineaApartado => ({
+const producto = (cambios: Partial<ProductoVitrina> = {}): ProductoVitrina => ({
   idProducto: 1,
   sku: 'RB-2140-51',
   nombre: 'Ray-Ban Wayfarer',
   marca: 'Ray-Ban',
-  precio: 100,
-  cantidad: 1,
+  categoria: CategoriaProducto.ARO,
+  precio: 189.5,
+  color: 'Negro',
+  material: 'Acetato',
+  calibre: null,
+  indiceRefraccion: null,
+  filtro: null,
+  tratamiento: null,
+  imagenUrl: null,
   ...cambios,
 });
 
-const solicitante = { nombre: 'Ana Rojas', telefono: '8888-1111' };
-
-describe('totalApartado', () => {
-  it('suma cantidad por precio', () => {
-    expect(totalApartado([linea({ cantidad: 2 }), linea({ idProducto: 2, precio: 50 })])).toBe(250);
+describe('construirMensajeConsulta', () => {
+  it('CU-09 paso 8: incluye el nombre del producto en el mensaje', () => {
+    expect(construirMensajeConsulta(producto())).toContain('Ray-Ban Wayfarer');
   });
 
-  it('un apartado vacío vale cero', () => {
-    expect(totalApartado([])).toBe(0);
-  });
-
-  it('redondea a dos decimales', () => {
-    expect(totalApartado([linea({ precio: 0.1, cantidad: 3 })])).toBe(0.3);
-  });
-});
-
-describe('agregarAlApartado', () => {
-  it('añade un producto nuevo', () => {
-    expect(agregarAlApartado([], linea())).toHaveLength(1);
-  });
-
-  it('suma la cantidad si el producto ya estaba', () => {
-    const apartado = agregarAlApartado([linea({ cantidad: 2 })], linea());
-    expect(apartado).toHaveLength(1);
-    expect(apartado[0].cantidad).toBe(3);
-  });
-
-  it('no toca las líneas de otros productos', () => {
-    const apartado = agregarAlApartado(
-      [linea({ idProducto: 1, cantidad: 2 }), linea({ idProducto: 2, cantidad: 1 })],
-      linea({ idProducto: 2 }),
-    );
-    expect(apartado.find((l) => l.idProducto === 1)?.cantidad).toBe(2);
-    expect(apartado.find((l) => l.idProducto === 2)?.cantidad).toBe(2);
-  });
-});
-
-describe('construirMensajeApartado', () => {
-  it('dice quién escribe y cómo contactarlo', () => {
-    const mensaje = construirMensajeApartado([linea()], solicitante);
-    expect(mensaje).toContain('Ana Rojas');
-    expect(mensaje).toContain('8888-1111');
-  });
-
-  it('detalla cantidad, modelo, marca y SKU de cada línea', () => {
-    const mensaje = construirMensajeApartado([linea({ cantidad: 2 })], solicitante);
-    expect(mensaje).toContain('2 × Ray-Ban Wayfarer (Ray-Ban) — RB-2140-51');
-  });
-
-  it('incluye el total de referencia', () => {
-    const mensaje = construirMensajeApartado([linea({ cantidad: 2 })], solicitante);
-    expect(mensaje).toMatch(/Total de referencia:.*200/);
+  it('añade marca y SKU para que no se confunda con un modelo parecido', () => {
+    const mensaje = construirMensajeConsulta(producto());
+    expect(mensaje).toContain('Ray-Ban');
+    expect(mensaje).toContain('RB-2140-51');
   });
 
   it('nombra la óptica cuando se le pasa', () => {
-    const mensaje = construirMensajeApartado([linea()], solicitante, 'Óptica Dr. Semeraro');
-    expect(mensaje).toContain('Óptica Dr. Semeraro');
-  });
-
-  it('sin nombre de óptica usa un genérico, no queda un hueco', () => {
-    const mensaje = construirMensajeApartado([linea()], solicitante);
-    expect(mensaje).toContain('la óptica');
-  });
-
-  it('recorta los espacios de los datos del solicitante', () => {
-    const mensaje = construirMensajeApartado([linea()], {
-      nombre: '  Ana Rojas  ',
-      telefono: ' 8888-1111 ',
-    });
-    expect(mensaje).toContain('soy Ana Rojas (tel. 8888-1111)');
-  });
-
-  it('lista todas las líneas, no solo la primera', () => {
-    const mensaje = construirMensajeApartado(
-      [linea(), linea({ idProducto: 2, nombre: 'Oakley Pitch', marca: 'Oakley', sku: 'OK-1' })],
-      solicitante,
+    expect(construirMensajeConsulta(producto(), 'Óptica Dr. Semeraro')).toContain(
+      'Óptica Dr. Semeraro',
     );
-    expect(mensaje).toContain('Ray-Ban Wayfarer');
-    expect(mensaje).toContain('Oakley Pitch');
+  });
+
+  it('sin nombre de óptica usa un genérico, no deja un hueco', () => {
+    expect(construirMensajeConsulta(producto())).toContain('su catálogo');
+  });
+
+  it('NO lleva datos personales del visitante', () => {
+    // La vista es informativa: la conversación la abre la persona desde su
+    // propio WhatsApp, que ya aporta su número. Pedir nombre y teléfono sería
+    // recoger datos personales sin necesidad.
+    const mensaje = construirMensajeConsulta(producto());
+    expect(mensaje).not.toMatch(/tel\.|teléfono|soy /i);
+  });
+
+  it('no menciona precio ni existencias', () => {
+    const mensaje = construirMensajeConsulta(producto());
+    expect(mensaje).not.toContain('189');
+    expect(mensaje).not.toMatch(/stock|existencias/i);
   });
 });
 
@@ -106,9 +66,8 @@ describe('enlaceWhatsapp', () => {
   });
 
   it('codifica el mensaje para que viaje en la URL', () => {
-    const url = enlaceWhatsapp('50688887777', 'Hola, soy Ana\ny quiero esto');
+    const url = enlaceWhatsapp('50688887777', 'Hola, me interesa este modelo');
     expect(url).toContain('text=');
-    expect(url).not.toContain('\n');
     expect(url).not.toContain(' ');
   });
 });

@@ -77,11 +77,12 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-/** Agrega el primer producto y completa los datos del solicitante. */
-const armarApartado = async (usuario: ReturnType<typeof userEvent.setup>) => {
-  await usuario.click(await screen.findByRole('button', { name: /Agregar al apartado/ }));
-  await usuario.type(screen.getByLabelText('Su nombre *'), 'Ana Rojas');
-  await usuario.type(screen.getByLabelText('Su teléfono *'), '8888-1111');
+/** Pulsa «Consultar por WhatsApp» en la tarjeta del primer producto. */
+const consultar = async (usuario: ReturnType<typeof userEvent.setup>) => {
+  const botones = await screen.findAllByRole('button', {
+    name: /Consultar por WhatsApp/,
+  });
+  await usuario.click(botones[0]);
 };
 
 describe('CatalogoPage', () => {
@@ -153,60 +154,50 @@ describe('CatalogoPage', () => {
     expect(img).toHaveAttribute('src', 'https://ejemplo/aro.jpg');
   });
 
-  it('el apartado arranca vacío con una indicación', async () => {
+  it('cada modelo trae su propio botón de consulta (CU-09 paso 7)', async () => {
+    mockCatalogo.mockResolvedValue([vitrina(), vitrina({ idProducto: 2, nombre: 'Oakley Pitch' })]);
     render(<CatalogoPage />);
+
     expect(
-      await screen.findByText(/Agregue los modelos que le interesen/),
-    ).toBeInTheDocument();
+      await screen.findAllByRole('button', { name: /Consultar por WhatsApp/ }),
+    ).toHaveLength(2);
   });
 
-  it('agregar dos veces el mismo modelo suma la cantidad', async () => {
-    const usuario = userEvent.setup();
+  it('no hay carrito: la vista es informativa, no una tienda', async () => {
     render(<CatalogoPage />);
-    const boton = await screen.findByRole('button', { name: /Agregar al apartado/ });
+    await screen.findByText('Ray-Ban Wayfarer');
 
-    await usuario.click(boton);
-    await usuario.click(boton);
-
-    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.queryByText(/apartado/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Su nombre/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Su teléfono/)).not.toBeInTheDocument();
   });
 
-  it('el botón de solicitar está bloqueado hasta dar nombre y teléfono', async () => {
+  it('CU-09 paso 8: abre WhatsApp con el nombre del producto en el mensaje', async () => {
     const usuario = userEvent.setup();
     render(<CatalogoPage />);
-    await usuario.click(await screen.findByRole('button', { name: /Agregar al apartado/ }));
-
-    const boton = screen.getByRole('button', { name: /Solicitar por WhatsApp/ });
-    expect(boton).toBeDisabled();
-
-    await usuario.type(screen.getByLabelText('Su nombre *'), 'Ana Rojas');
-    await usuario.type(screen.getByLabelText('Su teléfono *'), '8888-1111');
-    expect(boton).toBeEnabled();
-  });
-
-  it('abre WhatsApp con el mensaje completo y los datos del cliente', async () => {
-    const usuario = userEvent.setup();
-    render(<CatalogoPage />);
-    await armarApartado(usuario);
-
-    await usuario.click(screen.getByRole('button', { name: /Solicitar por WhatsApp/ }));
+    await consultar(usuario);
 
     expect(abrirVentana).toHaveBeenCalledTimes(1);
     const url = decodeURIComponent(abrirVentana.mock.calls[0][0] as string);
     expect(url).toContain('wa.me/50688887777');
-    expect(url).toContain('Ana Rojas');
-    expect(url).toContain('8888-1111');
     expect(url).toContain('Ray-Ban Wayfarer');
     expect(url).toContain('Óptica Dr. Semeraro');
   });
 
-  it('EX-13: si el navegador bloquea la ventana, da el número para llamar', async () => {
+  it('el mensaje no lleva datos personales del visitante', async () => {
+    const usuario = userEvent.setup();
+    render(<CatalogoPage />);
+    await consultar(usuario);
+
+    const url = decodeURIComponent(abrirVentana.mock.calls[0][0] as string);
+    expect(url).not.toMatch(/tel\.|soy /i);
+  });
+
+  it('si el navegador bloquea la ventana, da el número para llamar', async () => {
     abrirVentana.mockReturnValue(null);
     const usuario = userEvent.setup();
     render(<CatalogoPage />);
-    await armarApartado(usuario);
-
-    await usuario.click(screen.getByRole('button', { name: /Solicitar por WhatsApp/ }));
+    await consultar(usuario);
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'No se pudo abrir WhatsApp. Por favor contáctenos al 8888-7777.',
@@ -217,36 +208,12 @@ describe('CatalogoPage', () => {
     mockParametros.mockResolvedValue({ 'optica.nombre': 'Óptica Dr. Semeraro' });
     const usuario = userEvent.setup();
     render(<CatalogoPage />);
-    await armarApartado(usuario);
-
-    await usuario.click(screen.getByRole('button', { name: /Solicitar por WhatsApp/ }));
+    await consultar(usuario);
 
     expect(abrirVentana).not.toHaveBeenCalled();
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'No hay un número de WhatsApp configurado',
     );
-  });
-
-  it('quitar la última unidad saca la línea del apartado', async () => {
-    const usuario = userEvent.setup();
-    render(<CatalogoPage />);
-    await usuario.click(await screen.findByRole('button', { name: /Agregar al apartado/ }));
-
-    await usuario.click(screen.getByRole('button', { name: /Quitar una unidad/ }));
-
-    expect(screen.getByText(/Agregue los modelos que le interesen/)).toBeInTheDocument();
-  });
-
-  it('el bote de basura vacía la línea completa', async () => {
-    const usuario = userEvent.setup();
-    render(<CatalogoPage />);
-    const boton = await screen.findByRole('button', { name: /Agregar al apartado/ });
-    await usuario.click(boton);
-    await usuario.click(boton);
-
-    await usuario.click(screen.getByRole('button', { name: /del apartado/ }));
-
-    expect(screen.getByText(/Agregue los modelos que le interesen/)).toBeInTheDocument();
   });
 
   it('el detalle muestra las fichas técnicas que el producto sí tiene', async () => {
@@ -265,18 +232,18 @@ describe('CatalogoPage', () => {
     expect(dialogo).not.toHaveTextContent('Índice de refracción');
   });
 
-  it('desde el detalle se agrega y se cierra el modal', async () => {
+  it('desde el detalle también se consulta, y el modal se cierra', async () => {
     const usuario = userEvent.setup();
     render(<CatalogoPage />);
     await usuario.click(await screen.findByRole('button', { name: /Ver detalle/ }));
 
     const dialogo = await screen.findByRole('dialog');
     await usuario.click(
-      within(dialogo).getByRole('button', { name: /Agregar al apartado/ }),
+      within(dialogo).getByRole('button', { name: /Consultar por WhatsApp/ }),
     );
 
+    expect(abrirVentana).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(screen.getByText('1')).toBeInTheDocument();
   });
 
   it('avisa si el catálogo no se puede cargar', async () => {
