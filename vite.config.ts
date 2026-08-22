@@ -35,12 +35,14 @@ export default defineConfig({
         'src/core/api/**/*.ts',
         'src/core/auth/**/*.ts',
         'src/core/models/rol.ts',
+        'src/core/models/laboratorio.ts',
         'src/shared/**/*.ts',
         'src/features/admin/AgendaPage.tsx',
         'src/features/admin/AgendaCitasPanel.tsx',
         'src/features/admin/ExpedientesPage.tsx',
         'src/features/admin/AuditoriaPage.tsx',
         'src/features/admin/DiagramaMotilidad.tsx',
+        'src/features/recepcion/LaboratorioPage.tsx',
       ],
       // Las propias pruebas no cuentan como código cubierto: se medían a sí
       // mismas al 100 % e inflaban el resultado.
