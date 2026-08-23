@@ -49,11 +49,20 @@ export function MarcaOptica({ className = '', tamano = 'sm' }: Props) {
   // en dos líneas al competir con la barra de navegación.
   const texto = `whitespace-nowrap font-marca font-medium uppercase tracking-luxe ${TEXTO[tamano]}`;
 
+  // En un teléfono el bloque entero mide 272 px y, con el botón de tema y el de
+  // menú al otro lado, no cabe en 375: el encabezado se salía de la pantalla.
+  // La variante `sm` —la de los tres shells— deja solo el búho y «Óptica» por
+  // debajo de 640 px. El login usa `md` y conserva el logotipo completo, que
+  // ahí va solo y tiene sitio de sobra.
+  const apellido = tamano === 'sm' ? `${texto} hidden sm:inline` : texto;
+
   return (
-    <span className={`flex shrink-0 items-center gap-3 text-lux-tinta ${className}`}>
+    <span
+      className={`flex shrink-0 items-center gap-3 text-lux-tinta ${className}`}
+    >
       <LogoBuho className={`shrink-0 ${ALTURA[tamano]}`} />
       <span className={texto}>Óptica</span>
-      <span className={texto}>Dr. Luigi Semeraro</span>
+      <span className={apellido}>Dr. Luigi Semeraro</span>
     </span>
   );
 }

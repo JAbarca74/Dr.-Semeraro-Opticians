@@ -24,12 +24,32 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: '/recepcion', label: 'Panel', drawerLabel: 'Panel Central', end: true },
-  { to: '/recepcion/pacientes', label: 'Pacientes', drawerLabel: 'Registro de Pacientes' },
-  { to: '/recepcion/recetas', label: 'Verificar', drawerLabel: 'Verificar Receta' },
+  {
+    to: '/recepcion/pacientes',
+    label: 'Pacientes',
+    drawerLabel: 'Registro de Pacientes',
+  },
+  {
+    to: '/recepcion/recetas',
+    label: 'Verificar',
+    drawerLabel: 'Verificar Receta',
+  },
   { to: '/recepcion/agenda', label: 'Citas', drawerLabel: 'Agenda Médica' },
-  { to: '/recepcion/ventas', label: 'Caja & Ventas', drawerLabel: 'Caja y Cobro Diario' },
-  { to: '/recepcion/existencias', label: 'Existencias', drawerLabel: 'Existencias de Bodega' },
-  { to: '/recepcion/laboratorio', label: 'Lab', drawerLabel: 'Logística de Taller' },
+  {
+    to: '/recepcion/ventas',
+    label: 'Caja & Ventas',
+    drawerLabel: 'Caja y Cobro Diario',
+  },
+  {
+    to: '/recepcion/existencias',
+    label: 'Existencias',
+    drawerLabel: 'Existencias de Bodega',
+  },
+  {
+    to: '/recepcion/laboratorio',
+    label: 'Lab',
+    drawerLabel: 'Logística de Taller',
+  },
 ];
 
 /**
@@ -65,8 +85,11 @@ export const ReceptionLayout = () => {
             <MarcaOptica />
           </button>
 
-          {/* Navegación central (desktop) */}
-          <nav className="hidden items-center gap-6 lg:flex xl:gap-8">
+          {/* Navegación central (escritorio ancho).
+              Enciende en `xl` (1280 px) y no en `lg`: con siete entradas la
+              barra pedía 1084 px y a 1024 se desbordaba 60 px en horizontal.
+              Por debajo manda el cajón, que lleva la lista completa. */}
+          <nav className="hidden items-center gap-6 xl:flex 2xl:gap-8">
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
@@ -88,7 +111,11 @@ export const ReceptionLayout = () => {
                       <motion.span
                         layoutId="recepNavIndicator"
                         className="absolute inset-x-0 -bottom-0.5 h-px bg-lux-tinta"
-                        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 350,
+                          damping: 25,
+                        }}
                       />
                     ) : null}
                   </>
@@ -152,121 +179,121 @@ export const ReceptionLayout = () => {
             </span>
           </div>
           <span className="font-mono text-[9px] text-neutral-400">
-            © {new Date().getFullYear()} Dr. Luigi Semeraro Román · Licencia COPT-4421
+            © {new Date().getFullYear()} Dr. Luigi Semeraro Román · Licencia
+            COPT-4421
           </span>
         </div>
       </footer>
 
-      {/* MEGA MENÚ OFF-CANVAS (idéntico al panel admin) */}
-      <AnimatePresence>
-        {menuOpen ? (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.6 }}
-              exit={{ opacity: 0 }}
+      {/* MEGA MENÚ OFF-CANVAS (idéntico al panel admin).
+          ⚠️ Siempre montado y animado con `animate`, con `pointer-events-none`
+          al cerrar: ver la nota larga de `AdminLayout` y §3.22. */}
+      <div
+        onClick={() => setMenuOpen(false)}
+        aria-hidden
+        className={[
+          'fixed inset-0 z-50 bg-black transition-opacity duration-300',
+          menuOpen
+            ? 'cursor-pointer opacity-60'
+            : 'pointer-events-none opacity-0',
+        ].join(' ')}
+      />
+      <aside
+        aria-hidden={!menuOpen}
+        className={[
+          'fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col justify-between border-l border-lux-blue/10 bg-lux-cream p-8 shadow-2xl transition-transform duration-300 ease-out dark:border-white/10 dark:bg-[#0a0a0b]',
+          menuOpen ? 'translate-x-0' : 'pointer-events-none translate-x-full',
+        ].join(' ')}
+      >
+        <div className="space-y-6">
+          <div className="flex items-center justify-between border-b border-lux-tinta/20 pb-4">
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">
+                Menú de Recepción
+              </span>
+              <MarcaOptica tamano="sm" />
+            </div>
+            <button
               onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 z-50 cursor-pointer bg-black"
-            />
-            <motion.aside
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-              className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col justify-between border-l border-lux-blue/10 bg-lux-cream p-8 shadow-2xl dark:border-white/10 dark:bg-[#0a0a0b]"
+              className="transition-luxe cursor-pointer rounded-full border border-neutral-200 p-2 hover:bg-neutral-100 dark:border-white/10 dark:hover:bg-white/5"
             >
-              <div className="space-y-6">
-                <div className="flex items-center justify-between border-b border-lux-tinta/20 pb-4">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">
-                      Menú de Recepción
-                    </span>
-                    <MarcaOptica tamano="sm" />
-                  </div>
-                  <button
-                    onClick={() => setMenuOpen(false)}
-                    className="transition-luxe cursor-pointer rounded-full border border-neutral-200 p-2 hover:bg-neutral-100 dark:border-white/10 dark:hover:bg-white/5"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
+              <X className="h-4 w-4" />
+            </button>
+          </div>
 
-                <nav className="space-y-1 pt-2">
-                  {NAV_ITEMS.map((item) => {
-                    const active = item.end
-                      ? location.pathname === item.to
-                      : location.pathname.startsWith(item.to);
-                    return (
-                      <button
-                        key={item.to}
-                        onClick={() => {
-                          navigate(item.to);
-                          setMenuOpen(false);
-                        }}
-                        className={[
-                          'transition-luxe flex w-full items-center justify-between border-b px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest',
-                          'border-neutral-100 dark:border-white/5',
-                          active
-                            ? 'bg-lux-tinta/5 text-lux-tinta'
-                            : 'text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white',
-                        ].join(' ')}
-                      >
-                        <span>{item.drawerLabel}</span>
-                        {active ? (
-                          <span className="h-1.5 w-1.5 rounded-full bg-lux-tinta" />
-                        ) : (
-                          <ChevronRight className="h-3.5 w-3.5 opacity-40" />
-                        )}
-                      </button>
-                    );
-                  })}
-                  {/* Sin esta entrada, el rol Recepción no tenía por dónde
-                      cambiar su contraseña: /admin/cuenta le está vedado. */}
-                  <button
-                    onClick={() => {
-                      navigate('/recepcion/cuenta');
-                      setMenuOpen(false);
-                    }}
-                    className="transition-luxe flex w-full items-center justify-between border-b border-neutral-100 px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:border-white/5 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white"
-                  >
-                    <span>Mi Cuenta</span>
-                    <ChevronRight className="h-3.5 w-3.5 opacity-40" />
-                  </button>
-                </nav>
-
-                <div className="flex items-center gap-1.5 border border-neutral-100 bg-neutral-50 p-4 text-[9px] font-bold uppercase tracking-widest text-lux-tinta dark:border-white/5 dark:bg-white/5">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Sesión de recepción · RBAC activo
-                </div>
-              </div>
-
-              {/* Tarjeta de usuario + logout */}
-              <div className="space-y-4 border-t border-lux-tinta/20 pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-lux-tinta font-serif font-bold uppercase text-white">
-                    {iniciales}
-                  </div>
-                  <div className="overflow-hidden">
-                    <span className="block max-w-[200px] truncate text-xs font-bold">
-                      {user?.email}
-                    </span>
-                    <span className="mt-1 block font-mono text-[9px] uppercase leading-none tracking-wider text-lux-tinta">
-                      {rolLabel(user?.rol)} · Front desk
-                    </span>
-                  </div>
-                </div>
+          <nav className="space-y-1 pt-2">
+            {NAV_ITEMS.map((item) => {
+              const active = item.end
+                ? location.pathname === item.to
+                : location.pathname.startsWith(item.to);
+              return (
                 <button
-                  onClick={onLogout}
-                  className="transition-luxe flex w-full cursor-pointer items-center justify-center gap-2 border border-red-200 bg-red-50 p-2.5 text-[10px] font-bold uppercase tracking-widest text-red-700 hover:bg-red-100 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40"
+                  key={item.to}
+                  onClick={() => {
+                    navigate(item.to);
+                    setMenuOpen(false);
+                  }}
+                  className={[
+                    'transition-luxe flex w-full items-center justify-between border-b px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest',
+                    'border-neutral-100 dark:border-white/5',
+                    active
+                      ? 'bg-lux-tinta/5 text-lux-tinta'
+                      : 'text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white',
+                  ].join(' ')}
                 >
-                  <LogOut className="h-3.5 w-3.5" />
-                  Cerrar sesión
+                  <span>{item.drawerLabel}</span>
+                  {active ? (
+                    <span className="h-1.5 w-1.5 rounded-full bg-lux-tinta" />
+                  ) : (
+                    <ChevronRight className="h-3.5 w-3.5 opacity-40" />
+                  )}
                 </button>
-              </div>
-            </motion.aside>
-          </>
-        ) : null}
-      </AnimatePresence>
+              );
+            })}
+            {/* Sin esta entrada, el rol Recepción no tenía por dónde
+                      cambiar su contraseña: /admin/cuenta le está vedado. */}
+            <button
+              onClick={() => {
+                navigate('/recepcion/cuenta');
+                setMenuOpen(false);
+              }}
+              className="transition-luxe flex w-full items-center justify-between border-b border-neutral-100 px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:border-white/5 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white"
+            >
+              <span>Mi Cuenta</span>
+              <ChevronRight className="h-3.5 w-3.5 opacity-40" />
+            </button>
+          </nav>
+
+          <div className="flex items-center gap-1.5 border border-neutral-100 bg-neutral-50 p-4 text-[9px] font-bold uppercase tracking-widest text-lux-tinta dark:border-white/5 dark:bg-white/5">
+            <Sparkles className="h-3.5 w-3.5" />
+            Sesión de recepción · RBAC activo
+          </div>
+        </div>
+
+        {/* Tarjeta de usuario + logout */}
+        <div className="space-y-4 border-t border-lux-tinta/20 pt-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-lux-tinta font-serif font-bold uppercase text-white">
+              {iniciales}
+            </div>
+            <div className="overflow-hidden">
+              <span className="block max-w-[200px] truncate text-xs font-bold">
+                {user?.email}
+              </span>
+              <span className="mt-1 block font-mono text-[9px] uppercase leading-none tracking-wider text-lux-tinta">
+                {rolLabel(user?.rol)} · Front desk
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={onLogout}
+            className="transition-luxe flex w-full cursor-pointer items-center justify-center gap-2 border border-red-200 bg-red-50 p-2.5 text-[10px] font-bold uppercase tracking-widest text-red-700 hover:bg-red-100 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Cerrar sesión
+          </button>
+        </div>
+      </aside>
     </div>
   );
 };

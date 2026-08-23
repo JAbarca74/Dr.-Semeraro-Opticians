@@ -7,6 +7,12 @@ interface PlaceholderProps {
   description?: string;
   icon?: LucideIcon;
   features?: string[];
+  /**
+   * Rótulo superior. Por omisión habla del panel clínico, que es donde nació
+   * este componente, pero **`/registro` y `/pedidos` son públicas y las ve el
+   * paciente**: ahí decir «panel clínico» es sencillamente falso.
+   */
+  kicker?: string;
 }
 
 /**
@@ -19,10 +25,11 @@ export const Placeholder = ({
   description,
   icon: Icon,
   features,
+  kicker = 'Módulo del panel clínico',
 }: PlaceholderProps) => (
   <section className="space-y-10">
     <motion.header {...fadeUp} className="space-y-3">
-      <Kicker>Módulo del panel clínico</Kicker>
+      <Kicker>{kicker}</Kicker>
       <div className="flex items-center gap-4">
         {Icon ? (
           <span className="flex h-12 w-12 items-center justify-center border border-lux-tinta/40 text-lux-tinta">

@@ -3,6 +3,7 @@ import { Placeholder } from '../../shared/Placeholder';
 
 export const RegistroPage = () => (
   <Placeholder
+    kicker="Portal del paciente"
     title="Crear cuenta de paciente"
     description="El registro de pacientes en línea estará disponible próximamente. Por ahora, la recepción de la óptica abre su expediente al agendar su primera cita."
     icon={UserPlus}
