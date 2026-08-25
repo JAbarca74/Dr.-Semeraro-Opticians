@@ -50,6 +50,7 @@ export default defineConfig({
         'src/features/admin/VentasPage.tsx',
         'src/features/public/CatalogoPage.tsx',
         'src/features/public/PerfilEspecialistaPage.tsx',
+        'src/features/public/RegistroPage.tsx',
         'src/features/recepcion/LaboratorioPage.tsx',
       ],
       // Las propias pruebas no cuentan como código cubierto: se medían a sí
