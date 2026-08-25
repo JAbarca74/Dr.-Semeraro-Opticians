@@ -52,3 +52,24 @@ export interface UpdateUsuario {
   /** Restablecimiento por el Administrador (mínimo 8 caracteres). */
   password?: string;
 }
+
+/**
+ * Alta de cuenta de paciente por autoservicio (CU-10 paso 3).
+ *
+ * ⚠️ **No lleva `rol` ni `tipo`, y no es un olvido**: los fija el servidor. Si
+ * viajaran desde aquí, cualquiera podría darse de alta como Administrador.
+ */
+export interface RegistroPaciente {
+  cedula: string;
+  nombre: string;
+  correo: string;
+  password: string;
+  telefono?: string;
+}
+
+/** Lo que responde `POST /auth/registro`. No incluye token: el CU no lo pide. */
+export interface CuentaCreada {
+  idUsuario: number;
+  email: string;
+  rol: Rol;
+}
