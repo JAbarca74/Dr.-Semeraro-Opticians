@@ -179,7 +179,11 @@ export const Badge = ({ children, tone = 'neutral' }: BadgeProps) => (
 
 // ── Mensaje de error/aviso ───────────────────────────────────────────────────
 export const Alert = ({ children }: { children: ReactNode }) => (
+  // `role="alert"` para que un lector de pantalla anuncie el fallo en vez de
+  // dejarlo pasar en silencio: es un banner de error, y quien no ve la pantalla
+  // tiene que enterarse igual.
   <motion.p
+    role="alert"
     initial={{ opacity: 0, scale: 0.98 }}
     animate={{ opacity: 1, scale: 1 }}
     className="border border-amber-300/40 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/30 dark:bg-amber-950/30 dark:text-amber-300"

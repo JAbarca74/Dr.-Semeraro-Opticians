@@ -29,6 +29,8 @@ export interface ProductoVitrina {
 export interface ParametrosPublicos {
   'optica.nombre'?: string;
   'optica.whatsapp'?: string;
+  /** Teléfono del consultorio. Lo muestra **EX-15** cuando WhatsApp no abre. */
+  'optica.telefono'?: string;
 }
 
 /**
