@@ -9,6 +9,9 @@ import {
   ShieldX,
 } from 'lucide-react';
 import { verificarReceta } from '../../core/api/expedientes.service';
+import { useAuth } from '../../core/auth/auth.context';
+import { Rol } from '../../core/models/rol';
+import { MisExpedientes } from './MisExpedientes';
 import type { VerificacionReceta } from '../../core/models/expediente';
 import { mensajeDeError } from '../../shared/error';
 import { normalizarHash } from '../../shared/receta';
@@ -23,7 +26,20 @@ import {
 } from '../../shared/ui';
 import { API_BASE } from '../../core/api/http';
 
+/**
+ * Portal del paciente.
+ *
+ * Sirve a **dos personas distintas en la misma ruta**, y por eso no está detrás
+ * de `ProtectedRoute`:
+ *
+ * - Quien llega con el **QR de una receta en la mano** y no tiene cuenta: el
+ *   verificador por hash es público y sigue siéndolo (CU-16).
+ * - Quien **inicia sesión como Paciente**: además ve «Mis Expedientes»
+ *   (CU-12, `DSO-40`), que es la sección que exige sesión.
+ */
 export const PortalPacientePage = () => {
+  const { hasRole } = useAuth();
+  const esPaciente = hasRole([Rol.PACIENTE]);
   const [entrada, setEntrada] = useState('');
   const [resultado, setResultado] = useState<VerificacionReceta | null>(null);
   const [hash, setHash] = useState('');
@@ -55,6 +71,22 @@ export const PortalPacientePage = () => {
 
   return (
     <section className="space-y-10">
+      {/*
+        CU-12: solo con sesión de Paciente. Va arriba porque para quien inició
+        sesión su expediente es lo que viene a ver; el verificador por hash
+        queda debajo, útil pero secundario.
+      */}
+      {esPaciente ? (
+        <div className="space-y-5">
+          <SectionHeader
+            kicker="Portal del paciente · CU-12"
+            title="Mis expedientes"
+            description="Sus consultas, su fórmula y sus recetas selladas, listas para descargar."
+          />
+          <MisExpedientes />
+        </div>
+      ) : null}
+
       <SectionHeader
         kicker="Portal del paciente · CU-16"
         title="Mi expediente y receta"
