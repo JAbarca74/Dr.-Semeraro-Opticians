@@ -1,17 +1,229 @@
-import { Truck } from 'lucide-react';
-import { Placeholder } from '../../shared/Placeholder';
+import { useEffect, useState } from 'react';
+import { AlertTriangle, MessageCircle, Package, Truck } from 'lucide-react';
+import { misPedidos } from '../../core/api/portal.service';
+import { parametrosPublicos } from '../../core/api/catalogo.service';
+import {
+  ETAPAS_PEDIDO,
+  construirMensajePedido,
+  fechaCorta,
+  fechaHoraLarga,
+  type PedidoPaciente,
+} from '../../core/models/portal';
+import { enlaceWhatsapp, numeroLegible } from '../../core/models/catalogo';
+import { mensajeDeError } from '../../shared/error';
+import {
+  Alert,
+  Badge,
+  LuxButton,
+  LuxCard,
+  SectionHeader,
+  cx,
+  fieldLabelClass,
+} from '../../shared/ui';
 
-export const SeguimientoPedidosPage = () => (
-  <Placeholder
-    kicker="Portal del paciente"
-    title="Seguimiento de pedidos"
-    description="El seguimiento en tiempo real del estado de sus lentes en el laboratorio llegará en un sprint próximo. Mientras tanto, puede validar su receta en el portal del paciente."
-    icon={Truck}
-    features={[
-      'Estados: enviado, en proceso, recibido y listo',
-      'Notificación cuando sus lentes estén listos',
-      'Detalle de montura y cristales',
-      'Historial de sus órdenes',
-    ]}
-  />
-);
+/**
+ * Seguimiento de pedidos de lentes (CU-14, `DSO-40`).
+ *
+ * ⚠️ **Las cuatro etapas que se pintan aquí no son los estados internos.** CU-14
+ * promete al paciente *Recibido · En fabricación · Listo para retirar ·
+ * Entregado*, y el enum de CU-07 es otro (*Enviado a lab · En proceso ·
+ * Recibido en clínica · Listo para entrega*). El propio caso de uso advierte del
+ * choque. **La traducción la hace el backend** (`PortalService`), no esta
+ * pantalla: aquí solo se pinta lo que llega. Se decidió traducir en vez de
+ * renombrar el enum porque `DSO-27` y `DSO-28` ya están validados con él.
+ */
+export const SeguimientoPedidosPage = () => {
+  const [pedidos, setPedidos] = useState<PedidoPaciente[]>([]);
+  const [whatsapp, setWhatsapp] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [nombreOptica, setNombreOptica] = useState('la óptica');
+  const [error, setError] = useState('');
+  const [avisoCanal, setAvisoCanal] = useState('');
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    misPedidos()
+      .then((p) => {
+        setPedidos(p);
+        setError('');
+      })
+      .catch((e) => setError(mensajeDeError(e, 'No se pudieron cargar sus pedidos')))
+      .finally(() => setCargando(false));
+
+    parametrosPublicos()
+      .then((p) => {
+        setWhatsapp(p['optica.whatsapp'] ?? '');
+        setTelefono(p['optica.telefono'] ?? '');
+        setNombreOptica(p['optica.nombre'] ?? 'la óptica');
+      })
+      .catch(() => {
+        // Sin parámetros no se puede redirigir; el botón lo dirá al pulsarlo.
+      });
+  }, []);
+
+  /** Flujo alterno de CU-14: consultar por WhatsApp con el n.º de pedido. */
+  const consultar = (pedido: PedidoPaciente) => {
+    setAvisoCanal('');
+    const respaldo = telefono
+      ? `Llámenos al ${telefono}.`
+      : 'Por favor comuníquese con la óptica por teléfono.';
+
+    if (!whatsapp) {
+      setAvisoCanal(`Canal no disponible. ${respaldo}`);
+      return;
+    }
+    const mensaje = construirMensajePedido(pedido, nombreOptica);
+    const ventana = window.open(enlaceWhatsapp(whatsapp, mensaje), '_blank');
+    if (!ventana) {
+      setAvisoCanal(
+        `Canal no disponible. ${telefono ? respaldo : `Llámenos al ${numeroLegible(whatsapp)}.`}`,
+      );
+    }
+  };
+
+  return (
+    <section className="space-y-10">
+      <SectionHeader
+        kicker="Portal del paciente"
+        title="Seguimiento de pedidos"
+        description="Consulte en qué etapa está la fabricación de sus lentes."
+      />
+
+      {error ? <Alert>{error}</Alert> : null}
+
+      {avisoCanal ? (
+        <p
+          role="alert"
+          className="border border-amber-300/40 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/30 dark:bg-amber-950/30 dark:text-amber-300"
+        >
+          {avisoCanal}
+        </p>
+      ) : null}
+
+      {pedidos.length === 0 ? (
+        <LuxCard className="flex flex-col items-center gap-4 p-12 text-center">
+          <Package className="h-9 w-9 text-neutral-300" strokeWidth={1.3} />
+          <p className="text-sm text-neutral-500">
+            {cargando ? 'Cargando sus pedidos…' : 'No tiene pedidos registrados actualmente'}
+          </p>
+        </LuxCard>
+      ) : (
+        <div className="space-y-6">
+          {pedidos.map((pedido) => {
+            const cancelado = pedido.indiceEtapa === null;
+            return (
+              <LuxCard key={pedido.idOrdenLaboratorio} className="p-7">
+                <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">
+                      Pedido #{pedido.idOrdenLaboratorio}
+                    </p>
+                    <h3 className="mt-1 font-serif text-xl italic font-light text-lux-blue dark:text-white">
+                      {pedido.laboratorio}
+                    </h3>
+                  </div>
+                  <Badge tone={cancelado ? 'red' : 'tinta'}>{pedido.etapa}</Badge>
+                </div>
+
+                {/*
+                  CU-14 paso 6: el avance en cuatro etapas. Un pedido cancelado
+                  no tiene sitio en la barra (EX-17), así que se rotula aparte.
+                */}
+                {cancelado ? (
+                  <p className="mb-5 flex items-start gap-2 border border-red-200 bg-red-50 px-3 py-2.5 text-[11px] text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-400">
+                    <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+                    <span>
+                      Este pedido está cancelado. Consúltenos si necesita más información.
+                    </span>
+                  </p>
+                ) : (
+                  <ol className="mb-5 grid gap-2 sm:grid-cols-4">
+                    {ETAPAS_PEDIDO.map((etapa, indice) => {
+                      const alcanzada = indice <= (pedido.indiceEtapa ?? -1);
+                      return (
+                        <li key={etapa} className="flex flex-col gap-1.5">
+                          <span
+                            className={cx(
+                              'h-1',
+                              alcanzada
+                                ? 'bg-lux-tinta'
+                                : 'bg-neutral-200 dark:bg-neutral-800',
+                            )}
+                          />
+                          <span
+                            className={cx(
+                              'text-[10px] uppercase tracking-wider',
+                              alcanzada
+                                ? 'font-bold text-lux-blue dark:text-white'
+                                : 'text-neutral-400',
+                            )}
+                          >
+                            {etapa}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                )}
+
+                {pedido.retrasado ? (
+                  <p className="mb-5 flex items-start gap-2 border border-amber-200 bg-amber-50 px-3 py-2.5 text-[11px] text-amber-800 dark:border-amber-900/30 dark:bg-amber-950/30 dark:text-amber-300">
+                    <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+                    <span>
+                      El laboratorio reportó un retraso. La fecha estimada se corrió;
+                      le avisaremos en cuanto avance.
+                    </span>
+                  </p>
+                ) : null}
+
+                <dl className="grid gap-3 text-xs sm:grid-cols-3">
+                  <div>
+                    <dt className={fieldLabelClass}>Solicitado</dt>
+                    <dd className="text-neutral-600 dark:text-neutral-300">
+                      {fechaCorta(pedido.fechaSolicitud)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className={fieldLabelClass}>Entrega estimada</dt>
+                    <dd className="text-neutral-600 dark:text-neutral-300">
+                      {fechaCorta(pedido.fechaEstimadaEntrega)}
+                    </dd>
+                  </div>
+                  <div className="sm:col-span-3">
+                    <dt className={fieldLabelClass}>Detalle</dt>
+                    <dd className="whitespace-pre-line text-neutral-600 dark:text-neutral-300">
+                      {pedido.especificaciones}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-150 pt-4 dark:border-white/10">
+                  {/* EX-16: el CU manda decir a qué momento corresponde el dato. */}
+                  <p className="text-[10px] text-neutral-400">
+                    Información actualizada al {fechaHoraLarga(pedido.actualizadoAl)}
+                  </p>
+                  <LuxButton
+                    type="button"
+                    variant="ghost"
+                    onClick={() => consultar(pedido)}
+                  >
+                    <MessageCircle size={13} />
+                    Consultar por WhatsApp
+                  </LuxButton>
+                </div>
+              </LuxCard>
+            );
+          })}
+        </div>
+      )}
+
+      <LuxCard className="flex items-center gap-3 bg-lux-gray p-6 dark:bg-[#0e0e0e]">
+        <Truck className="h-5 w-5 shrink-0 text-lux-tinta" strokeWidth={1.3} />
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          Los estados los actualiza la óptica conforme el laboratorio avanza. Si algo
+          no cuadra, escríbanos y lo revisamos.
+        </p>
+      </LuxCard>
+    </section>
+  );
+};
