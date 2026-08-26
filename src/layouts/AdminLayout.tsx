@@ -48,15 +48,23 @@ const NAV_ITEMS: NavItem[] = [
     drawerLabel: 'Fichas y Expedientes',
     roles: [Rol.DOCTOR, Rol.ADMINISTRADOR],
   },
+  // El listado de productos sí lo puede leer cualquiera, pero el detalle y el
+  // kardex son `[ADMINISTRADOR, RECEPCION]`: al Doctor la tabla le cargaba y
+  // luego fallaba al abrir un producto.
   {
     to: '/admin/inventario',
     label: 'Bodega',
     drawerLabel: 'Depósito y Bodega',
+    roles: [Rol.ADMINISTRADOR],
   },
+  // ⚠️ `roles` aquí no es cosmética: sin ella el Doctor veía el enlace, lo
+  // pulsaba y el router lo devolvía al panel. La API de ventas es
+  // `[ADMINISTRADOR, RECEPCION]` y bajo `/admin` solo llega el Administrador.
   {
     to: '/admin/ventas',
     label: 'Caja & Ventas',
     drawerLabel: 'Caja y Cobro Diario',
+    roles: [Rol.ADMINISTRADOR],
   },
   { to: '/admin/agenda', label: 'Citas', drawerLabel: 'Coordinación de Citas' },
   {
@@ -79,10 +87,13 @@ const NAV_ITEMS: NavItem[] = [
     soloCajon: true,
   },
   // Estaba huérfana: existía la ruta pero no había un solo enlace a ella.
+  // `roles` por la precondición de CU-19: «Dashboard exclusivo para la
+  // administración». El Doctor no ve la facturación de la óptica.
   {
     to: '/admin/metricas',
     label: 'Métricas',
     drawerLabel: 'Métricas y KPI',
+    roles: [Rol.ADMINISTRADOR],
     soloCajon: true,
   },
 ];

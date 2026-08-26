@@ -453,6 +453,20 @@ describe('VentasPage', () => {
     expect(await screen.findByText('Token inválido')).toBeInTheDocument();
   });
 
+  it('si el listado falla no afirma que no hay ventas', async () => {
+    mockVentas.mockRejectedValue({ response: { data: { message: 'Token inválido' } } });
+    montar();
+    await screen.findByText('Token inválido');
+
+    // La óptica tiene decenas de ventas: decir «Todavía no hay ventas
+    // registradas» porque la petición falló no es un vacío, es una respuesta
+    // falsa. Se cambió por el motivo real.
+    expect(screen.queryByText('Todavía no hay ventas registradas.')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('No se pudo cargar el historial de ventas.'),
+    ).toBeInTheDocument();
+  });
+
   it('avisa si la búsqueda en bodega falla', async () => {
     mockProductos.mockRejectedValue({ response: { data: { message: 'Sin conexión' } } });
     const usuario = userEvent.setup();

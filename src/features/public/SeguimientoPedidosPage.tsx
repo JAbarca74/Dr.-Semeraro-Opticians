@@ -100,13 +100,21 @@ export const SeguimientoPedidosPage = () => {
         </p>
       ) : null}
 
+      {/*
+        ⚠️ **El vacío solo se pinta si NO hubo error.** Antes se mostraban las
+        dos cosas a la vez, y el vacío mentía: con la carga fallida la lista
+        seguía en `[]`, así que encima del aviso de error aparecía un mensaje
+        afirmando que no había nada. Es el patrón que ya usa `MisExpedientes`.
+      */}
       {pedidos.length === 0 ? (
-        <LuxCard className="flex flex-col items-center gap-4 p-12 text-center">
-          <Package className="h-9 w-9 text-neutral-300" strokeWidth={1.3} />
-          <p className="text-sm text-neutral-500">
-            {cargando ? 'Cargando sus pedidos…' : 'No tiene pedidos registrados actualmente'}
-          </p>
-        </LuxCard>
+        error ? null : (
+          <LuxCard className="flex flex-col items-center gap-4 p-12 text-center">
+            <Package className="h-9 w-9 text-neutral-300" strokeWidth={1.3} />
+            <p className="text-sm text-neutral-500">
+              {cargando ? 'Cargando sus pedidos…' : 'No tiene pedidos registrados actualmente'}
+            </p>
+          </LuxCard>
+        )
       ) : (
         <div className="space-y-6">
           {pedidos.map((pedido) => {

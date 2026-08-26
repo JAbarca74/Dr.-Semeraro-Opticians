@@ -436,9 +436,17 @@ export const VentasPage = () => {
                 {ventas.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-4 py-10 text-center text-neutral-500">
-                      {filtroPaciente
-                        ? 'Este paciente no tiene compras registradas.'
-                        : 'Todavía no hay ventas registradas.'}
+                      {/*
+                        ⚠️ **Si la carga falló no se afirma que no hay ventas.**
+                        Con la lista en `[]` por un error, esta celda decía
+                        «Todavía no hay ventas registradas» habiendo decenas en
+                        la base: no era un vacío, era una respuesta falsa.
+                      */}
+                      {error
+                        ? 'No se pudo cargar el historial de ventas.'
+                        : filtroPaciente
+                          ? 'Este paciente no tiene compras registradas.'
+                          : 'Todavía no hay ventas registradas.'}
                     </td>
                   </tr>
                 ) : (
