@@ -41,6 +41,7 @@ export default defineConfig({
         'src/core/models/catalogo.ts',
         'src/core/models/especialista.ts',
         'src/core/models/portal.ts',
+        'src/core/models/cita-whatsapp.ts',
         'src/shared/**/*.ts',
         'src/features/admin/AgendaPage.tsx',
         'src/features/admin/AgendaCitasPanel.tsx',
@@ -54,6 +55,7 @@ export default defineConfig({
         'src/features/public/RegistroPage.tsx',
         'src/features/public/SeguimientoPedidosPage.tsx',
         'src/features/public/MisExpedientes.tsx',
+        'src/features/public/AgendarCitaPage.tsx',
         'src/features/recepcion/LaboratorioPage.tsx',
       ],
       // Las propias pruebas no cuentan como código cubierto: se medían a sí
