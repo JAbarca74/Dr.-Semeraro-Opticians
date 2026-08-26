@@ -5,6 +5,7 @@ import { useAuth } from '../core/auth/auth.context';
 import { useTheme } from '../core/theme/theme.context';
 import { homePathForRole } from '../core/models/rol';
 import { MarcaOptica } from '../shared/MarcaOptica';
+import { BotonWhatsappFlotante } from '../shared/BotonWhatsappFlotante';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
@@ -19,6 +20,7 @@ const ENLACES_PUBLICOS: { to: string; label: string; end?: boolean }[] = [
   { to: '/', label: 'Inicio', end: true },
   { to: '/especialista', label: 'Especialista' },
   { to: '/catalogo', label: 'Vitrina' },
+  { to: '/agendar', label: 'Agendar Cita' },
   { to: '/portal', label: 'Mi Expediente' },
 ];
 
@@ -227,6 +229,13 @@ export const PublicLayout = () => {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-12 md:px-6">
         <Outlet />
       </main>
+
+      {/*
+        Flujo alterno de CU-11 («Contacto rápido»): el icono flotante vive en el
+        layout, no en una página, porque el caso de uso lo quiere disponible en
+        todas. Ver `shared/BotonWhatsappFlotante.tsx`.
+      */}
+      <BotonWhatsappFlotante />
 
       <footer className="transition-luxe border-t border-lux-blue/5 bg-lux-gray dark:border-white/5 dark:bg-[#070708]">
         <div className="mx-auto max-w-6xl px-4 py-6 text-[10px] uppercase tracking-widest text-neutral-400 md:px-6">

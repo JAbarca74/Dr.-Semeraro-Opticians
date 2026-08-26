@@ -12,6 +12,7 @@ import { HomePage } from './features/public/HomePage';
 import { CatalogoPage } from './features/public/CatalogoPage';
 import { PerfilEspecialistaPage } from './features/public/PerfilEspecialistaPage';
 import { RegistroPage } from './features/public/RegistroPage';
+import { AgendarCitaPage } from './features/public/AgendarCitaPage';
 import { SeguimientoPedidosPage } from './features/public/SeguimientoPedidosPage';
 import { VerificarRecetaPage } from './features/public/VerificarRecetaPage';
 import { PortalPacientePage } from './features/public/PortalPacientePage';
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
       { path: '/catalogo', element: <CatalogoPage /> },
       { path: '/especialista', element: <PerfilEspecialistaPage /> },
       { path: '/registro', element: <RegistroPage /> },
+      { path: '/agendar', element: <AgendarCitaPage /> },
       { path: '/portal', element: <PortalPacientePage /> },
       { path: '/verificar/:hash', element: <VerificarRecetaPage /> },
       {

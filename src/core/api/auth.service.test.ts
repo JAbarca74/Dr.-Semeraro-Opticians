@@ -1,5 +1,10 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { loginRequest, logoutRequest, cambiarPasswordRequest } from '../auth/auth.service';
+import {
+  loginRequest,
+  logoutRequest,
+  cambiarPasswordRequest,
+  registrarPacienteRequest,
+} from '../auth/auth.service';
 import { Rol } from '../models/rol';
 
 vi.mock('../api/http', () => ({
@@ -61,5 +66,52 @@ describe('cambiarPasswordRequest', () => {
       actual: 'actual123',
       nueva: 'nueva456',
     });
+  });
+});
+
+/**
+ * Alta de cuenta de paciente (CU-10, `DSO-39`).
+ *
+ * ⚠️ Esta funcion se quedó sin prueba directa al construir `DSO-39`: las de
+ * `RegistroPage` mockean el módulo entero, así que el código real nunca llegaba
+ * a ejecutarse. Lo destapó el umbral de cobertura de `src/core/**`.
+ */
+describe('registrarPacienteRequest', () => {
+  it('publica el alta en el endpoint público y devuelve la cuenta creada', async () => {
+    const creada = {
+      idUsuario: 11,
+      email: 'ana@example.com',
+      rol: Rol.PACIENTE,
+    };
+    (api.post as ReturnType<typeof vi.fn>).mockResolvedValue({ data: creada });
+
+    await expect(
+      registrarPacienteRequest({
+        cedula: '1-4000-0001',
+        nombre: 'Ana Mora',
+        correo: 'ana@example.com',
+        password: 'clave12345',
+      }),
+    ).resolves.toEqual(creada);
+
+    expect(api.post).toHaveBeenCalledWith(
+      '/auth/registro',
+      expect.objectContaining({ correo: 'ana@example.com' }),
+    );
+  });
+
+  it('propaga el 409 de EX-12 en vez de tragárselo', async () => {
+    (api.post as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('Identificación o correo en uso'),
+    );
+
+    await expect(
+      registrarPacienteRequest({
+        cedula: '1-4000-0001',
+        nombre: 'Ana Mora',
+        correo: 'ana@example.com',
+        password: 'clave12345',
+      }),
+    ).rejects.toThrow('Identificación o correo en uso');
   });
 });
