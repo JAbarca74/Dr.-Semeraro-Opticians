@@ -24,6 +24,28 @@ describe('celdaCsv', () => {
   });
 });
 
+describe('celdaCsv · inyección de fórmulas (`DSO-48`)', () => {
+  it('neutraliza lo que empiece por «=», que Excel ejecutaría', () => {
+    // Las comillas del RFC no bastan: Excel evalúa la celda igual.
+    expect(celdaCsv('=1+1')).toBe(`"'=1+1"`);
+  });
+
+  it('también «+», «-» y «@»', () => {
+    expect(celdaCsv('+A1')).toBe(`"'+A1"`);
+    expect(celdaCsv('-5+3')).toBe(`"'-5+3"`);
+    expect(celdaCsv('@SUM(A1)')).toBe(`"'@SUM(A1)"`);
+  });
+
+  it('un número negativo también se protege: es el precio de no ejecutar nada', () => {
+    expect(celdaCsv(-12)).toBe(`"'-12"`);
+  });
+
+  it('el texto normal no se toca', () => {
+    expect(celdaCsv('Armazón Ray-Ban')).toBe('"Armazón Ray-Ban"');
+    expect(celdaCsv(758)).toBe('"758"');
+  });
+});
+
 describe('aCsv', () => {
   it('arma encabezados y filas separados por CRLF', () => {
     const csv = aCsv(
