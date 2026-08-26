@@ -74,3 +74,78 @@ export const periodoLegible = (desde: string, hasta: string): string => {
   };
   return `${f(desde)} — ${f(hasta)}`;
 };
+
+/**
+ * CU-19, flujo alterno «Descargar Resumen»: el CSV se arma **con lo que ya
+ * está en pantalla**, sin volver a preguntarle a la API. Es lo que pide el
+ * literal del caso de uso y, de paso, lo que exige **RS-18**: una descarga no
+ * debería costarle a la base transaccional otra ronda de agregaciones.
+ */
+export const ENCABEZADOS_CSV = ['Sección', 'Concepto', 'Valor', 'Detalle'];
+
+/**
+ * Un extremo del periodo en `YYYY-MM-DD`, **en hora local**.
+ *
+ * ⚠️ **No vale `iso.slice(0, 10)`.** El backend arma el rango con la hora local
+ * de la óptica y lo serializa en UTC: el `hasta` del 26 de agosto viaja como
+ * `2026-08-27T05:59:59.999Z`, seis horas por delante. Cortando la cadena, el
+ * archivo decía «Hasta 2026-08-27» mientras la pantalla mostraba «26 ago» —se
+ * vio al abrir el CSV real, no en las pruebas—. Reconstruir la fecha la
+ * devuelve al día que el usuario pidió.
+ */
+const diaLocal = (iso: string): string => hoyISO(new Date(iso));
+
+/**
+ * Las filas del CSV, en formato largo (una métrica por línea).
+ *
+ * ⚠️ **Los importes van crudos, sin «₡» ni separador de miles.** Con el símbolo
+ * de moneda pegado, Excel importa la columna como texto y no se puede sumar,
+ * que es justo para lo que alguien se baja un CSV.
+ */
+export const filasCsvMetricas = (d: ResumenMetricas): unknown[][] => {
+  const periodo: unknown[][] = [
+    ['Periodo', 'Desde', diaLocal(d.periodo.desde), ''],
+    ['Periodo', 'Hasta', diaLocal(d.periodo.hasta), ''],
+  ];
+
+  // EX-21: el archivo se genera igual y dice que el periodo está vacío. Un CSV
+  // con solo el encabezado no distingue «no hubo nada» de «falló la descarga».
+  if (d.sinDatos) {
+    return [
+      ...periodo,
+      ['Resultado', 'Sin registros', 0, 'No hay registros disponibles para este periodo'],
+    ];
+  }
+
+  return [
+    ...periodo,
+    ['Indicadores', 'Ingresos internos (CRC)', d.ventas.ingresos, `${d.ventas.cantidad} venta(s)`],
+    ['Indicadores', 'Ticket promedio (CRC)', d.ventas.ticketPromedio, ''],
+    ['Indicadores', 'Ventas anuladas', d.ventas.anuladas, 'Excluidas del ingreso'],
+    ['Indicadores', 'Unidades vendidas', d.inventario.unidadesVendidas, ''],
+    ['Indicadores', 'Citas del periodo', d.agenda.total, ''],
+    ...d.topAros.map((a) => [
+      'Aros más vendidos',
+      a.nombre,
+      a.unidades,
+      `${a.marca} · ${a.sku} · CRC ${a.ingresos}`,
+    ]),
+    ...Object.entries(d.agenda.porEstado).map(([estado, total]) => [
+      'Agenda',
+      estado,
+      total,
+      `${porcentaje(total, d.agenda.total)}%`,
+    ]),
+    ['Inventario', 'Productos en catálogo', d.inventario.productos, 'Existencias de hoy'],
+    ['Inventario', 'Unidades en bodega', d.inventario.unidadesEnBodega, 'Existencias de hoy'],
+    ['Inventario', 'Productos bajo stock', d.inventario.bajoStock, 'Existencias de hoy'],
+    ['Inventario', 'Salidas del periodo', d.inventario.unidadesVendidas, ''],
+  ];
+};
+
+/** Nombre del archivo descargado, con el rango dentro para no pisar el anterior. */
+export const nombreReporte = (
+  d: ResumenMetricas,
+  extension: 'csv' | 'pdf',
+): string =>
+  `metricas-${diaLocal(d.periodo.desde)}_${diaLocal(d.periodo.hasta)}.${extension}`;

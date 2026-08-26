@@ -2,20 +2,30 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import {
   BarChart3,
   CalendarRange,
+  FileDown,
+  FileSpreadsheet,
   Package,
   Receipt,
   RotateCcw,
   TrendingUp,
 } from 'lucide-react';
-import { resumenMetricas } from '../../core/api/metricas.service';
+import {
+  reporteMetricasPdf,
+  resumenMetricas,
+} from '../../core/api/metricas.service';
 import { colones } from '../../core/models/inventario';
 import {
+  ENCABEZADOS_CSV,
+  filasCsvMetricas,
   hoyISO,
+  nombreReporte,
   periodoLegible,
   porcentaje,
   primerDiaDelMes,
   type ResumenMetricas,
 } from '../../core/models/metricas';
+import { aCsv, descargarCsv } from '../../shared/csv';
+import { descargarArchivo } from '../../shared/descarga';
 import { mensajeDeError } from '../../shared/error';
 import {
   Alert,
@@ -73,6 +83,11 @@ const Indicador = ({
  * Las gráficas son **barras en CSS**, sin librería: el volumen de datos es de
  * decenas de filas y meter una dependencia de gráficos para esto sería alcance
  * nuevo que nadie pidió.
+ *
+ * El flujo alterno «Descargar Resumen» (`DSO-48`) sale por dos caminos a
+ * propósito: el **CSV se arma aquí**, con lo que ya está en pantalla, y el
+ * **PDF lo arma la API**, que es donde vive PDFKit. Duplicar el PDF en el
+ * navegador exigiría una librería de tipografía solo para esto.
  */
 export const MetricasPage = () => {
   const [datos, setDatos] = useState<ResumenMetricas | null>(null);
@@ -80,6 +95,7 @@ export const MetricasPage = () => {
   const [hasta, setHasta] = useState(hoyISO());
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(true);
+  const [generandoPdf, setGenerandoPdf] = useState(false);
 
   const cargar = useCallback(async (d: string, h: string) => {
     setCargando(true);
@@ -110,6 +126,38 @@ export const MetricasPage = () => {
     setDesde(d);
     setHasta(h);
     void cargar(d, h);
+  };
+
+  /**
+   * CU-19, flujo alterno: «Descargar Resumen» en CSV.
+   *
+   * Se arma **con lo que está en pantalla**, sin volver a llamar a la API: es
+   * el literal del CU y además evita que cada descarga vuelva a agregar en la
+   * base transaccional (**RS-18**).
+   */
+  const exportarCsv = () => {
+    if (!datos) return;
+    descargarCsv(
+      nombreReporte(datos, 'csv'),
+      aCsv(ENCABEZADOS_CSV, filasCsvMetricas(datos)),
+    );
+  };
+
+  /** El PDF sí lo arma la API: es donde vive PDFKit. */
+  const exportarPdf = async () => {
+    if (!datos) return;
+    setGenerandoPdf(true);
+    try {
+      descargarArchivo(
+        nombreReporte(datos, 'pdf'),
+        await reporteMetricasPdf({ desde, hasta }),
+      );
+      setError('');
+    } catch (e) {
+      setError(mensajeDeError(e, 'No se pudo generar el PDF del resumen'));
+    } finally {
+      setGenerandoPdf(false);
+    }
   };
 
   const rangoInvertido = desde > hasta;
@@ -159,6 +207,33 @@ export const MetricasPage = () => {
             <RotateCcw size={13} />
             Mes actual
           </LuxButton>
+
+          {/*
+            CU-19, flujo alterno «Descargar Resumen». Siguen habilitados cuando
+            el periodo sale vacío: el archivo entonces dice «No hay registros
+            disponibles para este periodo», que es una constancia útil. Un botón
+            deshabilitado no distingue «no hubo nada» de «la descarga falla».
+          */}
+          <span className="ml-auto flex flex-wrap gap-3">
+            <LuxButton
+              type="button"
+              variant="ghost"
+              onClick={exportarCsv}
+              disabled={!datos}
+            >
+              <FileSpreadsheet size={13} />
+              Resumen CSV
+            </LuxButton>
+            <LuxButton
+              type="button"
+              variant="ghost"
+              onClick={() => void exportarPdf()}
+              disabled={!datos || generandoPdf}
+            >
+              <FileDown size={13} />
+              {generandoPdf ? 'Generando…' : 'Resumen PDF'}
+            </LuxButton>
+          </span>
           {rangoInvertido ? (
             <p className="w-full text-[10px] text-red-600 dark:text-red-400">
               La fecha «desde» no puede ser posterior a «hasta».

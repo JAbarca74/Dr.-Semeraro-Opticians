@@ -4,10 +4,25 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MetricasPage } from './MetricasPage';
-import { resumenMetricas } from '../../core/api/metricas.service';
+import {
+  reporteMetricasPdf,
+  resumenMetricas,
+} from '../../core/api/metricas.service';
+import { descargarCsv } from '../../shared/csv';
+import { descargarArchivo } from '../../shared/descarga';
 import type { ResumenMetricas } from '../../core/models/metricas';
 
 vi.mock('../../core/api/metricas.service');
+
+// Se espía la descarga sin sustituir el armado del CSV: así la prueba sigue
+// viendo el contenido real que bajaría el usuario.
+vi.mock('../../shared/csv', async () => {
+  const real = await vi.importActual<typeof import('../../shared/csv')>(
+    '../../shared/csv',
+  );
+  return { ...real, descargarCsv: vi.fn() };
+});
+vi.mock('../../shared/descarga', () => ({ descargarArchivo: vi.fn() }));
 
 vi.mock('framer-motion', async () => {
   const react = await import('react');
@@ -25,7 +40,7 @@ vi.mock('framer-motion', async () => {
 });
 
 const resumen = (cambios: Partial<ResumenMetricas> = {}): ResumenMetricas => ({
-  periodo: { desde: '2026-08-01T00:00:00.000Z', hasta: '2026-08-26T23:59:59.999Z' },
+  periodo: { desde: '2026-08-01T12:00:00.000Z', hasta: '2026-08-26T12:00:00.000Z' },
   sinDatos: false,
   ventas: { ingresos: 758, cantidad: 4, ticketPromedio: 189.5, anuladas: 11 },
   inventario: {
@@ -52,10 +67,14 @@ const resumen = (cambios: Partial<ResumenMetricas> = {}): ResumenMetricas => ({
 });
 
 const mockResumen = resumenMetricas as unknown as ReturnType<typeof vi.fn>;
+const mockPdf = reporteMetricasPdf as unknown as ReturnType<typeof vi.fn>;
+const mockCsv = descargarCsv as unknown as ReturnType<typeof vi.fn>;
+const mockArchivo = descargarArchivo as unknown as ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   vi.clearAllMocks();
   mockResumen.mockResolvedValue(resumen());
+  mockPdf.mockResolvedValue(new Blob(['%PDF'], { type: 'application/pdf' }));
 });
 
 afterEach(cleanup);
@@ -194,5 +213,66 @@ describe('4. Errores y estados', () => {
     render(<MetricasPage />);
 
     expect(screen.getByText('Calculando métricas…')).toBeInTheDocument();
+  });
+});
+
+describe('5. CU-19 flujo alterno · «Descargar Resumen» (`DSO-48`)', () => {
+  it('el CSV se arma con lo que está en pantalla, sin volver a la API', async () => {
+    render(<MetricasPage />);
+    await screen.findByText('Ingresos internos');
+    const llamadasPrevias = mockResumen.mock.calls.length;
+
+    await userEvent.click(screen.getByRole('button', { name: /resumen csv/i }));
+
+    const [nombre, contenido] = mockCsv.mock.calls[0];
+    expect(nombre).toBe('metricas-2026-08-01_2026-08-26.csv');
+    expect(contenido).toContain('Ingresos internos');
+    expect(contenido).toContain('Armazón Ray-Ban Wayfarer');
+    // RS-18: una descarga no debe costar otra ronda de agregaciones.
+    expect(mockResumen.mock.calls).toHaveLength(llamadasPrevias);
+  });
+
+  it('el PDF lo pide a la API con el rango de la pantalla', async () => {
+    render(<MetricasPage />);
+    await screen.findByText('Ingresos internos');
+
+    await userEvent.click(screen.getByRole('button', { name: /resumen pdf/i }));
+
+    expect(mockPdf).toHaveBeenCalledOnce();
+    const [nombre] = mockArchivo.mock.calls[0];
+    expect(nombre).toBe('metricas-2026-08-01_2026-08-26.pdf');
+  });
+
+  it('si el PDF falla lo dice y no descarga nada', async () => {
+    mockPdf.mockRejectedValue(new Error('403'));
+    render(<MetricasPage />);
+    await screen.findByText('Ingresos internos');
+
+    await userEvent.click(screen.getByRole('button', { name: /resumen pdf/i }));
+
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+    expect(mockArchivo).not.toHaveBeenCalled();
+  });
+
+  it('EX-21: con el periodo vacío la descarga sigue disponible y lo hace constar', async () => {
+    mockResumen.mockResolvedValue(resumen({ sinDatos: true }));
+    render(<MetricasPage />);
+    await screen.findByText('No hay registros disponibles para este periodo');
+
+    const boton = screen.getByRole('button', { name: /resumen csv/i });
+    expect(boton).toBeEnabled();
+    await userEvent.click(boton);
+
+    expect(mockCsv.mock.calls[0][1]).toContain(
+      'No hay registros disponibles para este periodo',
+    );
+  });
+
+  it('mientras carga el resumen no hay nada que exportar', () => {
+    mockResumen.mockReturnValue(new Promise(() => {}));
+    render(<MetricasPage />);
+
+    expect(screen.getByRole('button', { name: /resumen csv/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /resumen pdf/i })).toBeDisabled();
   });
 });
