@@ -204,17 +204,25 @@ export const CatalogoPage = () => {
         </form>
       </LuxCard>
 
+      {/*
+        ⚠️ **Con la API caída no se pinta el vacío (EX-11).** Antes salían las
+        dos cosas juntas y el consejo era falso: se le pedía al visitante que
+        «pruebe con otra marca o quite los filtros» cuando el problema era que
+        el servidor no respondía. Ningún filtro lo iba a arreglar.
+      */}
       {productos.length === 0 ? (
-        <LuxCard className="p-12 text-center">
-          <p className="text-sm text-neutral-500">
-            {cargando ? 'Cargando catálogo…' : 'No hay productos que coincidan'}
-          </p>
-          {!cargando ? (
-            <p className="mt-2 text-xs text-neutral-400">
-              Pruebe con otra marca o quite los filtros.
+        error ? null : (
+          <LuxCard className="p-12 text-center">
+            <p className="text-sm text-neutral-500">
+              {cargando ? 'Cargando catálogo…' : 'No hay productos que coincidan'}
             </p>
-          ) : null}
-        </LuxCard>
+            {!cargando ? (
+              <p className="mt-2 text-xs text-neutral-400">
+                Pruebe con otra marca o quite los filtros.
+              </p>
+            ) : null}
+          </LuxCard>
+        )
       ) : (
         <motion.div
           {...stagger}

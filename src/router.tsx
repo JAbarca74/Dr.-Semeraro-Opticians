@@ -73,18 +73,40 @@ export const router = createBrowserRouter([
               { path: '/admin', element: <DashboardPage /> },
               { path: '/admin/personas', element: <PersonasPage /> },
               { path: '/admin/agenda', element: <AgendaPage /> },
-              { path: '/admin/inventario', element: <InventarioPage /> },
-              { path: '/admin/ventas', element: <VentasPage /> },
-              { path: '/admin/metricas', element: <MetricasPage /> },
               // El mismo tablero que ve Recepción, no una copia: CU-07 nombra a
               // «Doctor/Recepción», y el guard de `/recepcion` deja fuera al
               // Doctor. Sin esta ruta, el caso de uso quedaría a medias.
               { path: '/admin/laboratorio', element: <LaboratorioPage /> },
               { path: '/admin/cuenta', element: <CuentaPage /> },
               { path: '/admin/expedientes', element: <ExpedientesPage /> },
+              /*
+                ⚠️ **Este bloque tiene que reflejar los `@Roles` de la API.**
+                Cuando no lo hacía, el Doctor entraba a `/admin/metricas` y a
+                `/admin/ventas`, veía la pantalla entera y se quedaba mirando un
+                403 —y en ventas, un «Todavía no hay ventas registradas» que era
+                falso—. El guard del router no protege el dato (de eso ya se
+                encarga el backend); protege al usuario de una pantalla que
+                nunca le va a funcionar.
+
+                - `ventas`  → la API es `[ADMINISTRADOR, RECEPCION]`, y bajo
+                  `/admin` solo llega el Administrador. Recepción tiene la suya
+                  en `/recepcion/ventas`.
+                - `metricas` → la API es `[ADMINISTRADOR]`, y es la precondición
+                  literal de CU-19: «Dashboard **exclusivo para la
+                  administración**». Abrirla al Doctor sería ampliar el alcance,
+                  y eso es Solicitud de Cambio al CCC.
+                - `inventario` → solo el listado está abierto a cualquier sesión;
+                  **el detalle y el kardex son `[ADMINISTRADOR, RECEPCION]`**. Al
+                  Doctor le cargaba la tabla y luego fallaba al abrir cualquier
+                  producto. Una bodega en la que no se puede abrir nada es peor
+                  que no ofrecerla. Recepción entra por `/recepcion/existencias`.
+              */
               {
                 element: <RoleRoute roles={[Rol.ADMINISTRADOR]} />,
                 children: [
+                  { path: '/admin/inventario', element: <InventarioPage /> },
+                  { path: '/admin/ventas', element: <VentasPage /> },
+                  { path: '/admin/metricas', element: <MetricasPage /> },
                   { path: '/admin/usuarios', element: <UsuariosPage /> },
                   { path: '/admin/auditoria', element: <AuditoriaPage /> },
                 ],

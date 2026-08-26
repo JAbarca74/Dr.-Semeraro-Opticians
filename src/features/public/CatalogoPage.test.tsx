@@ -255,6 +255,22 @@ describe('CatalogoPage', () => {
     expect(await screen.findByText('Servicio no disponible')).toBeInTheDocument();
   });
 
+  it('con la vitrina caída no aconseja tocar los filtros', async () => {
+    mockCatalogo.mockRejectedValue({
+      response: { data: { message: 'Servicio no disponible' } },
+    });
+    render(<CatalogoPage />);
+    await screen.findByText('Servicio no disponible');
+
+    // Era el consejo más engañoso de la aplicación: se le pedía al visitante
+    // que cambiara la marca cuando lo que fallaba era el servidor. Ningún
+    // filtro lo iba a arreglar.
+    expect(screen.queryByText('No hay productos que coincidan')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Pruebe con otra marca o quite los filtros.'),
+    ).not.toBeInTheDocument();
+  });
+
   it('que fallen marcas o parámetros no impide ver la vitrina', async () => {
     mockMarcas.mockRejectedValue(new Error('sin marcas'));
     mockParametros.mockRejectedValue(new Error('sin parámetros'));

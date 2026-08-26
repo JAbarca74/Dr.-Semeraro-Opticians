@@ -200,6 +200,19 @@ describe('4. Estados vacíos y errores', () => {
     expect(await screen.findByRole('alert')).toBeInTheDocument();
   });
 
+  it('y entonces NO afirma además que no hay pedidos', async () => {
+    mockPedidos.mockRejectedValue(new Error('caído'));
+    render(<SeguimientoPedidosPage />);
+    await screen.findByRole('alert');
+
+    // Con la carga fallida la lista se queda en `[]`, y antes eso hacía que
+    // encima del error apareciera un vacío que el sistema no puede afirmar:
+    // no sabe si el paciente tiene pedidos o no.
+    expect(
+      screen.queryByText('No tiene pedidos registrados actualmente'),
+    ).not.toBeInTheDocument();
+  });
+
   it('lista varios pedidos, activos e históricos', async () => {
     mockPedidos.mockResolvedValue([
       pedido(),
