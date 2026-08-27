@@ -6,6 +6,7 @@ import { useTheme } from '../core/theme/theme.context';
 import { homePathForRole } from '../core/models/rol';
 import { MarcaOptica } from '../shared/MarcaOptica';
 import { BotonWhatsappFlotante } from '../shared/BotonWhatsappFlotante';
+import { SelectorIdioma } from '../shared/SelectorIdioma';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
@@ -99,6 +100,11 @@ export const PublicLayout = () => {
                 </>
               )}
             </nav>
+
+            {/* El sitio público no tenía ni el `ES / EN` de adorno que había en
+                login y administración, y es justo donde más falta hace: es lo
+                que ve un paciente extranjero antes de tener cuenta. */}
+            <SelectorIdioma className="hidden sm:flex" />
 
             <button
               onClick={toggleTheme}

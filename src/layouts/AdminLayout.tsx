@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../core/auth/auth.context';
+import { SelectorIdioma } from '../shared/SelectorIdioma';
 import { useTheme } from '../core/theme/theme.context';
 import { Rol, rolLabel } from '../core/models/rol';
 import { MarcaOptica } from '../shared/MarcaOptica';
@@ -174,9 +175,7 @@ export const AdminLayout = () => {
 
           {/* Utilidades */}
           <div className="flex items-center gap-3">
-            <span className="hidden font-mono text-[10px] tracking-wider opacity-60 sm:inline-block">
-              ES / EN
-            </span>
+            <SelectorIdioma className="hidden sm:flex" />
             <button
               onClick={toggleTheme}
               title="Tema visual"

@@ -43,6 +43,7 @@ export default defineConfig({
         'src/core/models/portal.ts',
         'src/core/models/cita-whatsapp.ts',
         'src/core/models/metricas.ts',
+        'src/core/i18n/**/*.ts',
         'src/shared/**/*.ts',
         'src/features/admin/AgendaPage.tsx',
         'src/features/admin/AgendaCitasPanel.tsx',

@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
-  Globe,
   Key,
   Lock,
   Mail,
@@ -18,6 +17,7 @@ import { useTheme } from '../../core/theme/theme.context';
 import { homePathForRole } from '../../core/models/rol';
 import { mensajeDeError } from '../../shared/error';
 import { MarcaOptica } from '../../shared/MarcaOptica';
+import { SelectorIdioma } from '../../shared/SelectorIdioma';
 
 const SLIDES = [
   {
@@ -109,9 +109,7 @@ export const LoginPage = () => {
             <MarcaOptica tamano="md" />
           </Link>
           <div className="flex items-center gap-5">
-            <div className="hidden items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest opacity-60 sm:flex">
-              <Globe className="h-3.5 w-3.5" /> ES <span className="opacity-30">/</span> EN
-            </div>
+            <SelectorIdioma className="hidden sm:flex" />
             <button
               onClick={toggleTheme}
               title="Cambiar modo visual"
