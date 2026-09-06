@@ -1,3 +1,5 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
+import type { ClaveTexto } from '../../core/i18n/catalogos/es';
 import { useEffect, useState, type FormEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -22,6 +24,7 @@ import {
 } from '../../core/api/inventario.service';
 import {
   CATEGORIAS,
+  CLAVE_CATEGORIA,
   CategoriaProducto,
   cantidadFirmada,
   colones,
@@ -76,6 +79,7 @@ type Operacion = 'entrada' | 'ajuste';
  * existencias tanto como la administración.
  */
 export const InventarioPage = () => {
+  const { t } = useIdioma();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [busqueda, setBusqueda] = useState('');
   const [categoria, setCategoria] = useState<CategoriaProducto | ''>('');
@@ -108,7 +112,7 @@ export const InventarioPage = () => {
     try {
       setProductos(await listarProductos(filtros));
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudo cargar el inventario'));
+      setError(mensajeDeError(e, t('inv.errorCargar')));
     } finally {
       setCargando(false);
     }
@@ -135,7 +139,7 @@ export const InventarioPage = () => {
     try {
       setKardex(await movimientosDeProducto(producto.idProducto));
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudo cargar el kardex'));
+      setError(mensajeDeError(e, t('inv.errorKardex')));
     }
   };
 
@@ -177,7 +181,7 @@ export const InventarioPage = () => {
       setStockFinal(String(actualizado.stock));
       setKardex(await movimientosDeProducto(seleccionado.idProducto));
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo registrar el movimiento'));
+      setError(mensajeDeError(err, t('inv.errorMovimiento')));
     } finally {
       setGuardando(false);
     }
@@ -214,7 +218,7 @@ export const InventarioPage = () => {
       setOk(`${actualizado.sku} actualizado.`);
       await cargar();
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo actualizar el producto'));
+      setError(mensajeDeError(err, t('inv.errorActualizar')));
     } finally {
       setGuardando(false);
     }
@@ -258,7 +262,7 @@ export const InventarioPage = () => {
       );
       await cargar();
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo cambiar la visibilidad'));
+      setError(mensajeDeError(err, t('inv.errorVisibilidad')));
     } finally {
       setGuardando(false);
     }
@@ -286,7 +290,7 @@ export const InventarioPage = () => {
       setMostrarAlta(false);
       await cargar();
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo dar de alta el producto'));
+      setError(mensajeDeError(err, t('inv.errorAlta')));
     } finally {
       setGuardando(false);
     }
@@ -297,14 +301,12 @@ export const InventarioPage = () => {
   return (
     <div className="space-y-8">
       <SectionHeader
-        kicker="CU-03 · Suministros e inventario"
-        title="Bodega e inventario"
-        description="Existencias de monturas, lentes y accesorios, con kardex de cada movimiento y alertas de stock mínimo."
+        kicker={t('inv.kicker')}
+        title={t('inv.titulo')}
+        description={t('inv.descripcion')}
         actions={
           <LuxButton onClick={() => setMostrarAlta((v) => !v)}>
-            <Plus size={14} />
-            Nuevo producto
-          </LuxButton>
+            <Plus size={14} />{t('inv.nuevoProducto')}</LuxButton>
         }
       />
 
@@ -324,9 +326,7 @@ export const InventarioPage = () => {
             <LuxCard className="p-6">
               <form onSubmit={registrarProducto} className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <label className={fieldLabelClass} htmlFor="sku">
-                    SKU *
-                  </label>
+                  <label className={fieldLabelClass} htmlFor="sku">{t('inv.sku')}</label>
                   <input
                     id="sku"
                     required
@@ -336,14 +336,10 @@ export const InventarioPage = () => {
                     onChange={(e) => setAlta({ ...alta, sku: e.target.value })}
                     onBlur={(e) => setAlta({ ...alta, sku: normalizarSku(e.target.value) })}
                   />
-                  <p className="mt-1 text-[10px] text-neutral-400">
-                    Se guarda en mayúsculas y debe ser único.
-                  </p>
+                  <p className="mt-1 text-[10px] text-neutral-400">{t('inv.skuNota')}</p>
                 </div>
                 <div>
-                  <label className={fieldLabelClass} htmlFor="nombre">
-                    Nombre *
-                  </label>
+                  <label className={fieldLabelClass} htmlFor="nombre">{t('inv.nombre')}</label>
                   <input
                     id="nombre"
                     required
@@ -354,9 +350,7 @@ export const InventarioPage = () => {
                   />
                 </div>
                 <div>
-                  <label className={fieldLabelClass} htmlFor="marca">
-                    Marca *
-                  </label>
+                  <label className={fieldLabelClass} htmlFor="marca">{t('inv.marca')}</label>
                   <input
                     id="marca"
                     required
@@ -367,9 +361,7 @@ export const InventarioPage = () => {
                   />
                 </div>
                 <div>
-                  <label className={fieldLabelClass} htmlFor="categoria">
-                    Categoría *
-                  </label>
+                  <label className={fieldLabelClass} htmlFor="categoria">{t('inv.categoriaObl')}</label>
                   <select
                     id="categoria"
                     className={fieldInputClass}
@@ -380,15 +372,13 @@ export const InventarioPage = () => {
                   >
                     {CATEGORIAS.map((c) => (
                       <option key={c} value={c}>
-                        {c}
+                        {t(CLAVE_CATEGORIA[c] as ClaveTexto)}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className={fieldLabelClass} htmlFor="precio">
-                    Precio (₡) *
-                  </label>
+                  <label className={fieldLabelClass} htmlFor="precio">{t('inv.precioObl')}</label>
                   <input
                     id="precio"
                     type="number"
@@ -401,9 +391,7 @@ export const InventarioPage = () => {
                   />
                 </div>
                 <div>
-                  <label className={fieldLabelClass} htmlFor="umbralMinimo">
-                    Umbral mínimo
-                  </label>
+                  <label className={fieldLabelClass} htmlFor="umbralMinimo">{t('inv.umbralMinimo')}</label>
                   <input
                     id="umbralMinimo"
                     type="number"
@@ -416,9 +404,7 @@ export const InventarioPage = () => {
                   />
                 </div>
                 <div>
-                  <label className={fieldLabelClass} htmlFor="stockInicial">
-                    Existencia inicial
-                  </label>
+                  <label className={fieldLabelClass} htmlFor="stockInicial">{t('inv.existenciaInicial')}</label>
                   <input
                     id="stockInicial"
                     type="number"
@@ -427,14 +413,10 @@ export const InventarioPage = () => {
                     value={alta.stock ?? 0}
                     onChange={(e) => setAlta({ ...alta, stock: Number(e.target.value) })}
                   />
-                  <p className="mt-1 text-[10px] text-neutral-400">
-                    Si es mayor que cero, queda asentada en el kardex.
-                  </p>
+                  <p className="mt-1 text-[10px] text-neutral-400">{t('inv.existenciaNota')}</p>
                 </div>
                 <div className="md:col-span-2">
-                  <label className={fieldLabelClass} htmlFor="imagenUrl">
-                    Imagen (URL)
-                  </label>
+                  <label className={fieldLabelClass} htmlFor="imagenUrl">{t('inv.imagenUrl')}</label>
                   <input
                     id="imagenUrl"
                     maxLength={500}
@@ -449,15 +431,11 @@ export const InventarioPage = () => {
                     type="checkbox"
                     checked={alta.esPublico ?? false}
                     onChange={(e) => setAlta({ ...alta, esPublico: e.target.checked })}
-                  />
-                  Visible en el catálogo público
-                </label>
+                  />{t('inv.visiblePublico')}</label>
                 <div className="flex items-end justify-end gap-3 md:col-span-2">
-                  <LuxButton type="button" variant="ghost" onClick={() => setMostrarAlta(false)}>
-                    Cancelar
-                  </LuxButton>
+                  <LuxButton type="button" variant="ghost" onClick={() => setMostrarAlta(false)}>{t('comun.cancelar')}</LuxButton>
                   <LuxButton type="submit" disabled={guardando}>
-                    {guardando ? 'Guardando…' : 'Dar de alta'}
+                    {guardando ? t('comun.guardando') : t('inv.darAlta')}
                   </LuxButton>
                 </div>
               </form>
@@ -469,31 +447,27 @@ export const InventarioPage = () => {
       <LuxCard className="p-5">
         <form onSubmit={buscar} className="flex flex-wrap items-end gap-4">
           <div className="min-w-[220px] flex-1">
-            <label className={fieldLabelClass} htmlFor="busqueda">
-              Buscar
-            </label>
+            <label className={fieldLabelClass} htmlFor="busqueda">{t('comun.buscar')}</label>
             <input
               id="busqueda"
               className={fieldInputClass}
-              placeholder="SKU, nombre o marca"
+              placeholder={t('inv.buscarEjemplo')}
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
           <div>
-            <label className={fieldLabelClass} htmlFor="filtroCategoria">
-              Categoría
-            </label>
+            <label className={fieldLabelClass} htmlFor="filtroCategoria">{t('inv.categoria')}</label>
             <select
               id="filtroCategoria"
               className={fieldInputClass}
               value={categoria}
               onChange={(e) => setCategoria(e.target.value as CategoriaProducto | '')}
             >
-              <option value="">Todas</option>
+              <option value="">{t('auditoria.todas')}</option>
               {CATEGORIAS.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {t(CLAVE_CATEGORIA[c] as ClaveTexto)}
                 </option>
               ))}
             </select>
@@ -503,13 +477,9 @@ export const InventarioPage = () => {
               type="checkbox"
               checked={soloAlerta}
               onChange={(e) => setSoloAlerta(e.target.checked)}
-            />
-            Solo bajo stock
-          </label>
+            />{t('inv.soloBajoStock')}</label>
           <LuxButton type="submit" variant="ghost" disabled={cargando}>
-            <Search size={14} />
-            Buscar
-          </LuxButton>
+            <Search size={14} />{t('comun.buscar')}</LuxButton>
         </form>
       </LuxCard>
 
@@ -526,17 +496,17 @@ export const InventarioPage = () => {
             <thead className="border-b border-neutral-200 text-[10px] uppercase tracking-wider text-neutral-500 dark:border-white/10">
               <tr>
                 <th className="px-4 py-3">SKU</th>
-                <th className="px-4 py-3">Producto</th>
-                <th className="px-4 py-3">Categoría</th>
-                <th className="px-4 py-3 text-right">Precio</th>
-                <th className="px-4 py-3 text-right">Stock</th>
+                <th className="px-4 py-3">{t('inv.producto')}</th>
+                <th className="px-4 py-3">{t('inv.categoria')}</th>
+                <th className="px-4 py-3 text-right">{t('inv.precio')}</th>
+                <th className="px-4 py-3 text-right">{t('inv.stock')}</th>
               </tr>
             </thead>
             <tbody>
               {productos.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center text-neutral-500">
-                    {cargando ? 'Cargando inventario…' : 'No hay productos con estos filtros.'}
+                    {cargando ? t('inv.cargando') : t('inv.vacio')}
                   </td>
                 </tr>
               ) : (
@@ -554,13 +524,15 @@ export const InventarioPage = () => {
                       <span className="font-semibold">{p.nombre}</span>
                       <span className="block text-[10px] text-neutral-400">{p.marca}</span>
                     </td>
-                    <td className="px-4 py-3 text-neutral-500">{p.categoria}</td>
+                    <td className="px-4 py-3 text-neutral-500">
+                      {t(CLAVE_CATEGORIA[p.categoria] as ClaveTexto)}
+                    </td>
                     <td className="px-4 py-3 text-right tabular-nums">{colones(p.precio)}</td>
                     <td className="px-4 py-3 text-right">
                       <span className="tabular-nums font-semibold">{p.stock}</span>
                       {p.bajoStock ? (
                         <span className="ml-2">
-                          <Badge tone="red">Bajo</Badge>
+                          <Badge tone="red">{t('inv.bajo')}</Badge>
                         </span>
                       ) : null}
                     </td>
@@ -575,9 +547,7 @@ export const InventarioPage = () => {
           {!seleccionado ? (
             <div className="flex h-full min-h-[220px] flex-col items-center justify-center text-center text-neutral-400">
               <Package size={28} className="mb-3" />
-              <p className="text-xs">
-                Seleccione un producto para mover existencias y ver su kardex.
-              </p>
+              <p className="text-xs">{t('inv.seleccioneProducto')}</p>
             </div>
           ) : (
             <div>
@@ -597,7 +567,7 @@ export const InventarioPage = () => {
                 <div className="flex shrink-0 items-center gap-2">
                   <button
                     type="button"
-                    aria-label="Editar datos del producto"
+                    aria-label={t('inv.editarProducto')}
                     onClick={empezarEdicion}
                     className="text-neutral-400 hover:text-lux-tinta"
                   >
@@ -605,7 +575,7 @@ export const InventarioPage = () => {
                   </button>
                   <button
                     type="button"
-                    aria-label="Cerrar detalle"
+                    aria-label={t('comun.cerrarDetalle')}
                     onClick={() => {
                       setSeleccionado(null);
                       setKardex([]);
@@ -624,9 +594,7 @@ export const InventarioPage = () => {
                   className="mb-5 grid gap-3 border-y border-neutral-150 py-4 sm:grid-cols-2 dark:border-white/10"
                 >
                   <div>
-                    <label className={fieldLabelClass} htmlFor="editSku">
-                      SKU *
-                    </label>
+                    <label className={fieldLabelClass} htmlFor="editSku">{t('inv.sku')}</label>
                     <input
                       id="editSku"
                       required
@@ -637,9 +605,7 @@ export const InventarioPage = () => {
                     />
                   </div>
                   <div>
-                    <label className={fieldLabelClass} htmlFor="editNombre">
-                      Nombre *
-                    </label>
+                    <label className={fieldLabelClass} htmlFor="editNombre">{t('inv.nombre')}</label>
                     <input
                       id="editNombre"
                       required
@@ -650,9 +616,7 @@ export const InventarioPage = () => {
                     />
                   </div>
                   <div>
-                    <label className={fieldLabelClass} htmlFor="editMarca">
-                      Marca *
-                    </label>
+                    <label className={fieldLabelClass} htmlFor="editMarca">{t('inv.marca')}</label>
                     <input
                       id="editMarca"
                       required
@@ -663,9 +627,7 @@ export const InventarioPage = () => {
                     />
                   </div>
                   <div>
-                    <label className={fieldLabelClass} htmlFor="editCategoria">
-                      Categoría *
-                    </label>
+                    <label className={fieldLabelClass} htmlFor="editCategoria">{t('inv.categoriaObl')}</label>
                     <select
                       id="editCategoria"
                       className={fieldInputClass}
@@ -679,15 +641,13 @@ export const InventarioPage = () => {
                     >
                       {CATEGORIAS.map((c) => (
                         <option key={c} value={c}>
-                          {c}
+                          {t(CLAVE_CATEGORIA[c] as ClaveTexto)}
                         </option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className={fieldLabelClass} htmlFor="editPrecio">
-                      Precio (₡) *
-                    </label>
+                    <label className={fieldLabelClass} htmlFor="editPrecio">{t('inv.precioObl')}</label>
                     <input
                       id="editPrecio"
                       type="number"
@@ -702,9 +662,7 @@ export const InventarioPage = () => {
                     />
                   </div>
                   <div>
-                    <label className={fieldLabelClass} htmlFor="editUmbral">
-                      Umbral mínimo
-                    </label>
+                    <label className={fieldLabelClass} htmlFor="editUmbral">{t('inv.umbralMinimo')}</label>
                     <input
                       id="editUmbral"
                       type="number"
@@ -717,9 +675,7 @@ export const InventarioPage = () => {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className={fieldLabelClass} htmlFor="editImagen">
-                      Imagen (URL)
-                    </label>
+                    <label className={fieldLabelClass} htmlFor="editImagen">{t('inv.imagenUrl')}</label>
                     <input
                       id="editImagen"
                       maxLength={500}
@@ -730,9 +686,7 @@ export const InventarioPage = () => {
                         setEdicion({ ...edicion, imagenUrl: e.target.value })
                       }
                     />
-                    <p className="mt-1 text-[10px] text-neutral-400">
-                      Vaciarla quita la foto del catálogo público.
-                    </p>
+                    <p className="mt-1 text-[10px] text-neutral-400">{t('inv.imagenNota')}</p>
                   </div>
                   <p className="text-[10px] text-neutral-400 sm:col-span-2">
                     Las existencias no se editan aquí: use «Entrada» o «Ajuste», que
@@ -746,11 +700,9 @@ export const InventarioPage = () => {
                         setEditando(false);
                         setEdicion(null);
                       }}
-                    >
-                      Cancelar
-                    </LuxButton>
+                    >{t('comun.cancelar')}</LuxButton>
                     <LuxButton type="submit" disabled={guardando}>
-                      {guardando ? 'Guardando…' : 'Guardar cambios'}
+                      {guardando ? t('comun.guardando') : t('comun.guardarCambios')}
                     </LuxButton>
                   </div>
                 </form>
@@ -758,22 +710,20 @@ export const InventarioPage = () => {
 
               <div className="mb-5 flex items-center gap-4 border-y border-neutral-150 py-3 dark:border-white/10">
                 <div>
-                  <p className={fieldLabelClass}>Existencias</p>
+                  <p className={fieldLabelClass}>{t('inv.existencias')}</p>
                   <p className="text-2xl font-semibold tabular-nums">{seleccionado.stock}</p>
                 </div>
                 <div>
-                  <p className={fieldLabelClass}>Umbral</p>
+                  <p className={fieldLabelClass}>{t('inv.umbral')}</p>
                   <p className="text-2xl font-light tabular-nums text-neutral-400">
                     {seleccionado.umbralMinimo}
                   </p>
                 </div>
                 {seleccionado.bajoStock ? (
                   <Badge tone="red">
-                    <AlertTriangle size={10} />
-                    Bajo stock
-                  </Badge>
+                    <AlertTriangle size={10} />{t('inv.bajoStock')}</Badge>
                 ) : (
-                  <Badge tone="green">Suficiente</Badge>
+                  <Badge tone="green">{t('inv.suficiente')}</Badge>
                 )}
               </div>
 
@@ -783,9 +733,7 @@ export const InventarioPage = () => {
                   checked={seleccionado.esPublico}
                   disabled={guardando}
                   onChange={(e) => void cambiarVisibilidad(e.target.checked)}
-                />
-                Visible en el catálogo público (CU-09)
-              </label>
+                />{t('inv.visiblePublicoCu')}</label>
 
               <div className="mb-3 flex gap-2">
                 <button
@@ -798,9 +746,7 @@ export const InventarioPage = () => {
                       : 'border border-neutral-250 text-neutral-500 dark:border-white/10',
                   )}
                 >
-                  <PackagePlus size={12} className="mr-1 inline" />
-                  Entrada
-                </button>
+                  <PackagePlus size={12} className="mr-1 inline" />{t('inv.entrada')}</button>
                 <button
                   type="button"
                   onClick={() => setOperacion('ajuste')}
@@ -811,18 +757,14 @@ export const InventarioPage = () => {
                       : 'border border-neutral-250 text-neutral-500 dark:border-white/10',
                   )}
                 >
-                  <Scale size={12} className="mr-1 inline" />
-                  Ajuste
-                </button>
+                  <Scale size={12} className="mr-1 inline" />{t('inv.ajuste')}</button>
               </div>
 
               <form onSubmit={moverStock} className="mb-6 space-y-3">
                 {operacion === 'entrada' ? (
                   <>
                     <div>
-                      <label className={fieldLabelClass} htmlFor="cantidad">
-                        Cantidad entrante *
-                      </label>
+                      <label className={fieldLabelClass} htmlFor="cantidad">{t('inv.cantidadEntrante')}</label>
                       <input
                         id="cantidad"
                         type="number"
@@ -834,13 +776,11 @@ export const InventarioPage = () => {
                       />
                     </div>
                     <div>
-                      <label className={fieldLabelClass} htmlFor="referencia">
-                        Referencia
-                      </label>
+                      <label className={fieldLabelClass} htmlFor="referencia">{t('inv.referencia')}</label>
                       <input
                         id="referencia"
                         maxLength={100}
-                        placeholder="N.º de factura, guía…"
+                        placeholder={t('inv.referenciaEjemplo')}
                         className={fieldInputClass}
                         value={referencia}
                         onChange={(e) => setReferencia(e.target.value)}
@@ -850,9 +790,7 @@ export const InventarioPage = () => {
                 ) : (
                   <>
                     <div>
-                      <label className={fieldLabelClass} htmlFor="stockFinal">
-                        Conteo físico real *
-                      </label>
+                      <label className={fieldLabelClass} htmlFor="stockFinal">{t('inv.conteoFisico')}</label>
                       <input
                         id="stockFinal"
                         type="number"
@@ -862,14 +800,10 @@ export const InventarioPage = () => {
                         value={stockFinal}
                         onChange={(e) => setStockFinal(e.target.value)}
                       />
-                      <p className="mt-1 text-[10px] text-neutral-400">
-                        Lo que hay de verdad en la bodega, no la diferencia.
-                      </p>
+                      <p className="mt-1 text-[10px] text-neutral-400">{t('inv.conteoNota')}</p>
                     </div>
                     <div>
-                      <label className={fieldLabelClass} htmlFor="motivo">
-                        Motivo *
-                      </label>
+                      <label className={fieldLabelClass} htmlFor="motivo">{t('inv.motivo')}</label>
                       <input
                         id="motivo"
                         required
@@ -883,17 +817,15 @@ export const InventarioPage = () => {
                   </>
                 )}
                 <LuxButton type="submit" className="w-full" disabled={guardando}>
-                  {guardando ? 'Registrando…' : 'Registrar movimiento'}
+                  {guardando ? t('inv.registrando') : t('inv.registrarMovimiento')}
                 </LuxButton>
               </form>
 
               <div>
                 <p className={cx(fieldLabelClass, 'mb-2 flex items-center gap-1.5')}>
-                  <ClipboardList size={11} />
-                  Kardex
-                </p>
+                  <ClipboardList size={11} />{t('inv.kardex')}</p>
                 {kardex.length === 0 ? (
-                  <p className="text-[11px] text-neutral-400">Sin movimientos registrados.</p>
+                  <p className="text-[11px] text-neutral-400">{t('inv.sinMovimientos')}</p>
                 ) : (
                   <ul className="space-y-2">
                     {kardex.map((m) => (

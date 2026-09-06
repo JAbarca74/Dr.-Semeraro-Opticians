@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -54,6 +55,7 @@ import {
  * esos dos entornos.
  */
 export const VentasPage = () => {
+  const { t } = useIdioma();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [busqueda, setBusqueda] = useState('');
@@ -88,7 +90,7 @@ export const VentasPage = () => {
         }),
       );
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudieron cargar las ventas'));
+      setError(mensajeDeError(e, t('ventas.errorCargar')));
     }
   };
 
@@ -127,7 +129,7 @@ export const VentasPage = () => {
     try {
       setResultados(await listarProductos({ q: busqueda.trim() || undefined }));
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo buscar en el inventario'));
+      setError(mensajeDeError(err, t('ventas.errorBuscar')));
     } finally {
       setBuscando(false);
     }
@@ -189,7 +191,7 @@ export const VentasPage = () => {
       setBusqueda('');
       await cargarVentas();
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo registrar la venta'));
+      setError(mensajeDeError(err, t('ventas.errorRegistrar')));
     } finally {
       setCobrando(false);
     }
@@ -210,7 +212,7 @@ export const VentasPage = () => {
       setSeleccionada(anulada);
       await cargarVentas();
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo anular la venta'));
+      setError(mensajeDeError(err, t('ventas.errorAnular')));
     } finally {
       setAnulando(false);
     }
@@ -219,9 +221,9 @@ export const VentasPage = () => {
   return (
     <div className="space-y-8">
       <SectionHeader
-        kicker="CU-04 · Ventas y salida de productos"
-        title="Caja de salidas"
-        description="Cobro de mostrador con descuento automático de inventario, vinculación al paciente y reverso de venta."
+        kicker={t('ventas.kicker')}
+        title={t('ventas.titulo')}
+        description={t('ventas.descripcion')}
       />
 
       {error ? <Alert>{error}</Alert> : null}
@@ -239,21 +241,17 @@ export const VentasPage = () => {
           <LuxCard className="p-5">
             <form onSubmit={buscarProductos} className="flex flex-wrap items-end gap-3">
               <div className="min-w-[220px] flex-1">
-                <label className={fieldLabelClass} htmlFor="buscaProducto">
-                  Buscar en bodega
-                </label>
+                <label className={fieldLabelClass} htmlFor="buscaProducto">{t('ventas.buscarBodega')}</label>
                 <input
                   id="buscaProducto"
                   className={fieldInputClass}
-                  placeholder="SKU, nombre o marca"
+                  placeholder={t('inv.buscarEjemplo')}
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                 />
               </div>
               <LuxButton type="submit" variant="ghost" disabled={buscando}>
-                <Search size={14} />
-                Buscar
-              </LuxButton>
+                <Search size={14} />{t('comun.buscar')}</LuxButton>
             </form>
 
             {resultados.length > 0 ? (
@@ -277,7 +275,7 @@ export const VentasPage = () => {
                       onClick={() => agregar(p)}
                     >
                       <Plus size={13} />
-                      {p.stock === 0 ? 'Sin stock' : 'Agregar'}
+                      {p.stock === 0 ? t('ventas.sinStock') : t('ventas.agregar')}
                     </LuxButton>
                   </li>
                 ))}
@@ -287,14 +285,10 @@ export const VentasPage = () => {
 
           <LuxCard className="p-5">
             <p className={cx(fieldLabelClass, 'mb-3 flex items-center gap-1.5')}>
-              <ShoppingCart size={12} />
-              Carrito
-            </p>
+              <ShoppingCart size={12} />{t('ventas.carrito')}</p>
 
             {carrito.length === 0 ? (
-              <p className="py-6 text-center text-xs text-neutral-400">
-                Busque un producto y agréguelo para iniciar la venta.
-              </p>
+              <p className="py-6 text-center text-xs text-neutral-400">{t('ventas.carritoVacio')}</p>
             ) : (
               <form onSubmit={cobrar}>
                 <ul className="mb-4 divide-y divide-neutral-100 dark:divide-white/5">
@@ -349,16 +343,14 @@ export const VentasPage = () => {
                 </ul>
 
                 <div className="mb-4">
-                  <label className={fieldLabelClass} htmlFor="paciente">
-                    Paciente (opcional)
-                  </label>
+                  <label className={fieldLabelClass} htmlFor="paciente">{t('ventas.pacienteOpcional')}</label>
                   <select
                     id="paciente"
                     className={fieldInputClass}
                     value={idPaciente}
                     onChange={(e) => setIdPaciente(e.target.value)}
                   >
-                    <option value="">Venta de mostrador</option>
+                    <option value="">{t('ventas.ventaMostrador')}</option>
                     {pacientes.map((p) => (
                       <option key={p.idPersona} value={p.idPersona}>
                         {p.nombre} · {p.cedula}
@@ -368,7 +360,7 @@ export const VentasPage = () => {
                 </div>
 
                 <div className="flex items-center justify-between border-t border-neutral-150 py-3 dark:border-white/10">
-                  <span className={fieldLabelClass}>Total</span>
+                  <span className={fieldLabelClass}>{t('ventas.total')}</span>
                   <span className="text-2xl font-semibold tabular-nums">{colones(total)}</span>
                 </div>
                 <p className="mb-3 text-[10px] text-neutral-400">
@@ -392,7 +384,7 @@ export const VentasPage = () => {
                   disabled={cobrando || sinExistencias.length > 0}
                 >
                   <Receipt size={14} />
-                  {cobrando ? 'Registrando…' : 'Confirmar venta y entrega'}
+                  {cobrando ? t('ventas.registrando') : t('ventas.confirmar')}
                 </LuxButton>
               </form>
             )}
@@ -401,9 +393,7 @@ export const VentasPage = () => {
 
         <div className="space-y-6">
           <LuxCard className="p-4">
-            <label className={fieldLabelClass} htmlFor="filtroPaciente">
-              Historial por paciente
-            </label>
+            <label className={fieldLabelClass} htmlFor="filtroPaciente">{t('ventas.historial')}</label>
             <select
               id="filtroPaciente"
               className={fieldInputClass}
@@ -413,7 +403,7 @@ export const VentasPage = () => {
                 setSeleccionada(null);
               }}
             >
-              <option value="">Todas las ventas</option>
+              <option value="">{t('ventas.todas')}</option>
               {pacientes.map((p) => (
                 <option key={p.idPersona} value={p.idPersona}>
                   {p.nombre} · {p.cedula}
@@ -426,10 +416,10 @@ export const VentasPage = () => {
             <table className="w-full min-w-[320px] text-left text-xs">
               <thead className="border-b border-neutral-200 text-[10px] uppercase tracking-wider text-neutral-500 dark:border-white/10">
                 <tr>
-                  <th className="px-4 py-3">Venta</th>
-                  <th className="px-4 py-3">Paciente</th>
-                  <th className="px-4 py-3 text-right">Total</th>
-                  <th className="px-4 py-3">Estado</th>
+                  <th className="px-4 py-3">{t('ventas.venta')}</th>
+                  <th className="px-4 py-3">{t('ventas.paciente')}</th>
+                  <th className="px-4 py-3 text-right">{t('ventas.total')}</th>
+                  <th className="px-4 py-3">{t('ventas.estado')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -443,10 +433,10 @@ export const VentasPage = () => {
                         la base: no era un vacío, era una respuesta falsa.
                       */}
                       {error
-                        ? 'No se pudo cargar el historial de ventas.'
+                        ? t('ventas.errorHistorial')
                         : filtroPaciente
-                          ? 'Este paciente no tiene compras registradas.'
-                          : 'Todavía no hay ventas registradas.'}
+                          ? t('ventas.vacioPaciente')
+                          : t('ventas.vacio')}
                     </td>
                   </tr>
                 ) : (
@@ -465,7 +455,7 @@ export const VentasPage = () => {
                     >
                       <td className="px-4 py-3 font-semibold">#{v.idVenta}</td>
                       <td className="px-4 py-3 text-neutral-500">
-                        {v.nombrePaciente ?? 'Mostrador'}
+                        {v.nombrePaciente ?? t('ventas.mostrador')}
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">{colones(v.total)}</td>
                       <td className="px-4 py-3">
@@ -491,12 +481,12 @@ export const VentasPage = () => {
                       </p>
                       <p className="mt-1 text-[11px] text-neutral-400">
                         {fechaHoraLarga(seleccionada.fecha)} ·{' '}
-                        {seleccionada.nombrePaciente ?? 'Venta de mostrador'}
+                        {seleccionada.nombrePaciente ?? t('ventas.ventaMostrador')}
                       </p>
                     </div>
                     <button
                       type="button"
-                      aria-label="Cerrar detalle"
+                      aria-label={t('comun.cerrarDetalle')}
                       onClick={() => setSeleccionada(null)}
                       className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
                     >
@@ -524,7 +514,7 @@ export const VentasPage = () => {
                   </ul>
 
                   <div className="mb-5 flex items-center justify-between border-t border-neutral-150 pt-3 dark:border-white/10">
-                    <span className={fieldLabelClass}>Total cobrado</span>
+                    <span className={fieldLabelClass}>{t('ventas.totalCobrado')}</span>
                     <span className="text-xl font-semibold tabular-nums">
                       {colones(seleccionada.total)}
                     </span>
@@ -537,9 +527,7 @@ export const VentasPage = () => {
                       className="mb-4 w-full"
                       onClick={() => abrirOrdenDeLaboratorio(seleccionada)}
                     >
-                      <FlaskConical size={13} />
-                      Abrir orden de laboratorio
-                    </LuxButton>
+                      <FlaskConical size={13} />{t('ventas.abrirOrden')}</LuxButton>
                   ) : null}
 
                   {seleccionada.estado === EstadoVenta.ANULADA ? (
@@ -549,9 +537,7 @@ export const VentasPage = () => {
                     </p>
                   ) : (
                     <form onSubmit={revertir}>
-                      <label className={fieldLabelClass} htmlFor="motivoAnulacion">
-                        Motivo de la anulación *
-                      </label>
+                      <label className={fieldLabelClass} htmlFor="motivoAnulacion">{t('ventas.motivoAnulacion')}</label>
                       <input
                         id="motivoAnulacion"
                         className={fieldInputClass}
@@ -571,7 +557,7 @@ export const VentasPage = () => {
                         disabled={anulando || motivoAnulacion.trim().length < 3}
                       >
                         <RotateCcw size={13} />
-                        {anulando ? 'Revirtiendo…' : 'Revertir venta'}
+                        {anulando ? t('ventas.revirtiendo') : t('ventas.revertir')}
                       </LuxButton>
                     </form>
                   )}
