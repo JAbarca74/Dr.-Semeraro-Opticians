@@ -7,7 +7,7 @@ import {
   waitFor,
   cleanup,
   within,
-} from '@testing-library/react';
+} from '../../test/rtl';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { ExpedientesPage } from './ExpedientesPage';
