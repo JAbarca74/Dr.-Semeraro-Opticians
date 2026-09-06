@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup } from '../../test/rtl';
 import userEvent from '@testing-library/user-event';
 import { SeguimientoPedidosPage } from './SeguimientoPedidosPage';
 import { misPedidos } from '../../core/api/portal.service';
@@ -67,7 +67,13 @@ describe('1. CU-14 · las cuatro etapas', () => {
 
     expect(await screen.findByText('Óptica Lab CR')).toBeInTheDocument();
     expect(screen.getByText('Monofocal antirreflejo')).toBeInTheDocument();
-    expect(screen.getByText('11/09/2026')).toBeInTheDocument();
+    /**
+     * ⚠️ **La fecha pasó de `11/09/2026` a `11 sept 2026` con `DSO-54`, y es a
+     * propósito.** Con tres idiomas, el formato numérico es una trampa: un
+     * inglés lee `11/09/2026` como el 9 de noviembre y un costarricense como el
+     * 11 de setiembre. El mes escrito no admite esa lectura doble.
+     */
+    expect(screen.getByText(/11 sept.* 2026/)).toBeInTheDocument();
   });
 
   it('EX-16: dice a qué momento corresponde la información', async () => {

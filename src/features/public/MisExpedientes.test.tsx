@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup } from '../../test/rtl';
 import { MemoryRouter } from 'react-router-dom';
 import { MisExpedientes } from './MisExpedientes';
 import { misExpedientes } from '../../core/api/portal.service';
