@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import {
   EstadoMotilidad,
   POSICIONES_MIRADA,
@@ -67,6 +68,7 @@ export const DiagramaMotilidad = ({
   onChange,
   soloLectura = false,
 }: Props) => {
+  const { t } = useIdioma();
   const alternar = (posicion: PosicionMirada) => {
     if (soloLectura || !onChange) return;
     const siguiente = siguienteEstado(valor[posicion]);
@@ -153,8 +155,7 @@ export const DiagramaMotilidad = ({
         })}
       </svg>
       {!soloLectura ? (
-        <p className="text-[10px] leading-relaxed text-neutral-500 dark:text-neutral-400">
-          Clic en cada posición: sin evaluar → <span className="text-emerald-600">normal</span> →{' '}
+        <p className="text-[10px] leading-relaxed text-neutral-500 dark:text-neutral-400">{t('exp.motilidadAyuda')}<span className="text-emerald-600">normal</span> →{' '}
           <span className="text-red-600">limitado</span>.
         </p>
       ) : null}
