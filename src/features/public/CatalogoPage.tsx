@@ -13,8 +13,13 @@ import {
   numeroLegible,
   type ProductoVitrina,
 } from '../../core/models/catalogo';
-import { CATEGORIAS, CategoriaProducto, colones } from '../../core/models/inventario';
+import { CATEGORIAS, CategoriaProducto } from '../../core/models/inventario';
 import { mensajeDeError } from '../../shared/error';
+import { useIdioma } from '../../core/i18n/idioma.context';
+import { tipoCambioVigente } from '../../core/api/tipo-cambio.service';
+import { aproximadoUsd, type TipoCambio } from '../../core/models/moneda';
+import { CLAVE_CATEGORIA } from '../../core/models/inventario';
+import type { ClaveTexto } from '../../core/i18n/catalogos/es';
 import {
   Alert,
   Badge,
@@ -40,7 +45,53 @@ import {
  * costo**. Si en esta pantalla aparece alguna vez un dato de inventario, el
  * problema está en el backend, no aquí.
  */
+/**
+ * Precio de un producto: **colones primero, dólar detrás y en pequeño**.
+ *
+ * ⚠️ **Las tres reglas de `DSO-57`, y ninguna es estética:**
+ * 1. **El colón manda.** Cambiar de idioma no cambia la moneda: un inglés que
+ *    viera `$189.50` creería que ese es el precio, y no lo es.
+ * 2. **Se rotula «aprox.».** El importe sale de una tasa que se movió ayer;
+ *    sin la marca, alguien llega al mostrador esperando pagar exactamente eso.
+ * 3. **Sin tasa, el dólar desaparece y el colón queda intacto.** Nunca `$0.00`
+ *    ni `$NaN`: la conversión es un adorno, el precio es el producto.
+ */
+const Precio = ({
+  monto,
+  cambio,
+  className,
+}: {
+  monto: number;
+  cambio: TipoCambio;
+  className?: string;
+}) => {
+  const { t, colones } = useIdioma();
+  const usd = aproximadoUsd(monto, cambio);
+
+  return (
+    <span className={className}>
+      <span className="tabular-nums">{colones(monto)}</span>
+      {usd !== null ? (
+        <span className="ml-2 text-xs font-normal text-neutral-400 tabular-nums">
+          {' · '}
+          {t('moneda.aproximado')} ${usd.toFixed(2)}
+        </span>
+      ) : null}
+    </span>
+  );
+};
+
 export const CatalogoPage = () => {
+  const { t, fechaCorta } = useIdioma();
+
+  /**
+   * Tipo de cambio para el aproximado en dólares (`DSO-57`).
+   *
+   * ⚠️ **Su fallo no puede afectar al catálogo.** El servicio ya se traga el
+   * error y devuelve «no disponible»; aquí simplemente no se pinta el dólar.
+   * El precio en colones se ve igual, que es lo que el visitante necesita.
+   */
+  const [cambio, setCambio] = useState<TipoCambio>({ disponible: false });
   const [productos, setProductos] = useState<ProductoVitrina[]>([]);
   const [marcas, setMarcas] = useState<string[]>([]);
   const [numeroOptica, setNumeroOptica] = useState('');
@@ -61,11 +112,20 @@ export const CatalogoPage = () => {
       setProductos(await listarCatalogo(filtros));
       setError('');
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudo cargar el catálogo'));
+      setError(mensajeDeError(e, t('catalogo.error')));
     } finally {
       setCargando(false);
     }
   };
+
+  useEffect(() => {
+    // El servicio ya se traga sus errores, pero la pantalla no depende de esa
+    // promesa: un rechazo aquí dejaría una promesa sin capturar y, en el peor
+    // caso, tumbaría la carga del catálogo por una conversión que es opcional.
+    void tipoCambioVigente()
+      .then(setCambio)
+      .catch(() => setCambio({ disponible: false }));
+  }, []);
 
   useEffect(() => {
     const filtros: FiltrosCatalogo = {};
@@ -114,7 +174,7 @@ export const CatalogoPage = () => {
 
     if (!numeroOptica) {
       setAvisoWhatsapp(
-        'No hay un número de WhatsApp configurado. Por favor comuníquese con la óptica por teléfono.',
+        t('catalogo.sinWhatsapp'),
       );
       return;
     }
@@ -131,9 +191,9 @@ export const CatalogoPage = () => {
   return (
     <div className="space-y-10">
       <SectionHeader
-        kicker="Vitrina digital"
-        title="Catálogo de modelos"
-        description="Explore las monturas y lentes de la óptica. ¿Le interesa alguno? Consúltenos por WhatsApp desde el mismo modelo y le damos todos los detalles."
+        kicker={t('catalogo.kicker')}
+        title={t('catalogo.titulo')}
+        description={t('catalogo.descripcion')}
       />
 
       {error ? <Alert>{error}</Alert> : null}
@@ -151,19 +211,19 @@ export const CatalogoPage = () => {
         <form onSubmit={buscar} className="flex flex-wrap items-end gap-3">
           <div className="min-w-[200px] flex-1">
             <label className={fieldLabelClass} htmlFor="buscaCatalogo">
-              Buscar modelo
+              {t('catalogo.buscar')}
             </label>
             <input
               id="buscaCatalogo"
               className={fieldInputClass}
-              placeholder="Nombre o marca"
+              placeholder={t('catalogo.buscarEjemplo')}
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
           <div>
             <label className={fieldLabelClass} htmlFor="filtroMarca">
-              Marca
+              {t('catalogo.marca')}
             </label>
             <select
               id="filtroMarca"
@@ -171,7 +231,7 @@ export const CatalogoPage = () => {
               value={marca}
               onChange={(e) => setMarca(e.target.value)}
             >
-              <option value="">Todas</option>
+              <option value="">{t('catalogo.marcaTodas')}</option>
               {marcas.map((m) => (
                 <option key={m} value={m}>
                   {m}
@@ -181,7 +241,7 @@ export const CatalogoPage = () => {
           </div>
           <div>
             <label className={fieldLabelClass} htmlFor="filtroTipo">
-              Tipo
+              {t('catalogo.tipo')}
             </label>
             <select
               id="filtroTipo"
@@ -189,20 +249,33 @@ export const CatalogoPage = () => {
               value={categoria}
               onChange={(e) => setCategoria(e.target.value as CategoriaProducto | '')}
             >
-              <option value="">Todos</option>
+              <option value="">{t('catalogo.tipoTodos')}</option>
               {CATEGORIAS.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {t(CLAVE_CATEGORIA[c] as ClaveTexto)}
                 </option>
               ))}
             </select>
           </div>
           <LuxButton type="submit" variant="ghost">
             <Search size={14} />
-            Buscar
+            {t('comun.buscar')}
           </LuxButton>
         </form>
       </LuxCard>
+
+      {/*
+        ⚠️ **De dónde sale el dólar y de cuándo es.** El importe se calcula con
+        una tasa que se movió ayer: sin decir la fecha y la fuente, alguien
+        llega al mostrador esperando pagar exactamente eso. Solo aparece cuando
+        hay tasa; sin ella no hay nada que explicar.
+      */}
+      {cambio.disponible ? (
+        <p className="text-[10px] text-neutral-400">
+          {t('moneda.tasaDel')} {fechaCorta(cambio.fecha)} {t('moneda.segun')}{' '}
+          {cambio.fuente}. {t('moneda.avisoAproximado')}
+        </p>
+      ) : null}
 
       {/*
         ⚠️ **Con la API caída no se pinta el vacío (EX-11).** Antes salían las
@@ -214,11 +287,11 @@ export const CatalogoPage = () => {
         error ? null : (
           <LuxCard className="p-12 text-center">
             <p className="text-sm text-neutral-500">
-              {cargando ? 'Cargando catálogo…' : 'No hay productos que coincidan'}
+              {cargando ? t('catalogo.cargando') : t('catalogo.ex11')}
             </p>
             {!cargando ? (
               <p className="mt-2 text-xs text-neutral-400">
-                Pruebe con otra marca o quite los filtros.
+                {t('catalogo.ex11.detalle')}
               </p>
             ) : null}
           </LuxCard>
@@ -234,7 +307,7 @@ export const CatalogoPage = () => {
                 <button
                   type="button"
                   onClick={() => setDetalle(p)}
-                  aria-label={`Ver detalle de ${p.nombre}`}
+                  aria-label={`${t('catalogo.verDetalle')} ${p.nombre}`}
                   className="block aspect-[4/3] w-full overflow-hidden bg-stone-100 dark:bg-neutral-900"
                 >
                   {p.imagenUrl ? (
@@ -247,7 +320,7 @@ export const CatalogoPage = () => {
                     <span className="flex h-full w-full flex-col items-center justify-center gap-2 text-neutral-300 dark:text-neutral-700">
                       <ImageOff size={26} />
                       <span className="text-[10px] uppercase tracking-wider">
-                        Sin fotografía
+                        {t('catalogo.sinFoto')}
                       </span>
                     </span>
                   )}
@@ -259,11 +332,19 @@ export const CatalogoPage = () => {
                     {p.nombre}
                   </h3>
                   <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                    {[p.categoria, p.color, p.material].filter(Boolean).join(' · ')}
+                    {[
+                      t(CLAVE_CATEGORIA[p.categoria] as ClaveTexto),
+                      p.color,
+                      p.material,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
                   </p>
-                  <p className="mt-3 text-lg font-semibold tabular-nums">
-                    {colones(p.precio)}
-                  </p>
+                  <Precio
+                    monto={p.precio}
+                    cambio={cambio}
+                    className="mt-3 block text-lg font-semibold"
+                  />
                   <LuxButton
                     type="button"
                     variant="tinta"
@@ -271,7 +352,7 @@ export const CatalogoPage = () => {
                     onClick={() => consultar(p)}
                   >
                     <MessageCircle size={13} />
-                    Consultar por WhatsApp
+                    {t('catalogo.consultar')}
                   </LuxButton>
                 </div>
               </LuxCard>
@@ -294,7 +375,7 @@ export const CatalogoPage = () => {
             <div className="flex justify-end p-3">
               <button
                 type="button"
-                aria-label="Cerrar detalle"
+                aria-label={t('catalogo.cerrarDetalle')}
                 onClick={() => setDetalle(null)}
                 className="text-neutral-400 hover:text-neutral-800 dark:hover:text-white"
               >
@@ -319,15 +400,18 @@ export const CatalogoPage = () => {
                 {(
                   [
                     ['Tipo', detalle.categoria],
-                    ['Color', detalle.color],
-                    ['Material', detalle.material],
-                    ['Calibre', detalle.calibre ? `${detalle.calibre} mm` : null],
+                    [t('catalogo.ficha.color'), detalle.color],
+                    [t('catalogo.ficha.material'), detalle.material],
                     [
-                      'Índice de refracción',
+                      t('catalogo.ficha.calibre'),
+                      detalle.calibre ? `${detalle.calibre} mm` : null,
+                    ],
+                    [
+                      t('catalogo.ficha.indice'),
                       detalle.indiceRefraccion ? String(detalle.indiceRefraccion) : null,
                     ],
-                    ['Filtro', detalle.filtro],
-                    ['Tratamiento', detalle.tratamiento],
+                    [t('catalogo.ficha.filtro'), detalle.filtro],
+                    [t('catalogo.ficha.tratamiento'), detalle.tratamiento],
                   ] as const
                 )
                   .filter(([, valor]) => Boolean(valor))
@@ -340,9 +424,11 @@ export const CatalogoPage = () => {
               </dl>
 
               <div className="mt-6 flex items-center justify-between gap-4">
-                <span className="text-2xl font-semibold tabular-nums">
-                  {colones(detalle.precio)}
-                </span>
+                <Precio
+                  monto={detalle.precio}
+                  cambio={cambio}
+                  className="text-2xl font-semibold"
+                />
                 <LuxButton
                   type="button"
                   variant="tinta"
@@ -352,7 +438,7 @@ export const CatalogoPage = () => {
                   }}
                 >
                   <MessageCircle size={13} />
-                  Consultar por WhatsApp
+                  {t('catalogo.consultar')}
                 </LuxButton>
               </div>
             </div>
