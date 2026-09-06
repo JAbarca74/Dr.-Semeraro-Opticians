@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   ETAPAS_PEDIDO,
   construirMensajePedido,
-  fechaCorta,
   refraccionLegible,
   type PedidoPaciente,
 } from './portal';
@@ -46,16 +45,6 @@ describe('construirMensajePedido', () => {
 
   it('sin nombre de óptica usa un genérico', () => {
     expect(construirMensajePedido(pedido())).toContain('la óptica');
-  });
-});
-
-describe('fechaCorta', () => {
-  it('formatea a día/mes/año', () => {
-    expect(fechaCorta('2026-09-11')).toBe('11/09/2026');
-  });
-
-  it('sin fecha devuelve una raya, no «null»', () => {
-    expect(fechaCorta(null)).toBe('—');
   });
 });
 

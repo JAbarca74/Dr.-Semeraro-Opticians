@@ -20,6 +20,29 @@ describe('fechaCorta', () => {
   it('acepta una fecha ISO además de un Date', () => {
     expect(fechaCorta('es', '2026-01-06T14:30:00')).toContain('2026');
   });
+
+  it('una cadena de solo fecha no retrocede un día por el huso', () => {
+    // `new Date('2026-09-11')` es UTC medianoche, que en Costa Rica (UTC−6) cae
+    // el día 10 a las 18:00. La entrega estimada de un pedido se mostraba un
+    // día antes de la real.
+    expect(fechaCorta('es', '2026-09-11')).toContain('11');
+    expect(fechaCorta('en', '2026-09-11')).toContain('11');
+    expect(fechaCorta('it', '2026-09-11')).toContain('11');
+  });
+
+  it('con hora incluida se respeta tal cual', () => {
+    expect(fechaCorta('es', '2026-09-11T23:30:00')).toContain('11');
+  });
+
+  it('una fecha ausente se pinta «—», no el 1 de enero de 1970', () => {
+    // `new Date(null)` da la época Unix: el paciente leería que sus lentes
+    // llegan hace cincuenta años. `fechaEstimadaEntrega` es nula mientras el
+    // laboratorio no la confirme.
+    expect(fechaCorta('es', null)).toBe('—');
+    expect(fechaCorta('en', undefined)).toBe('—');
+    expect(fechaHora('it', null)).toBe('—');
+    expect(fechaCorta('es', '')).toBe('—');
+  });
 });
 
 describe('fechaHora y hora', () => {

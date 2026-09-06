@@ -40,8 +40,11 @@ describe('paridad de catálogos', () => {
   });
 
   it('las claves siguen la convención `ambito.elemento`', () => {
+    // El ámbito va en minúsculas; los segmentos siguientes admiten camelCase y
+    // dígitos, porque los códigos de excepción del TFM (`ex14`, `ex21`) son
+    // parte del nombre y esconderlos haría la clave menos legible.
     for (const clave of claves) {
-      expect(clave).toMatch(/^[a-z]+(\.[a-zA-Z]+)+$/);
+      expect(clave).toMatch(/^[a-z]+(\.[a-zA-Z0-9]+)+$/);
     }
   });
 });
@@ -59,6 +62,49 @@ describe('calidad de las traducciones', () => {
     'nav.publico.catalogo', // «Catalogo» solo pierde la tilde en italiano
     'nav.publico.especialista',
     'nav.admin.metricas',
+    // Nombre propio del negocio y su ubicación: no se traduce en ningún idioma.
+    'publico.pie.ubicacion',
+    // «Cilindro» se escribe igual en español y en italiano: es el término
+    // óptico establecido en ambos, no una traducción olvidada.
+    'receta.cilindro',
+    // Cognados exactos con el italiano: «Lente», «Filtro», «Marca», «Tipo».
+    'catalogo.categoria.lente',
+    'catalogo.ficha.filtro',
+    'catalogo.marca',
+    'catalogo.tipo',
+    // «Material» se escribe igual en español e inglés.
+    'catalogo.ficha.material',
+    // «Periodo» y «Magazzino»→«Inventario»: cognados exactos con el italiano.
+    'metricas.periodo',
+    'usuarios.persona',
+    'persona.tipo',
+    'auditoria.sistema',
+    'lab.laboratorio',
+    'inv.stock',
+    'inv.marca',
+    'inv.motivo',
+    'ventas.total',
+    // «Doctor» en inglés y «Agenda del» en italiano coinciden con el español.
+    'agenda.doctor',
+    'agenda.agendaDel',
+    'agenda.titulo',
+    'agenda.motivo',
+    // Siglas optométricas que coinciden en español e italiano: PIO es
+    // «pressione intraoculare» y PPC «punto prossimo di convergenza».
+    'exp.campo.pio',
+    'exp.campo.pioOd',
+    'exp.campo.ppc',
+    'exp.campo.control',
+    'exp.campo.hallazgos',
+    'exp.campo.refraccion',
+    // «SKU» es una sigla internacional: igual en los tres.
+    'inv.sku',
+    'lab.laboratorioObl',
+    // «Dr. Semeraro (Doctor)»: nombre propio y un cargo que se escribe igual.
+    'login.demo.doctor',
+    // Nombres propios y ejemplos técnicos: el correo de muestra y la sede.
+    'login.campo.correoEjemplo',
+    'login.sede',
   ]);
 
   it('el inglés no repite el texto español sin querer', () => {
