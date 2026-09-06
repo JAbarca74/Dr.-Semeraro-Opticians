@@ -1,3 +1,5 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
+import type { ClaveTexto } from '../../core/i18n/catalogos/es';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -54,11 +56,16 @@ const Badge = ({ estado }: { estado: EstadoOrden }) => (
   </span>
 );
 
-const FILTROS: Array<{ clave: string; label: string; filtros: FiltrosOrden }> = [
-  { clave: 'pendientes', label: 'Pendientes', filtros: { pendientes: true } },
-  { clave: 'todas', label: 'Todas', filtros: {} },
-  { clave: 'retrasadas', label: 'Retrasadas', filtros: { estado: EstadoOrden.RETRASADO } },
-  { clave: 'listas', label: 'Listas', filtros: { estado: EstadoOrden.LISTO } },
+/** Guardan la clave del rótulo: la lista vive fuera del componente. */
+const FILTROS: Array<{ clave: string; label: ClaveTexto; filtros: FiltrosOrden }> = [
+  { clave: 'pendientes', label: 'lab.pendientes', filtros: { pendientes: true } },
+  { clave: 'todas', label: 'auditoria.todas', filtros: {} },
+  {
+    clave: 'retrasadas',
+    label: 'lab.retrasadas',
+    filtros: { estado: EstadoOrden.RETRASADO },
+  },
+  { clave: 'listas', label: 'lab.listas', filtros: { estado: EstadoOrden.LISTO } },
 ];
 
 const ALTA_VACIA: OrdenInput = {
@@ -79,6 +86,7 @@ const ALTA_VACIA: OrdenInput = {
  * de uso quedaría a medias. Mismo criterio que se aplicó a la agenda (CU-05).
  */
 export const LaboratorioPage = () => {
+  const { t } = useIdioma();
   const [parametrosUrl, setParametrosUrl] = useSearchParams();
   const [ordenes, setOrdenes] = useState<OrdenLaboratorio[]>([]);
   const [filtro, setFiltro] = useState('pendientes');
@@ -104,7 +112,7 @@ export const LaboratorioPage = () => {
     try {
       setOrdenes(await listarOrdenes(activo.filtros));
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudieron cargar las órdenes'));
+      setError(mensajeDeError(e, t('lab.errorCargar')));
     } finally {
       setCargando(false);
     }
@@ -139,7 +147,7 @@ export const LaboratorioPage = () => {
     try {
       setHistorial(await historialDeOrden(orden.idOrdenLaboratorio));
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudo cargar el historial'));
+      setError(mensajeDeError(e, t('lab.errorHistorial')));
     }
   };
 
@@ -172,7 +180,7 @@ export const LaboratorioPage = () => {
       await abrir(actualizada);
       await cargar();
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo cambiar el estado de la orden'));
+      setError(mensajeDeError(err, t('lab.errorEstado')));
     } finally {
       setGuardando(false);
     }
@@ -200,7 +208,7 @@ export const LaboratorioPage = () => {
       setMostrarAlta(false);
       await cargar();
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo abrir la orden'));
+      setError(mensajeDeError(err, t('lab.errorAbrir')));
     } finally {
       setGuardando(false);
     }
@@ -213,8 +221,8 @@ export const LaboratorioPage = () => {
     <div>
       <RecepHeader
         cu="CU-07 · Logística de Taller"
-        title="Control de Laboratorio"
-        description="Seguimiento de las órdenes de fabricación: estado, tiempos y bitácora de cada cambio."
+        title={t('lab.titulo')}
+        description={t('lab.descripcion')}
         actions={
           <>
             <RecepButton variant="outline" onClick={() => void cargar()} disabled={cargando}>
@@ -222,9 +230,7 @@ export const LaboratorioPage = () => {
               Actualizar
             </RecepButton>
             <RecepButton onClick={() => setMostrarAlta((v) => !v)}>
-              <Plus size={14} />
-              Nueva orden
-            </RecepButton>
+              <Plus size={14} />{t('lab.nuevaOrden')}</RecepButton>
           </>
         }
       />
@@ -246,9 +252,7 @@ export const LaboratorioPage = () => {
             <RecepCard className="mb-6 p-6">
               <form onSubmit={registrarOrden} className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <label className={recepLabelClass} htmlFor="idVenta">
-                    Venta *
-                  </label>
+                  <label className={recepLabelClass} htmlFor="idVenta">{t('lab.ventaObl')}</label>
                   <input
                     id="idVenta"
                     type="number"
@@ -260,9 +264,7 @@ export const LaboratorioPage = () => {
                   />
                 </div>
                 <div>
-                  <label className={recepLabelClass} htmlFor="laboratorioNombre">
-                    Laboratorio *
-                  </label>
+                  <label className={recepLabelClass} htmlFor="laboratorioNombre">{t('lab.laboratorioObl')}</label>
                   <input
                     id="laboratorioNombre"
                     required
@@ -273,9 +275,7 @@ export const LaboratorioPage = () => {
                   />
                 </div>
                 <div>
-                  <label className={recepLabelClass} htmlFor="fechaEstimadaEntrega">
-                    Entrega estimada
-                  </label>
+                  <label className={recepLabelClass} htmlFor="fechaEstimadaEntrega">{t('lab.entregaEstimada')}</label>
                   <input
                     id="fechaEstimadaEntrega"
                     type="date"
@@ -285,9 +285,7 @@ export const LaboratorioPage = () => {
                   />
                 </div>
                 <div>
-                  <label className={recepLabelClass} htmlFor="laboratorioContacto">
-                    Contacto
-                  </label>
+                  <label className={recepLabelClass} htmlFor="laboratorioContacto">{t('lab.contacto')}</label>
                   <input
                     id="laboratorioContacto"
                     maxLength={150}
@@ -297,9 +295,7 @@ export const LaboratorioPage = () => {
                   />
                 </div>
                 <div>
-                  <label className={recepLabelClass} htmlFor="laboratorioTelefono">
-                    Teléfono
-                  </label>
+                  <label className={recepLabelClass} htmlFor="laboratorioTelefono">{t('lab.telefono')}</label>
                   <input
                     id="laboratorioTelefono"
                     maxLength={20}
@@ -309,9 +305,7 @@ export const LaboratorioPage = () => {
                   />
                 </div>
                 <div className="md:col-span-3">
-                  <label className={recepLabelClass} htmlFor="especificaciones">
-                    Especificaciones *
-                  </label>
+                  <label className={recepLabelClass} htmlFor="especificaciones">{t('lab.especificacionesObl')}</label>
                   <textarea
                     id="especificaciones"
                     required
@@ -326,7 +320,7 @@ export const LaboratorioPage = () => {
                     Cancelar
                   </RecepButton>
                   <RecepButton type="submit" disabled={guardando}>
-                    {guardando ? 'Abriendo…' : 'Abrir orden'}
+                    {guardando ? t('lab.abriendo') : t('lab.abrirOrden')}
                   </RecepButton>
                 </div>
               </form>
@@ -348,7 +342,7 @@ export const LaboratorioPage = () => {
                 : 'border border-neutral-250 text-neutral-600 hover:border-lux-tinta dark:border-neutral-700 dark:text-neutral-400',
             )}
           >
-            {f.label}
+            {t(f.label)}
           </button>
         ))}
       </div>
@@ -358,18 +352,18 @@ export const LaboratorioPage = () => {
           <table className="w-full min-w-[640px] text-left text-xs">
             <thead className="border-b border-neutral-200 text-[10px] uppercase tracking-wider text-neutral-500 dark:border-neutral-800">
               <tr>
-                <th className="px-4 py-3">Orden</th>
-                <th className="px-4 py-3">Venta</th>
-                <th className="px-4 py-3">Laboratorio</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Entrega</th>
+                <th className="px-4 py-3">{t('lab.orden')}</th>
+                <th className="px-4 py-3">{t('lab.venta')}</th>
+                <th className="px-4 py-3">{t('lab.laboratorio')}</th>
+                <th className="px-4 py-3">{t('lab.estado')}</th>
+                <th className="px-4 py-3">{t('lab.entrega')}</th>
               </tr>
             </thead>
             <tbody>
               {ordenes.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center text-neutral-500">
-                    {cargando ? 'Cargando órdenes…' : 'No hay órdenes con este filtro.'}
+                    {cargando ? t('lab.cargando') : t('lab.vacio')}
                   </td>
                 </tr>
               ) : (
@@ -409,7 +403,7 @@ export const LaboratorioPage = () => {
           {!seleccionada ? (
             <div className="flex h-full min-h-[220px] flex-col items-center justify-center text-center text-neutral-400">
               <ClipboardList size={28} className="mb-3" />
-              <p className="text-xs">Seleccione una orden para ver su detalle y su bitácora.</p>
+              <p className="text-xs">{t('lab.seleccioneOrden')}</p>
             </div>
           ) : (
             <div>
@@ -424,7 +418,7 @@ export const LaboratorioPage = () => {
                 </div>
                 <button
                   type="button"
-                  aria-label="Cerrar detalle"
+                  aria-label={t('comun.cerrarDetalle')}
                   onClick={cerrar}
                   className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
                 >
@@ -434,27 +428,27 @@ export const LaboratorioPage = () => {
 
               <dl className="mb-5 grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <dt className={recepLabelClass}>Estado</dt>
+                  <dt className={recepLabelClass}>{t('lab.estado')}</dt>
                   <dd><Badge estado={seleccionada.estado} /></dd>
                 </div>
                 <div>
-                  <dt className={recepLabelClass}>Entrega estimada</dt>
+                  <dt className={recepLabelClass}>{t('lab.entregaEstimada')}</dt>
                   <dd>{fechaCorta(seleccionada.fechaEstimadaEntrega)}</dd>
                 </div>
                 {seleccionada.laboratorioContacto ? (
                   <div>
-                    <dt className={recepLabelClass}>Contacto</dt>
+                    <dt className={recepLabelClass}>{t('lab.contacto')}</dt>
                     <dd>{seleccionada.laboratorioContacto}</dd>
                   </div>
                 ) : null}
                 {seleccionada.laboratorioTelefono ? (
                   <div>
-                    <dt className={recepLabelClass}>Teléfono</dt>
+                    <dt className={recepLabelClass}>{t('lab.telefono')}</dt>
                     <dd>{seleccionada.laboratorioTelefono}</dd>
                   </div>
                 ) : null}
                 <div className="col-span-2">
-                  <dt className={recepLabelClass}>Especificaciones</dt>
+                  <dt className={recepLabelClass}>{t('lab.especificaciones')}</dt>
                   <dd className="whitespace-pre-line text-neutral-600 dark:text-neutral-300">
                     {seleccionada.especificaciones}
                   </dd>
@@ -478,16 +472,14 @@ export const LaboratorioPage = () => {
                 </p>
               ) : (
                 <form onSubmit={aplicarCambio} className="mb-6 border-t border-neutral-150 pt-5 dark:border-neutral-800">
-                  <label className={recepLabelClass} htmlFor="destino">
-                    Cambiar estado
-                  </label>
+                  <label className={recepLabelClass} htmlFor="destino">{t('lab.cambiarEstado')}</label>
                   <select
                     id="destino"
                     className={recepInputClass}
                     value={destino}
                     onChange={(e) => setDestino(e.target.value as EstadoOrden | '')}
                   >
-                    <option value="">Seleccione…</option>
+                    <option value="">{t('lab.seleccione')}</option>
                     {destinos.map((d) => (
                       <option key={d} value={d}>
                         {etiquetaEstado(d)}
@@ -498,7 +490,7 @@ export const LaboratorioPage = () => {
                   {destino ? (
                     <div className="mt-3">
                       <label className={recepLabelClass} htmlFor="comentario">
-                        {exigeMotivo ? 'Motivo del retraso *' : 'Comentario (opcional)'}
+                        {exigeMotivo ? t('lab.motivoRetraso') : t('lab.comentario')}
                       </label>
                       <input
                         id="comentario"
@@ -508,9 +500,7 @@ export const LaboratorioPage = () => {
                         onChange={(e) => setComentario(e.target.value)}
                       />
                       {motivoIncompleto ? (
-                        <p className="mt-1.5 text-[10px] text-amber-700 dark:text-amber-400">
-                          Para marcar la orden como retrasada hay que indicar el motivo.
-                        </p>
+                        <p className="mt-1.5 text-[10px] text-amber-700 dark:text-amber-400">{t('lab.motivoObligatorio')}</p>
                       ) : null}
                     </div>
                   ) : null}
@@ -520,17 +510,15 @@ export const LaboratorioPage = () => {
                     className="mt-4 w-full"
                     disabled={!destino || motivoIncompleto || guardando}
                   >
-                    {guardando ? 'Guardando…' : 'Confirmar cambio'}
+                    {guardando ? t('lab.guardando') : t('lab.confirmar')}
                   </RecepButton>
                 </form>
               )}
 
               <div>
-                <p className={recepLabelClass}>Bitácora</p>
+                <p className={recepLabelClass}>{t('lab.bitacora')}</p>
                 {historial.length === 0 ? (
-                  <p className="text-[11px] text-neutral-400">
-                    Sin cambios registrados: la orden sigue como se abrió.
-                  </p>
+                  <p className="text-[11px] text-neutral-400">{t('lab.sinCambios')}</p>
                 ) : (
                   <ol className="space-y-2.5">
                     {historial.map((h) => (

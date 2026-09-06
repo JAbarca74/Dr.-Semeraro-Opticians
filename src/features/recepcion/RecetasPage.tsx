@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { Download, ScanLine, ShieldCheck, ShieldX } from 'lucide-react';
@@ -16,6 +17,7 @@ import {
 import { API_BASE } from '../../core/api/http';
 
 export const RecetasPage = () => {
+  const { t } = useIdioma();
   const [entrada, setEntrada] = useState('');
   const [resultado, setResultado] = useState<VerificacionReceta | null>(null);
   const [hash, setHash] = useState('');
@@ -28,7 +30,7 @@ export const RecetasPage = () => {
     setResultado(null);
     const h = normalizarHash(entrada);
     if (!h) {
-      setError('Ingrese el código (hash) o la URL de verificación de la receta.');
+      setError(t('verificacion.vacio'));
       return;
     }
     setCargando(true);
@@ -37,7 +39,7 @@ export const RecetasPage = () => {
       setHash(h);
       setResultado(r);
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudo verificar la receta.'));
+      setError(mensajeDeError(e, t('verificacion.error')));
     } finally {
       setCargando(false);
     }
@@ -49,8 +51,8 @@ export const RecetasPage = () => {
     <div>
       <RecepHeader
         cu="Sello digital · CU-16"
-        title="Verificación de Recetas"
-        description="Confirme la autenticidad e integridad de una receta emitida por el especialista, recomputando su firma SHA-256. Escanee el QR o pegue el código."
+        title={t('verificacion.titulo')}
+        description={t('verificacion.descripcion')}
       />
 
       <div className="grid items-start gap-8 lg:grid-cols-12">
@@ -58,20 +60,17 @@ export const RecetasPage = () => {
           <RecepCard className="space-y-6 p-8">
             <div className="border-b border-neutral-100 pb-3 dark:border-neutral-800">
               <h3 className="flex items-center gap-2 font-serif text-lg font-medium text-neutral-900 dark:text-white">
-                <ScanLine className="h-4 w-4 text-lux-tinta" /> Consultar receta
-              </h3>
-              <p className="text-xs font-light text-neutral-400">
-                Código SHA-256 o URL del QR de la receta
-              </p>
+                <ScanLine className="h-4 w-4 text-lux-tinta" />{t('verificacion.consultar')}</h3>
+              <p className="text-xs font-light text-neutral-400">{t('verificacion.campoLargo')}</p>
             </div>
             <form onSubmit={onSubmit} className="space-y-4">
               <div>
-                <span className={recepLabelClass}>Código / URL de verificación</span>
+                <span className={recepLabelClass}>{t('verificacion.campo')}</span>
                 <input
                   className={recepInputClass}
                   value={entrada}
                   onChange={(e) => setEntrada(e.target.value)}
-                  placeholder="p. ej. 9f86d081… o /verificar/9f86d081…"
+                  placeholder={t('portal.campo.codigoEjemplo')}
                 />
               </div>
               {error ? (
@@ -80,7 +79,7 @@ export const RecetasPage = () => {
                 </p>
               ) : null}
               <RecepButton type="submit" disabled={cargando}>
-                {cargando ? 'Verificando…' : 'Verificar autenticidad'}
+                {cargando ? t('verificacion.verificando') : t('verificacion.verificar')}
               </RecepButton>
             </form>
           </RecepCard>
@@ -105,18 +104,18 @@ export const RecetasPage = () => {
                 )}
                 <span className="text-sm font-semibold">
                   {valida
-                    ? 'Receta auténtica y sin alteraciones'
-                    : 'Receta no válida o no encontrada'}
+                    ? t('receta.valida')
+                    : t('receta.invalida')}
                 </span>
               </div>
 
               {valida ? (
                 <RecepCard className="space-y-4 p-6 text-sm">
                   {[
-                    ['Paciente', resultado?.paciente],
-                    ['Especialista', resultado?.doctor],
+                    [t('receta.paciente'), resultado?.paciente],
+                    [t('receta.especialista'), resultado?.doctor],
                     [
-                      'Firmada',
+                      t('receta.firmada'),
                       resultado?.firmadoEn
                         ? new Date(resultado.firmadoEn).toLocaleString()
                         : '—',
@@ -137,7 +136,7 @@ export const RecetasPage = () => {
                     <table className="w-full text-left">
                       <thead>
                         <tr className="border-b border-neutral-100 dark:border-neutral-800">
-                          {['Ojo', 'Esfera', 'Cilindro', 'Eje'].map((h) => (
+                          {['Ojo', t('receta.esfera'), t('receta.cilindro'), 'Eje'].map((h) => (
                             <th
                               key={h}
                               className="py-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400"
@@ -168,7 +167,7 @@ export const RecetasPage = () => {
                   </p>
                   <a href={`${API_BASE}/recetas/${hash}/pdf`} target="_blank" rel="noreferrer">
                     <RecepButton type="button" variant="outline">
-                      <Download className="h-3.5 w-3.5" /> Descargar PDF
+                      <Download className="h-3.5 w-3.5" /> {t('receta.descargarPdf')}
                     </RecepButton>
                   </a>
                 </RecepCard>
@@ -179,11 +178,7 @@ export const RecetasPage = () => {
               {...recepFade}
               className="flex h-full min-h-[200px] items-center justify-center border border-dashed border-neutral-200 text-center dark:border-neutral-800"
             >
-              <p className="px-6 text-xs font-light leading-relaxed text-neutral-400">
-                El resultado de la verificación aparecerá aquí.
-                <br />
-                Ingrese un código para comenzar.
-              </p>
+              <p className="px-6 text-xs font-light leading-relaxed text-neutral-400">{t('verificacion.resultadoAqui')}<br />{t('verificacion.ingreseCodigo')}</p>
             </motion.div>
           )}
         </div>
