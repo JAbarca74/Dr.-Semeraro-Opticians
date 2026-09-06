@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle2, UserPlus } from 'lucide-react';
 import { registrarPacienteRequest } from '../../core/auth/auth.service';
 import { mensajeDeError } from '../../shared/error';
+import { useIdioma } from '../../core/i18n/idioma.context';
 import {
   Alert,
   LuxButton,
@@ -29,6 +30,7 @@ const MINIMO_CLAVE = 8;
  */
 export const RegistroPage = () => {
   const navigate = useNavigate();
+  const { t } = useIdioma();
   const [cedula, setCedula] = useState('');
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
@@ -64,7 +66,7 @@ export const RegistroPage = () => {
     } catch (err) {
       // EX-12 llega como 409 con el literal del caso de uso; `mensajeDeError`
       // lo desenvuelve y se muestra tal cual lo escribió el TFM.
-      setError(mensajeDeError(err, 'No se pudo crear la cuenta'));
+      setError(mensajeDeError(err, t('registro.error')));
     } finally {
       setEnviando(false);
     }
@@ -74,19 +76,17 @@ export const RegistroPage = () => {
     return (
       <section className="space-y-10">
         <SectionHeader
-          kicker="Portal del paciente"
-          title="Su cuenta está lista"
-          description="Ya puede iniciar sesión con el correo y la contraseña que acaba de registrar."
+          kicker={t('registro.kicker')}
+          title={t('registro.listo.titulo')}
+          description={t('registro.listo.descripcion')}
         />
         <LuxCard className="flex flex-col items-center gap-5 p-12 text-center">
           <CheckCircle2 className="h-10 w-10 text-emerald-600" strokeWidth={1.4} />
           <p className="max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-            Desde el portal podrá verificar sus recetas y consultar el estado de
-            sus lentes. Si necesita ayuda, la recepción de la óptica puede
-            atenderle.
+            {t('registro.listo.detalle')}
           </p>
           <LuxButton type="button" variant="tinta" onClick={() => navigate('/login')}>
-            Iniciar sesión
+            {t('nav.publico.entrar')}
           </LuxButton>
         </LuxCard>
       </section>
@@ -96,9 +96,9 @@ export const RegistroPage = () => {
   return (
     <section className="space-y-10">
       <SectionHeader
-        kicker="Portal del paciente"
-        title="Crear cuenta de paciente"
-        description="Regístrese para verificar sus recetas y seguir el estado de sus lentes desde el portal."
+        kicker={t('registro.kicker')}
+        title={t('registro.titulo')}
+        description={t('registro.descripcion')}
       />
 
       {error ? <Alert>{error}</Alert> : null}
@@ -107,7 +107,7 @@ export const RegistroPage = () => {
         <form onSubmit={registrar} className="grid gap-5 md:grid-cols-2">
           <div>
             <label className={fieldLabelClass} htmlFor="cedula">
-              Cédula *
+              {t('registro.campo.cedula')}
             </label>
             <input
               id="cedula"
@@ -122,7 +122,7 @@ export const RegistroPage = () => {
 
           <div>
             <label className={fieldLabelClass} htmlFor="nombre">
-              Nombre completo *
+              {t('registro.campo.nombre')}
             </label>
             <input
               id="nombre"
@@ -137,7 +137,7 @@ export const RegistroPage = () => {
 
           <div>
             <label className={fieldLabelClass} htmlFor="correo">
-              Correo electrónico *
+              {t('registro.campo.correo')}
             </label>
             <input
               id="correo"
@@ -153,7 +153,7 @@ export const RegistroPage = () => {
 
           <div>
             <label className={fieldLabelClass} htmlFor="telefono">
-              Teléfono (opcional)
+              {t('registro.campo.telefono')}
             </label>
             <input
               id="telefono"
@@ -164,13 +164,13 @@ export const RegistroPage = () => {
               onChange={(e) => setTelefono(e.target.value)}
             />
             <p className="mt-1 text-[10px] text-neutral-400">
-              Lo usamos solo para recordarle sus citas.
+              {t('registro.campo.telefonoNota')}
             </p>
           </div>
 
           <div>
             <label className={fieldLabelClass} htmlFor="password">
-              Contraseña *
+              {t('registro.campo.clave')}
             </label>
             <input
               id="password"
@@ -183,14 +183,15 @@ export const RegistroPage = () => {
             />
             {claveCorta ? (
               <p className="mt-1 text-[10px] text-red-600 dark:text-red-400">
-                La contraseña debe tener al menos {MINIMO_CLAVE} caracteres.
+                {t('registro.claveCorta.antes')} {MINIMO_CLAVE}{' '}
+                {t('registro.claveCorta.despues')}
               </p>
             ) : null}
           </div>
 
           <div>
             <label className={fieldLabelClass} htmlFor="confirmacion">
-              Repita la contraseña *
+              {t('registro.campo.claveRepetir')}
             </label>
             <input
               id="confirmacion"
@@ -203,22 +204,22 @@ export const RegistroPage = () => {
             />
             {noCoinciden ? (
               <p className="mt-1 text-[10px] text-red-600 dark:text-red-400">
-                Las contraseñas no coinciden.
+                {t('registro.noCoinciden')}
               </p>
             ) : null}
           </div>
 
           <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-4 border-t border-neutral-150 pt-5 dark:border-white/10">
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              ¿Ya tiene cuenta?{' '}
+              {t('registro.yaTieneCuenta')}{' '}
               <Link to="/login" className="underline hover:text-lux-tinta">
-                Inicie sesión
+                {t('registro.inicieSesion')}
               </Link>
               .
             </p>
             <LuxButton type="submit" variant="tinta" disabled={!puedeEnviar || enviando}>
               <UserPlus size={14} />
-              {enviando ? 'Creando cuenta…' : 'Crear cuenta'}
+              {enviando ? t('registro.enviando') : t('registro.enviar')}
             </LuxButton>
           </div>
         </form>
