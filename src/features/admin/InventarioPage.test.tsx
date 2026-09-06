@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, waitFor, cleanup } from '../../test/rtl';
 import userEvent from '@testing-library/user-event';
 import { InventarioPage } from './InventarioPage';
 import {
@@ -60,7 +60,6 @@ const producto = (cambios: Partial<Producto> = {}): Producto => ({
   indiceRefraccion: null,
   filtro: null,
   tratamiento: null,
-  formasRostroCompatibles: null,
   esPublico: false,
   imagenUrl: null,
   ...cambios,
