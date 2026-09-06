@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle, Pencil, Plus, Search, X } from 'lucide-react';
@@ -34,6 +35,7 @@ const VACIO: PersonaInput = {
 };
 
 export const PacientesPage = () => {
+  const { t } = useIdioma();
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [busqueda, setBusqueda] = useState('');
   const [form, setForm] = useState<PersonaInput>(VACIO);
@@ -46,10 +48,13 @@ export const PacientesPage = () => {
   const cargar = () =>
     listarPersonas()
       .then((ps) => setPersonas(ps.filter((p) => p.tipo === TipoPersona.PACIENTE)))
-      .catch((e) => setError(mensajeDeError(e, 'No se pudieron cargar los pacientes')));
+      .catch((e) => setError(mensajeDeError(e, t('pacientes.error'))));
 
   useEffect(() => {
     cargar();
+    // `cargar` depende de `t` para el texto de respaldo, así que cambia de
+    // identidad en cada render. En las dependencias volvería a pedir los datos.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtrados = useMemo(() => {
@@ -121,12 +126,12 @@ export const PacientesPage = () => {
     <div>
       <RecepHeader
         cu="Registro de pacientes · CU-18"
-        title="Pacientes"
-        description="Gestione la base demográfica de pacientes de Óptica Dr. Luigi Semeraro: registro, contacto y trazabilidad para facturación y citas."
+        title={t('pacientes.titulo')}
+        description={t('pacientes.descripcion')}
         actions={
           <RecepButton onClick={nuevo}>
             <Plus className="h-4 w-4 text-lux-tinta" />
-            {mostrarForm ? 'Cerrar registro' : 'Nuevo paciente'}
+            {mostrarForm ? t('pacientes.cerrarRegistro') : t('pacientes.nuevo')}
           </RecepButton>
         }
       />
@@ -158,15 +163,13 @@ export const PacientesPage = () => {
               <RecepCard className="space-y-6 p-8">
                 <div className="border-b border-neutral-100 pb-3 dark:border-neutral-800">
                   <h3 className="font-serif text-lg font-medium text-neutral-900 dark:text-white">
-                    {editId ? 'Editar paciente' : 'Formulario de inscripción'}
+                    {editId ? t('pacientes.editar') : t('pacientes.formulario')}
                   </h3>
-                  <p className="text-xs font-light text-neutral-400">
-                    Ingrese con exactitud los datos del documento de identidad
-                  </p>
+                  <p className="text-xs font-light text-neutral-400">{t('pacientes.exactitud')}</p>
                 </div>
                 <form onSubmit={onSubmit} className="space-y-4">
                   <div>
-                    <span className={recepLabelClass}>Cédula</span>
+                    <span className={recepLabelClass}>{t('persona.cedula')}</span>
                     <input
                       className={recepInputClass}
                       value={form.cedula}
@@ -175,7 +178,7 @@ export const PacientesPage = () => {
                     />
                   </div>
                   <div>
-                    <span className={recepLabelClass}>Nombre completo</span>
+                    <span className={recepLabelClass}>{t('persona.nombreCompleto')}</span>
                     <input
                       className={recepInputClass}
                       value={form.nombre}
@@ -192,7 +195,7 @@ export const PacientesPage = () => {
                       inputClass={recepInputClass}
                     />
                     <div>
-                      <span className={recepLabelClass}>Correo</span>
+                      <span className={recepLabelClass}>{t('persona.correo')}</span>
                       <input
                         type="email"
                         className={recepInputClass}
@@ -204,7 +207,7 @@ export const PacientesPage = () => {
                   {/* Encabezado del expediente clínico impreso (CU-02). */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <span className={recepLabelClass}>Fecha de nacimiento</span>
+                      <span className={recepLabelClass}>{t('persona.nacimiento')}</span>
                       <input
                         type="date"
                         className={recepInputClass}
@@ -215,7 +218,7 @@ export const PacientesPage = () => {
                       />
                     </div>
                     <div>
-                      <span className={recepLabelClass}>Ocupación</span>
+                      <span className={recepLabelClass}>{t('persona.ocupacion')}</span>
                       <input
                         className={recepInputClass}
                         value={form.ocupacion ?? ''}
@@ -226,7 +229,7 @@ export const PacientesPage = () => {
                     </div>
                   </div>
                   <div>
-                    <span className={recepLabelClass}>Dirección completa</span>
+                    <span className={recepLabelClass}>{t('persona.direccion')}</span>
                     <input
                       className={recepInputClass}
                       value={form.direccion ?? ''}
@@ -238,7 +241,7 @@ export const PacientesPage = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <span className={recepLabelClass}>
-                        Contacto de emergencia
+                        {t('exp.campo.contactoEmergencia')}
                       </span>
                       <input
                         className={recepInputClass}
@@ -268,7 +271,7 @@ export const PacientesPage = () => {
                   ) : null}
                   <div className="flex items-center gap-3">
                     <RecepButton type="submit" disabled={guardando}>
-                      {editId ? 'Guardar cambios' : 'Registrar paciente'}
+                      {editId ? t('personas.guardar') : t('pacientes.registrar')}
                     </RecepButton>
                     {editId ? (
                       <RecepButton
@@ -298,7 +301,7 @@ export const PacientesPage = () => {
               <input
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Buscar por cédula, nombre, teléfono o correo…"
+                placeholder={t('pacientes.buscar')}
                 className="w-full bg-transparent text-xs outline-none placeholder:text-neutral-400"
               />
               <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
@@ -309,7 +312,7 @@ export const PacientesPage = () => {
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-100 text-left dark:border-neutral-800">
-                    {['Cédula', 'Nombre', 'Contacto', ''].map((h) => (
+                    {[t('persona.cedula'), t('persona.nombre'), t('persona.contacto'), ''].map((h) => (
                       <th
                         key={h}
                         className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-neutral-400"
@@ -344,9 +347,7 @@ export const PacientesPage = () => {
                   ))}
                   {filtrados.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-5 py-10 text-center text-sm text-neutral-400">
-                        Sin pacientes que coincidan.
-                      </td>
+                      <td colSpan={4} className="px-5 py-10 text-center text-sm text-neutral-400">{t('pacientes.vacio')}</td>
                     </tr>
                   ) : null}
                 </tbody>
