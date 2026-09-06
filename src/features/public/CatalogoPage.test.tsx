@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, cleanup, within } from '@testing-library/react';
+import { render, screen, waitFor, cleanup, within } from '../../test/rtl';
 import userEvent from '@testing-library/user-event';
 import { CatalogoPage } from './CatalogoPage';
+import { tipoCambioVigente } from '../../core/api/tipo-cambio.service';
 import {
   listarCatalogo,
   marcasDelCatalogo,
@@ -13,6 +14,7 @@ import { CategoriaProducto } from '../../core/models/inventario';
 import type { ProductoVitrina } from '../../core/models/catalogo';
 
 vi.mock('../../core/api/catalogo.service');
+vi.mock('../../core/api/tipo-cambio.service');
 
 vi.mock('framer-motion', async () => {
   const react = await import('react');
@@ -57,6 +59,7 @@ const vitrina = (cambios: Partial<ProductoVitrina> = {}): ProductoVitrina => ({
 const mockCatalogo = vi.mocked(listarCatalogo);
 const mockMarcas = vi.mocked(marcasDelCatalogo);
 const mockParametros = vi.mocked(parametrosPublicos);
+const mockCambio = vi.mocked(tipoCambioVigente);
 
 let abrirVentana: ReturnType<typeof vi.fn>;
 
@@ -67,6 +70,12 @@ beforeEach(() => {
   mockParametros.mockResolvedValue({
     'optica.nombre': 'Óptica Dr. Semeraro',
     'optica.whatsapp': '50688887777',
+  });
+  mockCambio.mockResolvedValue({
+    disponible: true,
+    valor: 500,
+    fecha: '2026-08-27T00:00:00.000Z',
+    fuente: 'open.er-api.com',
   });
   abrirVentana = vi.fn(() => ({}) as Window);
   vi.stubGlobal('open', abrirVentana);
@@ -277,5 +286,43 @@ describe('CatalogoPage', () => {
     render(<CatalogoPage />);
 
     expect(await screen.findByText('Ray-Ban Wayfarer')).toBeInTheDocument();
+  });
+});
+
+describe('DSO-57 · el aproximado en dólares', () => {
+  it('pinta el colón y, detrás, el aproximado marcado como tal', async () => {
+    render(<CatalogoPage />);
+
+    // ₡189,50 a 500 por dólar → $0.38
+    expect(await screen.findByText(/₡189,50/)).toBeInTheDocument();
+    expect(screen.getByText(/aprox\. \$0\.38/)).toBeInTheDocument();
+  });
+
+  it('dice de cuándo es la tasa y de dónde salió', async () => {
+    render(<CatalogoPage />);
+
+    // Sin la fecha, alguien llega al mostrador esperando pagar exactamente eso.
+    expect(await screen.findByText(/open\.er-api\.com/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/el precio de la óptica es en colones/i),
+    ).toBeInTheDocument();
+  });
+
+  it('sin tasa el precio en colones se ve igual y el dólar desaparece', async () => {
+    mockCambio.mockResolvedValue({ disponible: false });
+    render(<CatalogoPage />);
+
+    expect(await screen.findByText(/₡189,50/)).toBeInTheDocument();
+    // Ni $0.00, ni $NaN, ni una ficha en blanco: simplemente no está.
+    expect(screen.queryByText(/\$/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/aprox/i)).not.toBeInTheDocument();
+  });
+
+  it('si el servicio de la tasa falla, el catálogo sigue en pie', async () => {
+    mockCambio.mockRejectedValue(new Error('sin red'));
+    render(<CatalogoPage />);
+
+    expect(await screen.findByText('Ray-Ban Wayfarer')).toBeInTheDocument();
+    expect(screen.getByText(/₡189,50/)).toBeInTheDocument();
   });
 });
