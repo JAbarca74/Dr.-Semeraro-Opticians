@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { CalendarClock, Clock, Pencil, X } from 'lucide-react';
@@ -58,6 +59,7 @@ type Tab = 'citas' | 'disponibilidad';
  * poder configurar*, que es el lado seguro.
  */
 export const AgendaPage = () => {
+  const { t } = useIdioma();
   const { hasRole } = useAuth();
   const puedeConfigurar = hasRole([
     Rol.ADMINISTRADOR,
@@ -92,30 +94,35 @@ export const AgendaPage = () => {
   const cargarBase = () => {
     listarPersonas()
       .then(setPersonas)
-      .catch((e) => setError(mensajeDeError(e, 'No se pudieron cargar las personas')));
+      .catch((e) => setError(mensajeDeError(e, t('personas.error'))));
     listarDisponibilidad()
       .then(setDisponibilidad)
-      .catch((e) => setError(mensajeDeError(e, 'No se pudo cargar la disponibilidad')));
+      .catch((e) => setError(mensajeDeError(e, t('agenda.errorDisponibilidad'))));
   };
 
   const cargarCitas = (fecha: string) => {
     listarCitas({ fecha })
       .then(setCitas)
-      .catch((e) => setError(mensajeDeError(e, 'No se pudieron cargar las citas')));
+      .catch((e) => setError(mensajeDeError(e, t('agenda.errorCitas'))));
   };
 
+  // `cargarBase` y `cargarCitas` dependen de `t` solo para el texto de respaldo
+  // del error. En las dependencias, cambiar de idioma volvería a pedir la
+  // agenda entera.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(cargarBase, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => cargarCitas(fechaFiltro), [fechaFiltro]);
 
   return (
     <section className="space-y-10">
       <SectionHeader
         kicker={puedeConfigurar ? 'CU-05 · CU-06' : 'CU-05'}
-        title="Agenda"
+        title={t('agenda.titulo')}
         description={
           puedeConfigurar
-            ? 'Bloques de disponibilidad del especialista, coordinación de citas y sus recordatorios por WhatsApp.'
-            : 'Coordinación de citas del especialista y sus recordatorios por WhatsApp.'
+            ? t('agenda.descripcionCompleta')
+            : t('agenda.descripcionCitas')
         }
         actions={
           <div className="flex gap-2">
@@ -123,14 +130,14 @@ export const AgendaPage = () => {
               variant={tab === 'citas' ? 'primary' : 'ghost'}
               onClick={() => setTab('citas')}
             >
-              <CalendarClock className="h-3.5 w-3.5" /> Citas
+              <CalendarClock className="h-3.5 w-3.5" /> {t('agenda.tabCitas')}
             </LuxButton>
             {puedeConfigurar ? (
               <LuxButton
                 variant={tab === 'disponibilidad' ? 'primary' : 'ghost'}
                 onClick={() => setTab('disponibilidad')}
               >
-                <Clock className="h-3.5 w-3.5" /> Disponibilidad
+                <Clock className="h-3.5 w-3.5" /> {t('agenda.tabDisponibilidad')}
               </LuxButton>
             ) : null}
           </div>
@@ -188,6 +195,7 @@ const PanelDisponibilidad = ({
   onCambio: () => void;
   onError: (m: string) => void;
 }) => {
+  const { t } = useIdioma();
   const [form, setForm] = useState<DisponibilidadInput>(FORM_DISPONIBILIDAD_VACIO);
   const [editId, setEditId] = useState<number | null>(null);
   const [guardando, setGuardando] = useState(false);
@@ -251,11 +259,11 @@ const PanelDisponibilidad = ({
       <motion.div {...fadeUp}>
         <LuxCard className="p-6">
           <h2 className="mb-5 border-b border-neutral-100 pb-4 text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:border-white/5 dark:text-neutral-200">
-            {editId ? 'Editar bloque de disponibilidad' : 'Nuevo bloque de disponibilidad'}
+            {editId ? t('agenda.editarBloque') : t('agenda.nuevoBloque')}
           </h2>
           <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <label>
-              <span className={fieldLabelClass}>Doctor / especialista</span>
+              <span className={fieldLabelClass}>{t('agenda.doctorEspecialista')}</span>
               <select
                 className={fieldInputClass}
                 value={form.idEmpleado || ''}
@@ -276,7 +284,7 @@ const PanelDisponibilidad = ({
               </select>
             </label>
             <label>
-              <span className={fieldLabelClass}>Día</span>
+              <span className={fieldLabelClass}>{t('agenda.dia')}</span>
               <select
                 className={fieldInputClass}
                 value={form.diaSemana}
@@ -292,7 +300,7 @@ const PanelDisponibilidad = ({
               </select>
             </label>
             <label>
-              <span className={fieldLabelClass}>Hora inicio</span>
+              <span className={fieldLabelClass}>{t('agenda.horaInicio')}</span>
               <input
                 type="time"
                 className={fieldInputClass}
@@ -302,7 +310,7 @@ const PanelDisponibilidad = ({
               />
             </label>
             <label>
-              <span className={fieldLabelClass}>Hora fin</span>
+              <span className={fieldLabelClass}>{t('agenda.horaFin')}</span>
               <input
                 type="time"
                 className={`${fieldInputClass} ${rangoInvalido ? 'border-red-400 text-red-600' : ''}`}
@@ -312,13 +320,11 @@ const PanelDisponibilidad = ({
                 required
               />
               {rangoInvalido ? (
-                <span className="mt-1 block text-[11px] font-semibold text-red-600">
-                  La hora de fin debe ser posterior a la de inicio.
-                </span>
+                <span className="mt-1 block text-[11px] font-semibold text-red-600">{t('agenda.horaFinPosterior')}</span>
               ) : null}
             </label>
             <label>
-              <span className={fieldLabelClass}>Duración por cita (min)</span>
+              <span className={fieldLabelClass}>{t('agenda.duracionCita')}</span>
               <input
                 type="number"
                 min={5}
@@ -335,17 +341,16 @@ const PanelDisponibilidad = ({
                 checked={form.activo ?? true}
                 onChange={(e) => setForm({ ...form, activo: e.target.checked })}
               />
-              <span className={fieldLabelClass}>Activo</span>
+              <span className={fieldLabelClass}>{t('agenda.activo')}</span>
             </label>
 
             <div className="col-span-full flex items-center gap-3 pt-2">
               <LuxButton type="submit" disabled={guardando || rangoInvalido}>
-                {editId ? 'Guardar cambios' : 'Crear bloque'}
+                {editId ? t('comun.guardarCambios') : t('agenda.crearBloque')}
               </LuxButton>
               {editId ? (
                 <LuxButton type="button" variant="ghost" onClick={cancelar}>
-                  <X className="h-3.5 w-3.5" /> Cancelar
-                </LuxButton>
+                  <X className="h-3.5 w-3.5" />{t('comun.cancelar')}</LuxButton>
               ) : null}
             </div>
           </form>
@@ -383,7 +388,7 @@ const PanelDisponibilidad = ({
                   <td className="px-5 py-3 text-neutral-500">{d.duracionMin} min</td>
                   <td className="px-5 py-3">
                     <Badge tone={d.activo ? 'green' : 'neutral'}>
-                      {d.activo ? 'Activo' : 'Inactivo'}
+                      {d.activo ? t('agenda.activo') : t('agenda.inactivo')}
                     </Badge>
                   </td>
                   <td className="px-5 py-3 text-right">
@@ -400,9 +405,7 @@ const PanelDisponibilidad = ({
                           type="button"
                           onClick={() => desactivar(d.idDisponibilidadMedica)}
                           className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-red-600"
-                        >
-                          Desactivar
-                        </button>
+                        >{t('agenda.desactivar')}</button>
                       ) : null}
                     </div>
                   </td>
@@ -410,9 +413,7 @@ const PanelDisponibilidad = ({
               ))}
               {disponibilidad.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-10 text-center text-sm text-neutral-400">
-                    Sin bloques de disponibilidad registrados.
-                  </td>
+                  <td colSpan={6} className="px-5 py-10 text-center text-sm text-neutral-400">{t('agenda.sinBloques')}</td>
                 </tr>
               ) : null}
             </tbody>

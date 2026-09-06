@@ -1,3 +1,5 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
+import type { ClaveTexto } from '../../core/i18n/catalogos/es';
 import {
   useEffect,
   useMemo,
@@ -76,12 +78,12 @@ const REF_VACIA: RefraccionForm = {
 };
 const CAMPOS_REF = ['esfera', 'cilindro', 'eje', 'adicion'] as const;
 
-/** Etiquetas visibles de cada parámetro (en español, con tildes). */
-const ETIQUETA_REF: Record<keyof RefraccionForm, string> = {
-  esfera: 'Esfera',
-  cilindro: 'Cilindro',
-  eje: 'Eje',
-  adicion: 'Adición',
+/** Clave de traducción de cada parámetro de refracción. */
+const ETIQUETA_REF: Record<keyof RefraccionForm, ClaveTexto> = {
+  esfera: 'receta.esfera',
+  cilindro: 'receta.cilindro',
+  eje: 'receta.eje',
+  adicion: 'exp.adicion',
 };
 
 /** Avisos de rango óptico (CU-02, EX-03): esfera ±25, cilindro ±10, eje 0–180, adición 0–4. */
@@ -293,6 +295,7 @@ const CampoMedida = ({
   sufijo?: string;
   paso?: string;
 }) => {
+  const { t } = useIdioma();
   const malo = medidaFueraDeRango(campo, valor);
   return (
     <label className="block">
@@ -315,9 +318,7 @@ const CampoMedida = ({
         onChange={(e) => onChange(e.target.value)}
       />
       {malo ? (
-        <span className="mt-1 block text-[10px] font-semibold text-red-600">
-          Fuera de rango
-        </span>
+        <span className="mt-1 block text-[10px] font-semibold text-red-600">{t('exp.fueraRango')}</span>
       ) : null}
     </label>
   );
@@ -343,6 +344,7 @@ const DatoFicha = ({
   );
 
 export const ExpedientesPage = () => {
+  const { t } = useIdioma();
   const { hasRole } = useAuth();
 
   // Separación de responsabilidades por rol (RS-10 / RS-13):
@@ -387,12 +389,15 @@ export const ExpedientesPage = () => {
         setPacientes(ps.filter((p) => p.tipo === TipoPersona.PACIENTE)),
       )
       .catch((e) =>
-        setError(mensajeDeError(e, 'No se pudieron cargar los pacientes')),
+        setError(mensajeDeError(e, t('exp.errorPacientes'))),
       );
     // Marca qué pacientes ya tienen expediente abierto en el dashboard.
     listarExpedientes()
       .then((es) => setConExpediente(new Set(es.map((e) => e.idPaciente))))
       .catch(() => undefined);
+    // `t` solo da el texto de respaldo del error; en las dependencias volvería
+    // a pedir los pacientes en cada cambio de idioma.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // SRS §2.1.1.3: al abrir la ventana emergente el foco entra en ella, de modo
@@ -494,11 +499,11 @@ export const ExpedientesPage = () => {
     setError('');
     setAviso('');
     if (!idPaciente) {
-      setError('Seleccione un paciente');
+      setError(t('exp.seleccionePaciente'));
       return;
     }
     if (hayFueraDeRango) {
-      setError('Corrija los valores fuera de rango antes de guardar.');
+      setError(t('exp.corrijaRango'));
       return;
     }
     setGuardando(true);
@@ -550,7 +555,7 @@ export const ExpedientesPage = () => {
       // CU-02 paso 7 / CU-16: persistir y generar la receta en la misma acción.
       try {
         await emitirReceta(evaluacion.idEvaluacionClinica);
-        setAviso('Evaluación guardada y receta generada con sello digital.');
+        setAviso(t('exp.guardada'));
       } catch (e2) {
         setAviso(`Evaluación guardada, pero ${mensajeDeError(e2)}`);
       }
@@ -583,7 +588,7 @@ export const ExpedientesPage = () => {
   const confirmarDescarte = () => {
     limpiarFormulario();
     setConfirmarCancelar(false);
-    setAviso('Se descartó la evolución en curso. No se guardó nada.');
+    setAviso(t('exp.descartada'));
   };
 
   const emitir = async (idEvaluacion: number) => {
@@ -608,7 +613,7 @@ export const ExpedientesPage = () => {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {CAMPOS_REF.map((c) => (
           <label key={c} className="block">
-            <span className={rotuloClinicoClass}>{ETIQUETA_REF[c]}</span>
+            <span className={rotuloClinicoClass}>{t(ETIQUETA_REF[c])}</span>
             <input
               type="number"
               step={c === 'eje' ? '1' : '0.25'}
@@ -621,9 +626,7 @@ export const ExpedientesPage = () => {
               onChange={(e) => set({ ...valores, [c]: e.target.value })}
             />
             {fueraDeRango(c, valores[c]) ? (
-              <span className="mt-1 block text-[10px] font-semibold text-red-600">
-                Fuera de rango
-              </span>
+              <span className="mt-1 block text-[10px] font-semibold text-red-600">{t('exp.fueraRango')}</span>
             ) : null}
           </label>
         ))}
@@ -666,26 +669,26 @@ export const ExpedientesPage = () => {
     return (
       <div className="mt-4 space-y-4 border-t border-neutral-100 pt-4 dark:border-white/5">
         <div className="grid gap-4 sm:grid-cols-2">
-          <DatoFicha etiqueta="Motivo de consulta" valor={ev.motivoConsulta} />
-          <DatoFicha etiqueta="Último control" valor={ev.ultimoControl} />
-          <DatoFicha etiqueta="Remitido por" valor={ev.remitidoPor} />
-          <DatoFicha etiqueta="Antecedentes oculares" valor={ev.antOculares} />
+          <DatoFicha etiqueta={t('exp.campo.motivo')} valor={ev.motivoConsulta} />
+          <DatoFicha etiqueta={t('exp.campo.ultimoControl')} valor={ev.ultimoControl} />
+          <DatoFicha etiqueta={t('exp.campo.remitidoPor')} valor={ev.remitidoPor} />
+          <DatoFicha etiqueta={t('exp.campo.antOculares')} valor={ev.antOculares} />
           <DatoFicha
-            etiqueta="Antecedentes familiares"
+            etiqueta={t('exp.campo.antFamiliares')}
             valor={ev.antFamiliares}
           />
           <DatoFicha
-            etiqueta="Antecedentes personales"
+            etiqueta={t('exp.campo.antPersonales')}
             valor={ev.antPersonales}
           />
           <DatoFicha
-            etiqueta="Antecedentes medicamentosos"
+            etiqueta={t('exp.campo.antMedicamentosos')}
             valor={ev.antMedicamentosos}
           />
-          <DatoFicha etiqueta="RX en uso (lesometría)" valor={ev.rxEnUso} />
-          <DatoFicha etiqueta="Tiempo de uso" valor={ev.tiempoUso} />
+          <DatoFicha etiqueta={t('exp.campo.rxLensometria')} valor={ev.rxEnUso} />
+          <DatoFicha etiqueta={t('exp.campo.tiempoUso')} valor={ev.tiempoUso} />
           <DatoFicha
-            etiqueta="Agudeza visual sin corrección"
+            etiqueta={t('exp.campo.avSinCorreccion')}
             valor={
               ev.avScOd || ev.avScOi || ev.avScAo
                 ? `OD ${textoODefecto(ev.avScOd)} · OI ${textoODefecto(ev.avScOi)} · AO ${textoODefecto(ev.avScAo)}`
@@ -693,7 +696,7 @@ export const ExpedientesPage = () => {
             }
           />
           <DatoFicha
-            etiqueta="Agudeza visual con corrección"
+            etiqueta={t('exp.campo.avConCorreccion')}
             valor={
               ev.avCcOd || ev.avCcOi || ev.avCcAo
                 ? `OD ${textoODefecto(ev.avCcOd)} · OI ${textoODefecto(ev.avCcOi)} · AO ${textoODefecto(ev.avCcAo)}`
@@ -701,7 +704,7 @@ export const ExpedientesPage = () => {
             }
           />
           <DatoFicha
-            etiqueta="PIO"
+            etiqueta={t('exp.campo.pio')}
             valor={
               ev.pioOd || ev.pioOi
                 ? `OD ${textoODefecto(ev.pioOd)} mmHg · OI ${textoODefecto(ev.pioOi)} mmHg`
@@ -709,7 +712,7 @@ export const ExpedientesPage = () => {
             }
           />
           <DatoFicha
-            etiqueta="DP / PPC"
+            etiqueta={t('exp.campo.dpPpc')}
             valor={
               ev.dp || ev.ppc
                 ? `DP ${textoODefecto(ev.dp)} mm · PPC ${textoODefecto(ev.ppc)} mm`
@@ -717,27 +720,25 @@ export const ExpedientesPage = () => {
             }
           />
           <DatoFicha
-            etiqueta="Vergencias / forias"
+            etiqueta={t('exp.campo.vergencias')}
             valor={ev.vergenciasForias}
           />
-          <DatoFicha etiqueta="Segmento externo" valor={ev.segmentoExterno} />
-          <DatoFicha etiqueta="Oftalmoscopia directa" valor={ev.oftalmoscopia} />
+          <DatoFicha etiqueta={t('exp.campo.segmentoExterno')} valor={ev.segmentoExterno} />
+          <DatoFicha etiqueta={t('exp.campo.oftalmoscopia')} valor={ev.oftalmoscopia} />
           <DatoFicha
-            etiqueta="Refracción (objetiva-subjetiva)"
+            etiqueta={t('exp.campo.refraccionObjSubj')}
             valor={ev.refraccionTexto}
           />
           <DatoFicha
-            etiqueta="Recomendaciones especiales"
+            etiqueta={t('exp.campo.recomendaciones')}
             valor={ev.recomendaciones}
           />
-          <DatoFicha etiqueta="Control" valor={ev.control} />
-          <DatoFicha etiqueta="Remisiones" valor={ev.remisiones} />
+          <DatoFicha etiqueta={t('exp.campo.control')} valor={ev.control} />
+          <DatoFicha etiqueta={t('exp.campo.remisiones')} valor={ev.remisiones} />
         </div>
         {hayMovimientos ? (
           <div>
-            <span className="block font-clinico text-[10px] font-bold uppercase tracking-wider2 text-neutral-400">
-              Movimientos oculares
-            </span>
+            <span className="block font-clinico text-[10px] font-bold uppercase tracking-wider2 text-neutral-400">{t('exp.motilidad')}</span>
             <div className="mt-2 grid gap-4 sm:grid-cols-2">
               <DiagramaMotilidad
                 ojo="OD"
@@ -759,19 +760,19 @@ export const ExpedientesPage = () => {
   return (
     <section className="space-y-10">
       <SectionHeader
-        kicker="Historia clínica"
-        title="Expediente clínico"
+        kicker={t('exp.kicker')}
+        title={t('exp.titulo')}
         titleClassName="font-clinico font-bold uppercase"
         description={
           puedeDocumentar
-            ? 'Localice al paciente por cédula, documente la consulta con el formato del expediente de la óptica y emita recetas con sello digital.'
-            : 'Consulta de historiales clínicos y recetas emitidas. La documentación de evoluciones corresponde al especialista.'
+            ? t('exp.descripcionDoctor')
+            : t('exp.descripcionSupervision')
         }
         actions={
           <Badge tone={puedeDocumentar ? 'tinta' : 'blue'}>
             {puedeDocumentar
-              ? 'Modo clínico · Doctor'
-              : 'Modo supervisión · solo lectura'}
+              ? t('exp.modoDoctor')
+              : t('exp.modoSupervision')}
           </Badge>
         }
       />
@@ -798,17 +799,17 @@ export const ExpedientesPage = () => {
           >
             {[
               {
-                label: 'Pacientes registrados',
+                label: t('exp.pacientesRegistrados'),
                 valor: pacientes.length,
                 icono: UserRound,
               },
               {
-                label: 'Expedientes abiertos',
+                label: t('exp.expedientesAbiertos'),
                 valor: conExpediente.size,
                 icono: FolderOpen,
               },
               {
-                label: 'Coincidencias del filtro',
+                label: t('exp.coincidencias'),
                 valor: filtrados.length,
                 icono: Search,
               },
@@ -835,11 +836,9 @@ export const ExpedientesPage = () => {
           <motion.div {...fadeUp}>
             <LuxCard className="p-6">
               <div className="space-y-3">
-                <Kicker>Buscador de pacientes</Kicker>
+                <Kicker>{t('exp.buscador')}</Kicker>
                 <label className="block max-w-xl">
-                  <span className={rotuloClinicoClass}>
-                    Número de cédula o nombre
-                  </span>
+                  <span className={rotuloClinicoClass}>{t('exp.buscadorCampo')}</span>
                   <span className="relative mt-1.5 block">
                     <Search
                       className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
@@ -848,7 +847,7 @@ export const ExpedientesPage = () => {
                     <input
                       autoFocus
                       className={cx(fieldInputClass, 'mt-0 pl-10')}
-                      placeholder="p. ej. 1-1234-5678 o Marta Jiménez"
+                      placeholder={t('exp.buscadorEjemplo')}
                       value={busqueda}
                       onChange={(e) => setBusqueda(e.target.value)}
                     />
@@ -864,7 +863,13 @@ export const ExpedientesPage = () => {
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-100 bg-neutral-50/60 text-left dark:border-white/5 dark:bg-white/5">
-                    {['Cédula', 'Paciente', 'Contacto', 'Expediente', ''].map(
+                    {[
+                      t('persona.cedula'),
+                      t('exp.campo.paciente'),
+                      t('persona.contacto'),
+                      t('exp.expediente'),
+                      '',
+                    ].map(
                       (h) => (
                         <th
                           key={h}
@@ -899,14 +904,12 @@ export const ExpedientesPage = () => {
                           }
                         >
                           {conExpediente.has(p.idPersona)
-                            ? 'Abierto'
-                            : 'Sin abrir'}
+                            ? t('exp.abierto')
+                            : t('exp.sinAbrir')}
                         </Badge>
                       </td>
                       <td className="px-5 py-3 text-right">
-                        <span className="transition-luxe font-clinico text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta">
-                          Abrir
-                        </span>
+                        <span className="transition-luxe font-clinico text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta">{t('exp.abrir')}</span>
                       </td>
                     </tr>
                   ))}
@@ -917,8 +920,8 @@ export const ExpedientesPage = () => {
                         className="px-5 py-10 text-center text-sm text-neutral-400"
                       >
                         {pacientes.length === 0
-                          ? 'Aún no hay pacientes registrados.'
-                          : 'Ningún paciente coincide con la búsqueda.'}
+                          ? t('exp.sinPacientes')
+                          : t('exp.sinCoincidencias')}
                       </td>
                     </tr>
                   ) : null}
@@ -938,7 +941,7 @@ export const ExpedientesPage = () => {
                     <UserRound className="h-5 w-5" strokeWidth={1.5} />
                   </span>
                   <div className="space-y-1">
-                    <Kicker>Expediente activo</Kicker>
+                    <Kicker>{t('exp.expedienteActivo')}</Kicker>
                     <h2 className="font-clinico text-2xl font-bold uppercase leading-none text-lux-blue dark:text-white">
                       {pacienteActivo.nombre}
                     </h2>
@@ -955,8 +958,7 @@ export const ExpedientesPage = () => {
                   variant="ghost"
                   onClick={volverAlBuscador}
                 >
-                  <ArrowLeft className="h-3.5 w-3.5" /> Cambiar de paciente
-                </LuxButton>
+                  <ArrowLeft className="h-3.5 w-3.5" />{t('exp.cambiarPaciente')}</LuxButton>
               </div>
 
               <div className="mt-5 grid gap-4 border-t border-neutral-100 pt-4 dark:border-white/5 sm:grid-cols-2 lg:grid-cols-4">
@@ -969,7 +971,7 @@ export const ExpedientesPage = () => {
                   }
                 />
                 <DatoFicha
-                  etiqueta="Edad"
+                  etiqueta={t('exp.campo.edad')}
                   valor={
                     edadDesde(pacienteActivo.fechaNacimiento) !== null
                       ? `${edadDesde(pacienteActivo.fechaNacimiento)} años`
@@ -985,7 +987,7 @@ export const ExpedientesPage = () => {
                   valor={pacienteActivo.direccion}
                 />
                 <DatoFicha
-                  etiqueta="Contacto de emergencia"
+                  etiqueta={t('exp.campo.contactoEmergencia')}
                   valor={
                     pacienteActivo.contactoEmergencia
                       ? `${pacienteActivo.contactoEmergencia}${
@@ -1023,9 +1025,7 @@ export const ExpedientesPage = () => {
                     className="h-4 w-4 text-lux-tinta"
                     strokeWidth={1.5}
                   />
-                  <h2 className="font-clinico text-[13px] font-bold uppercase tracking-wider2 text-neutral-700 dark:text-neutral-200">
-                    Nueva evolución clínica
-                  </h2>
+                  <h2 className="font-clinico text-[13px] font-bold uppercase tracking-wider2 text-neutral-700 dark:text-neutral-200">{t('exp.nuevaEvolucion')}</h2>
                 </div>
                 {precargadoDe ? (
                   <p className="mb-4 flex items-center gap-2 border border-lux-tinta/30 bg-lux-tinta/5 px-3 py-2 text-[11px] font-medium text-neutral-600 dark:text-neutral-300">
@@ -1037,19 +1037,19 @@ export const ExpedientesPage = () => {
                 <form onSubmit={onSubmit} className="space-y-5">
                   <BloqueFicha titulo="Consulta">
                     <CampoTexto
-                      etiqueta="Motivo de consulta"
+                      etiqueta={t('exp.campo.motivo')}
                       valor={ficha.motivoConsulta}
                       onChange={campo('motivoConsulta')}
                       filas={2}
                     />
                     <div className="grid gap-4 sm:grid-cols-2">
                       <CampoTexto
-                        etiqueta="Último control"
+                        etiqueta={t('exp.campo.ultimoControl')}
                         valor={ficha.ultimoControl}
                         onChange={campo('ultimoControl')}
                       />
                       <CampoTexto
-                        etiqueta="Remitido por"
+                        etiqueta={t('exp.campo.remitidoPor')}
                         valor={ficha.remitidoPor}
                         onChange={campo('remitidoPor')}
                       />
@@ -1059,25 +1059,25 @@ export const ExpedientesPage = () => {
                   <BloqueFicha titulo="Antecedentes">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <CampoTexto
-                        etiqueta="Antecedentes oculares"
+                        etiqueta={t('exp.campo.antOculares')}
                         valor={ficha.antOculares}
                         onChange={campo('antOculares')}
                         filas={2}
                       />
                       <CampoTexto
-                        etiqueta="Antecedentes familiares"
+                        etiqueta={t('exp.campo.antFamiliares')}
                         valor={ficha.antFamiliares}
                         onChange={campo('antFamiliares')}
                         filas={2}
                       />
                       <CampoTexto
-                        etiqueta="Antecedentes personales"
+                        etiqueta={t('exp.campo.antPersonales')}
                         valor={ficha.antPersonales}
                         onChange={campo('antPersonales')}
                         filas={2}
                       />
                       <CampoTexto
-                        etiqueta="Antecedentes medicamentosos"
+                        etiqueta={t('exp.campo.antMedicamentosos')}
                         valor={ficha.antMedicamentosos}
                         onChange={campo('antMedicamentosos')}
                         filas={2}
@@ -1087,25 +1087,25 @@ export const ExpedientesPage = () => {
 
                   <BloqueFicha titulo="RX en uso (lesometría)">
                     <CampoTexto
-                      etiqueta="RX en uso"
+                      etiqueta={t('exp.campo.rxEnUso')}
                       valor={ficha.rxEnUso}
                       onChange={campo('rxEnUso')}
                       filas={2}
                     />
                     <CampoTexto
-                      etiqueta="Tiempo de uso"
+                      etiqueta={t('exp.campo.tiempoUso')}
                       valor={ficha.tiempoUso}
                       onChange={campo('tiempoUso')}
                     />
                   </BloqueFicha>
 
                   <BloqueFicha titulo="Agudeza visual">
-                    {filaAgudeza('Sin corrección', [
+                    {filaAgudeza(t('exp.sinCorreccion'), [
                       'avScOd',
                       'avScOi',
                       'avScAo',
                     ])}
-                    {filaAgudeza('Con corrección', [
+                    {filaAgudeza(t('exp.conCorreccion'), [
                       'avCcOd',
                       'avCcOi',
                       'avCcAo',
@@ -1115,28 +1115,28 @@ export const ExpedientesPage = () => {
                   <BloqueFicha titulo="Medidas">
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                       <CampoMedida
-                        etiqueta="PIO OD"
+                        etiqueta={t('exp.campo.pioOd')}
                         campo="pioOd"
                         sufijo="mmHg"
                         valor={ficha.pioOd}
                         onChange={campo('pioOd')}
                       />
                       <CampoMedida
-                        etiqueta="PIO OI"
+                        etiqueta={t('exp.campo.pioOi')}
                         campo="pioOi"
                         sufijo="mmHg"
                         valor={ficha.pioOi}
                         onChange={campo('pioOi')}
                       />
                       <CampoMedida
-                        etiqueta="DP"
+                        etiqueta={t('exp.campo.dp')}
                         campo="dp"
                         sufijo="mm"
                         valor={ficha.dp}
                         onChange={campo('dp')}
                       />
                       <CampoMedida
-                        etiqueta="PPC"
+                        etiqueta={t('exp.campo.ppc')}
                         campo="ppc"
                         sufijo="mm"
                         valor={ficha.ppc}
@@ -1144,13 +1144,13 @@ export const ExpedientesPage = () => {
                       />
                     </div>
                     <CampoTexto
-                      etiqueta="Vergencias / forias"
+                      etiqueta={t('exp.campo.vergencias')}
                       valor={ficha.vergenciasForias}
                       onChange={campo('vergenciasForias')}
                       filas={2}
                     />
                     <CampoTexto
-                      etiqueta="Segmento externo"
+                      etiqueta={t('exp.campo.segmentoExterno')}
                       valor={ficha.segmentoExterno}
                       onChange={campo('segmentoExterno')}
                       filas={2}
@@ -1174,7 +1174,7 @@ export const ExpedientesPage = () => {
 
                   <BloqueFicha titulo="Oftalmoscopia directa (sin dilatar)">
                     <CampoTexto
-                      etiqueta="Hallazgos"
+                      etiqueta={t('exp.campo.hallazgos')}
                       valor={ficha.oftalmoscopia}
                       onChange={campo('oftalmoscopia')}
                       filas={3}
@@ -1183,7 +1183,7 @@ export const ExpedientesPage = () => {
 
                   <BloqueFicha titulo="Refracción (objetiva-subjetiva)">
                     <CampoTexto
-                      etiqueta="Refracción"
+                      etiqueta={t('exp.campo.refraccion')}
                       valor={ficha.refraccionTexto}
                       onChange={campo('refraccionTexto')}
                       filas={4}
@@ -1194,32 +1194,32 @@ export const ExpedientesPage = () => {
                       receta criptográfica (CU-16). */}
                   <BloqueFicha titulo="RX Final">
                     <div className="grid gap-4 lg:grid-cols-2">
-                      {campoRefraccion('Ojo derecho (OD)', od, setOd)}
-                      {campoRefraccion('Ojo izquierdo (OI)', oi, setOi)}
+                      {campoRefraccion(t('exp.ojoDerecho'), od, setOd)}
+                      {campoRefraccion(t('exp.ojoIzquierdo'), oi, setOi)}
                     </div>
                   </BloqueFicha>
 
                   <BloqueFicha titulo="Cierre de la consulta">
                     <CampoTexto
-                      etiqueta="Impresión diagnóstica (una por línea)"
+                      etiqueta={t('exp.campo.impresion')}
                       valor={ficha.diagnosticos}
                       onChange={campo('diagnosticos')}
                       filas={3}
                     />
                     <CampoTexto
-                      etiqueta="Recomendaciones especiales"
+                      etiqueta={t('exp.campo.recomendaciones')}
                       valor={ficha.recomendaciones}
                       onChange={campo('recomendaciones')}
                       filas={3}
                     />
                     <div className="grid gap-4 sm:grid-cols-2">
                       <CampoTexto
-                        etiqueta="Control"
+                        etiqueta={t('exp.campo.control')}
                         valor={ficha.control}
                         onChange={campo('control')}
                       />
                       <CampoTexto
-                        etiqueta="Remisiones"
+                        etiqueta={t('exp.campo.remisiones')}
                         valor={ficha.remisiones}
                         onChange={campo('remisiones')}
                       />
@@ -1243,9 +1243,7 @@ export const ExpedientesPage = () => {
                       Cancelar
                     </LuxButton>
                     {hayFueraDeRango ? (
-                      <span className="text-xs font-semibold text-red-600">
-                        Hay valores fuera de rango.
-                      </span>
+                      <span className="text-xs font-semibold text-red-600">{t('exp.hayFueraRango')}</span>
                     ) : null}
                   </div>
                 </form>
@@ -1256,7 +1254,7 @@ export const ExpedientesPage = () => {
               <LuxCard className="flex items-start gap-3 border-dashed p-5">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-lux-tinta" />
                 <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">
-                  <span className="font-semibold">Modo supervisión.</span> Puede
+                  <span className="font-semibold">{t('exp.modoSupervisionCorto')}</span> Puede
                   consultar el historial clínico y las recetas emitidas, pero
                   registrar evoluciones y firmar recetas está reservado al
                   especialista.
@@ -1268,13 +1266,9 @@ export const ExpedientesPage = () => {
           {/* ── Historial de evaluaciones ────────────────────────────────── */}
           {detalle ? (
             <div className="space-y-5">
-              <h2 className="font-clinico text-xl font-bold uppercase tracking-wider2 text-lux-blue dark:text-white">
-                Evoluciones registradas
-              </h2>
+              <h2 className="font-clinico text-xl font-bold uppercase tracking-wider2 text-lux-blue dark:text-white">{t('exp.evoluciones')}</h2>
               {detalle.evaluaciones.length === 0 ? (
-                <p className="text-sm text-neutral-400">
-                  Sin evaluaciones registradas.
-                </p>
+                <p className="text-sm text-neutral-400">{t('exp.sinEvaluaciones')}</p>
               ) : null}
               {detalle.evaluaciones.map((ev) => (
                 <motion.div key={ev.idEvaluacionClinica} {...fadeUp}>
@@ -1287,7 +1281,7 @@ export const ExpedientesPage = () => {
                         </span>
                       </span>
                       {ev.receta ? (
-                        <Badge tone="green">Receta sellada</Badge>
+                        <Badge tone="green">{t('exp.recetaSellada')}</Badge>
                       ) : null}
                     </div>
 
@@ -1309,9 +1303,7 @@ export const ExpedientesPage = () => {
 
                     {ev.refracciones?.length ? (
                       <div className="mt-4 overflow-x-auto">
-                        <span className="block font-clinico text-[10px] font-bold uppercase tracking-wider2 text-neutral-400">
-                          RX Final
-                        </span>
+                        <span className="block font-clinico text-[10px] font-bold uppercase tracking-wider2 text-neutral-400">{t('exp.rxFinal')}</span>
                         <table className="mt-2 w-full max-w-lg text-left text-sm">
                           <thead>
                             <tr className="border-b border-neutral-100 dark:border-white/5">
@@ -1320,7 +1312,7 @@ export const ExpedientesPage = () => {
                                 'Esfera',
                                 'Cilindro',
                                 'Eje',
-                                'Adición',
+                                t('exp.adicion'),
                               ].map((h) => (
                                 <th
                                   key={h}
@@ -1361,8 +1353,7 @@ export const ExpedientesPage = () => {
                           />
                           <div className="space-y-2 text-sm">
                             <p className="flex items-center gap-1.5 font-semibold text-emerald-600 dark:text-emerald-400">
-                              <ShieldCheck className="h-4 w-4" /> Receta emitida
-                            </p>
+                              <ShieldCheck className="h-4 w-4" />{t('exp.recetaEmitida')}</p>
                             <p className="break-all font-mono text-[10px] text-neutral-400">
                               SHA-256: {ev.receta.hashSha256}
                             </p>
@@ -1370,9 +1361,7 @@ export const ExpedientesPage = () => {
                               <Link
                                 to={`/verificar/${ev.receta.hashSha256}`}
                                 className="link-underline font-clinico text-[11px] font-semibold uppercase tracking-wider text-lux-blue dark:text-lux-tinta-claro"
-                              >
-                                Verificar
-                              </Link>
+                              >{t('comun.verificar')}</Link>
                               <a
                                 href={`${API_BASE}/recetas/${ev.receta.hashSha256}/pdf`}
                                 target="_blank"
@@ -1390,12 +1379,9 @@ export const ExpedientesPage = () => {
                           variant="ghost"
                           onClick={() => emitir(ev.idEvaluacionClinica)}
                         >
-                          <Eye className="h-3.5 w-3.5" /> Emitir receta con QR
-                        </LuxButton>
+                          <Eye className="h-3.5 w-3.5" />{t('exp.emitirReceta')}</LuxButton>
                       ) : (
-                        <span className="text-sm text-neutral-400">
-                          Sin receta.
-                        </span>
+                        <span className="text-sm text-neutral-400">{t('exp.sinReceta')}</span>
                       )}
                     </div>
                   </LuxCard>
@@ -1438,7 +1424,7 @@ export const ExpedientesPage = () => {
             <LuxCard className="w-full max-w-md p-6">
               <div className="mb-4 flex items-center justify-between border-b border-neutral-100 pb-3 dark:border-white/5">
                 <span id="titulo-descartar">
-                  <Kicker>Descartar evolución</Kicker>
+                  <Kicker>{t('exp.descartarEvolucion')}</Kicker>
                 </span>
                 <button
                   type="button"
@@ -1457,16 +1443,12 @@ export const ExpedientesPage = () => {
                   type="button"
                   variant="ghost"
                   onClick={() => setConfirmarCancelar(false)}
-                >
-                  Volver
-                </LuxButton>
+                >{t('comun.volver')}</LuxButton>
                 <LuxButton
                   type="button"
                   variant="danger"
                   onClick={confirmarDescarte}
-                >
-                  Descartar
-                </LuxButton>
+                >{t('exp.descartar')}</LuxButton>
               </div>
             </LuxCard>
           </motion.div>

@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -74,6 +75,7 @@ const comoTexto = (valor: unknown): string =>
  * rastro no se edita ni se borra desde la aplicación.
  */
 export const AuditoriaPage = () => {
+  const { t } = useIdioma();
   const [vista, setVista] = useState<Vista>('cambios');
   const [cambios, setCambios] = useState<EventoAuditoria[]>([]);
   const [accesos, setAccesos] = useState<EventoAcceso[]>([]);
@@ -123,10 +125,13 @@ export const AuditoriaPage = () => {
         setTotal(pag.total);
       }
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudo consultar la auditoría'));
+      setError(mensajeDeError(e, t('auditoria.error')));
     } finally {
       setCargando(false);
     }
+    // `t` solo da el texto de respaldo del error; en las dependencias volvería
+    // a consultar la bitácora en cada cambio de idioma.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vista, filtrosBase, tabla, operacion, resultado]);
 
   useEffect(() => {
@@ -174,7 +179,7 @@ export const AuditoriaPage = () => {
           ],
           cambios.map((e) => [
             fechaLarga(e.fecha),
-            e.usuario?.email ?? 'Sistema',
+            e.usuario?.email ?? t('auditoria.sistema'),
             e.tabla,
             e.registroId,
             operacionLabel(e.operacion),
@@ -192,8 +197,8 @@ export const AuditoriaPage = () => {
         ['Fecha', 'Usuario', 'Resultado', 'IP'],
         accesos.map((a) => [
           fechaLarga(a.fecha),
-          a.usuario?.email ?? 'Desconocido',
-          a.exitoso ? 'Exitoso' : 'Fallido',
+          a.usuario?.email ?? t('auditoria.desconocido'),
+          a.exitoso ? t('auditoria.exitoso') : t('auditoria.fallido'),
           a.ip,
         ]),
       ),
@@ -207,9 +212,9 @@ export const AuditoriaPage = () => {
   return (
     <section className="space-y-10">
       <SectionHeader
-        kicker="Trazabilidad"
-        title="Auditoría del sistema"
-        description="Registro inalterable de las operaciones críticas: quién modificó qué dato, cuándo y desde qué dirección."
+        kicker={t('auditoria.kicker')}
+        title={t('auditoria.titulo')}
+        description={t('auditoria.descripcion')}
         actions={
           <LuxButton
             type="button"
@@ -217,8 +222,7 @@ export const AuditoriaPage = () => {
             onClick={exportar}
             disabled={!hayRegistros}
           >
-            <Download className="h-3.5 w-3.5" /> Descargar reporte
-          </LuxButton>
+            <Download className="h-3.5 w-3.5" />{t('auditoria.descargar')}</LuxButton>
         }
       />
 
@@ -228,8 +232,8 @@ export const AuditoriaPage = () => {
       <div className="flex flex-wrap gap-2">
         {(
           [
-            { id: 'cambios', label: 'Cambios de datos', icono: ScrollText },
-            { id: 'accesos', label: 'Accesos al sistema', icono: KeyRound },
+            { id: 'cambios', label: t('auditoria.cambios'), icono: ScrollText },
+            { id: 'accesos', label: t('auditoria.accesos'), icono: KeyRound },
           ] as const
         ).map((op) => (
           <button
@@ -252,10 +256,10 @@ export const AuditoriaPage = () => {
       {/* ── Filtros (CU-08 pasos 3 y 4) ──────────────────────────────────── */}
       <motion.div {...fadeUp}>
         <LuxCard className="p-6">
-          <Kicker>Filtros de búsqueda</Kicker>
+          <Kicker>{t('auditoria.filtros')}</Kicker>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <label className="block">
-              <span className={fieldLabelClass}>Usuario</span>
+              <span className={fieldLabelClass}>{t('auditoria.usuario')}</span>
               <select
                 className={fieldInputClass}
                 value={idUsuario}
@@ -264,7 +268,7 @@ export const AuditoriaPage = () => {
                   setPagina(1);
                 }}
               >
-                <option value="">Todos</option>
+                <option value="">{t('auditoria.todos')}</option>
                 {usuarios.map((u) => (
                   <option key={u.idUsuario} value={u.idUsuario}>
                     {u.email}
@@ -276,7 +280,7 @@ export const AuditoriaPage = () => {
             {vista === 'cambios' ? (
               <>
                 <label className="block">
-                  <span className={fieldLabelClass}>Tabla</span>
+                  <span className={fieldLabelClass}>{t('auditoria.tabla')}</span>
                   <select
                     className={fieldInputClass}
                     value={tabla}
@@ -285,7 +289,7 @@ export const AuditoriaPage = () => {
                       setPagina(1);
                     }}
                   >
-                    <option value="">Todas</option>
+                    <option value="">{t('auditoria.todas')}</option>
                     {tablas.map((t) => (
                       <option key={t} value={t}>
                         {t}
@@ -294,7 +298,7 @@ export const AuditoriaPage = () => {
                   </select>
                 </label>
                 <label className="block">
-                  <span className={fieldLabelClass}>Operación</span>
+                  <span className={fieldLabelClass}>{t('auditoria.operacion')}</span>
                   <select
                     className={fieldInputClass}
                     value={operacion}
@@ -303,7 +307,7 @@ export const AuditoriaPage = () => {
                       setPagina(1);
                     }}
                   >
-                    <option value="">Todas</option>
+                    <option value="">{t('auditoria.todas')}</option>
                     {Object.values(OperacionAuditoria).map((o) => (
                       <option key={o} value={o}>
                         {operacionLabel(o)}
@@ -314,7 +318,7 @@ export const AuditoriaPage = () => {
               </>
             ) : (
               <label className="block">
-                <span className={fieldLabelClass}>Resultado</span>
+                <span className={fieldLabelClass}>{t('auditoria.resultado')}</span>
                 <select
                   className={fieldInputClass}
                   value={resultado}
@@ -323,15 +327,15 @@ export const AuditoriaPage = () => {
                     setPagina(1);
                   }}
                 >
-                  <option value="todos">Todos</option>
-                  <option value="exitosos">Solo exitosos</option>
-                  <option value="fallidos">Solo fallidos</option>
+                  <option value="todos">{t('auditoria.todos')}</option>
+                  <option value="exitosos">{t('auditoria.soloExitosos')}</option>
+                  <option value="fallidos">{t('auditoria.soloFallidos')}</option>
                 </select>
               </label>
             )}
 
             <label className="block">
-              <span className={fieldLabelClass}>Desde</span>
+              <span className={fieldLabelClass}>{t('metricas.desde')}</span>
               <input
                 type="date"
                 className={fieldInputClass}
@@ -343,7 +347,7 @@ export const AuditoriaPage = () => {
               />
             </label>
             <label className="block">
-              <span className={fieldLabelClass}>Hasta</span>
+              <span className={fieldLabelClass}>{t('metricas.hasta')}</span>
               <input
                 type="date"
                 className={fieldInputClass}
@@ -357,10 +361,9 @@ export const AuditoriaPage = () => {
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <LuxButton type="button" variant="ghost" onClick={limpiar}>
-              <RotateCcw className="h-3.5 w-3.5" /> Limpiar filtros
-            </LuxButton>
+              <RotateCcw className="h-3.5 w-3.5" />{t('auditoria.limpiar')}</LuxButton>
             <span className="text-[11px] uppercase tracking-widest text-neutral-400">
-              {cargando ? 'Consultando…' : `${total} evento(s)`}
+              {cargando ? t('auditoria.consultando') : `${total} evento(s)`}
             </span>
           </div>
         </LuxCard>
@@ -396,7 +399,7 @@ export const AuditoriaPage = () => {
                       {fechaLarga(e.fecha)}
                     </td>
                     <td className="px-5 py-3 font-medium text-lux-blue dark:text-white">
-                      {e.usuario?.email ?? 'Sistema'}
+                      {e.usuario?.email ?? t('auditoria.sistema')}
                     </td>
                     <td className="px-5 py-3 font-mono text-xs text-neutral-500 dark:text-neutral-400">
                       {e.tabla}
@@ -419,9 +422,7 @@ export const AuditoriaPage = () => {
                     <td
                       colSpan={6}
                       className="px-5 py-10 text-center text-sm text-neutral-400"
-                    >
-                      No se encontraron registros.
-                    </td>
+                    >{t('auditoria.sinRegistros')}</td>
                   </tr>
                 ) : null}
               </tbody>
@@ -450,11 +451,11 @@ export const AuditoriaPage = () => {
                       {fechaLarga(a.fecha)}
                     </td>
                     <td className="px-5 py-3 font-medium text-lux-blue dark:text-white">
-                      {a.usuario?.email ?? 'Desconocido'}
+                      {a.usuario?.email ?? t('auditoria.desconocido')}
                     </td>
                     <td className="px-5 py-3">
                       <Badge tone={a.exitoso ? 'green' : 'red'}>
-                        {a.exitoso ? 'Exitoso' : 'Fallido'}
+                        {a.exitoso ? t('auditoria.exitoso') : t('auditoria.fallido')}
                       </Badge>
                     </td>
                     <td className="px-5 py-3 font-mono text-xs text-neutral-400">
@@ -467,9 +468,7 @@ export const AuditoriaPage = () => {
                     <td
                       colSpan={4}
                       className="px-5 py-10 text-center text-sm text-neutral-400"
-                    >
-                      No se encontraron registros.
-                    </td>
+                    >{t('auditoria.sinRegistros')}</td>
                   </tr>
                 ) : null}
               </tbody>
@@ -513,7 +512,7 @@ export const AuditoriaPage = () => {
                   <Fingerprint className="h-4 w-4" strokeWidth={1.5} />
                 </span>
                 <div>
-                  <Kicker>Detalle del evento</Kicker>
+                  <Kicker>{t('auditoria.detalle')}</Kicker>
                   <p className="mt-1 text-sm font-semibold text-lux-blue dark:text-white">
                     {operacionLabel(seleccionado.operacion)} en{' '}
                     <span className="font-mono">{seleccionado.tabla}</span> · #
@@ -521,14 +520,14 @@ export const AuditoriaPage = () => {
                   </p>
                   <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
                     {fechaLarga(seleccionado.fecha)} ·{' '}
-                    {seleccionado.usuario?.email ?? 'Sistema'} ·{' '}
+                    {seleccionado.usuario?.email ?? t('auditoria.sistema')} ·{' '}
                     {seleccionado.ip ?? 'sin IP'}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
-                aria-label="Cerrar detalle"
+                aria-label={t('comun.cerrarDetalle')}
                 onClick={() => setSeleccionado(null)}
                 className="transition-luxe cursor-pointer rounded-full border border-neutral-200 p-1.5 hover:bg-neutral-100 dark:border-white/10 dark:hover:bg-white/5"
               >
@@ -538,7 +537,7 @@ export const AuditoriaPage = () => {
 
             <div className="grid gap-4 lg:grid-cols-2">
               <div>
-                <span className={fieldLabelClass}>Valor anterior</span>
+                <span className={fieldLabelClass}>{t('auditoria.valorAnterior')}</span>
                 {seleccionado.valorAnterior ? (
                   <pre className="mt-1.5 max-h-64 overflow-auto border border-neutral-200 bg-neutral-50 p-3 font-mono text-[11px] text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
                     {comoTexto(seleccionado.valorAnterior)}
@@ -547,21 +546,19 @@ export const AuditoriaPage = () => {
                   <p className="mt-1.5 flex items-start gap-2 border border-dashed border-neutral-200 p-3 text-[11px] leading-relaxed text-neutral-500 dark:border-white/10 dark:text-neutral-400">
                     <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-lux-tinta" />
                     {seleccionado.operacion === OperacionAuditoria.INSERT
-                      ? 'Una creación no tiene valor previo: el registro no existía antes.'
-                      : 'No se conservó el valor previo de esta operación.'}
+                      ? t('auditoria.creacionSinPrevio')
+                      : t('auditoria.sinPrevio')}
                   </p>
                 )}
               </div>
               <div>
-                <span className={fieldLabelClass}>Valor nuevo</span>
+                <span className={fieldLabelClass}>{t('auditoria.valorNuevo')}</span>
                 {seleccionado.valorNuevo ? (
                   <pre className="mt-1.5 max-h-64 overflow-auto border border-neutral-200 bg-neutral-50 p-3 font-mono text-[11px] text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
                     {comoTexto(seleccionado.valorNuevo)}
                   </pre>
                 ) : (
-                  <p className="mt-1.5 border border-dashed border-neutral-200 p-3 text-[11px] text-neutral-500 dark:border-white/10 dark:text-neutral-400">
-                    Sin datos registrados.
-                  </p>
+                  <p className="mt-1.5 border border-dashed border-neutral-200 p-3 text-[11px] text-neutral-500 dark:border-white/10 dark:text-neutral-400">{t('auditoria.sinDatos')}</p>
                 )}
               </div>
             </div>
