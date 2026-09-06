@@ -21,8 +21,9 @@ interface IdiomaContextValue {
   /** Traduce una clave. Solo acepta claves declaradas en `es.ts`. */
   t: (clave: ClaveTexto) => string;
   /** Formato regional ya atado al idioma activo: no hay que pasarlo cada vez. */
-  fechaCorta: (valor: string | Date) => string;
-  fechaHora: (valor: string | Date) => string;
+  /** Acepta nulos: una fecha ausente se pinta «—», no el 1 de enero de 1970. */
+  fechaCorta: (valor: string | Date | null | undefined) => string;
+  fechaHora: (valor: string | Date | null | undefined) => string;
   hora: (valor: string | Date) => string;
   numero: (valor: number, decimales?: number) => string;
   colones: (valor: number) => string;

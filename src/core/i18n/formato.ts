@@ -14,27 +14,58 @@ import { LOCALES, type Idioma } from './idioma';
  * precio, y no lo es (ver `DSO-57`).
  */
 
-/** Fecha corta: 27/8/2026 · Aug 27, 2026 · 27 ago 2026 */
-export const fechaCorta = (idioma: Idioma, valor: string | Date): string =>
-  new Date(valor).toLocaleDateString(LOCALES[idioma], {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+/**
+ * Lo que se pinta cuando no hay fecha.
+ *
+ * ⚠️ **Una fecha ausente no es un error.** `fechaEstimadaEntrega` es nula
+ * mientras el laboratorio no la confirme, y antes de esto cada pantalla lo
+ * resolvía por su cuenta. Sin este guardia, `new Date(null)` da el 1 de enero
+ * de 1970 y el paciente lee que sus lentes llegan hace cincuenta años.
+ */
+const SIN_FECHA = '—';
+
+type Fecha = string | Date | null | undefined;
+
+/**
+ * Convierte a `Date` respetando el huso local.
+ *
+ * ⚠️ **`new Date('2026-09-11')` NO es el 11 de setiembre en Costa Rica.** Una
+ * cadena de solo fecha la interpreta el motor como **UTC medianoche**, que en
+ * UTC−6 es el día anterior a las 18:00: la fecha estimada de entrega de un
+ * pedido se mostraba **un día antes** de la real. Con la hora incluida no pasa,
+ * porque entonces se interpreta como local. Por eso se completa la hora cuando
+ * la cadena viene sin ella.
+ */
+const aFecha = (valor: string | Date): Date =>
+  typeof valor === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(valor)
+    ? new Date(`${valor}T00:00:00`)
+    : new Date(valor);
+
+/** Fecha corta: 27 ago 2026 · Aug 27, 2026 · 27 ago 2026 */
+export const fechaCorta = (idioma: Idioma, valor: Fecha): string =>
+  valor
+    ? aFecha(valor).toLocaleDateString(LOCALES[idioma], {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+    : SIN_FECHA;
 
 /** Fecha con hora, para bitácoras y auditoría. */
-export const fechaHora = (idioma: Idioma, valor: string | Date): string =>
-  new Date(valor).toLocaleString(LOCALES[idioma], {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+export const fechaHora = (idioma: Idioma, valor: Fecha): string =>
+  valor
+    ? aFecha(valor).toLocaleString(LOCALES[idioma], {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : SIN_FECHA;
 
 /** Solo la hora, para el calendario de cupos. */
 export const hora = (idioma: Idioma, valor: string | Date): string =>
-  new Date(valor).toLocaleTimeString(LOCALES[idioma], {
+  aFecha(valor).toLocaleTimeString(LOCALES[idioma], {
     hour: '2-digit',
     minute: '2-digit',
   });
