@@ -7,6 +7,8 @@ import { homePathForRole } from '../core/models/rol';
 import { MarcaOptica } from '../shared/MarcaOptica';
 import { BotonWhatsappFlotante } from '../shared/BotonWhatsappFlotante';
 import { SelectorIdioma } from '../shared/SelectorIdioma';
+import { useIdioma } from '../core/i18n/idioma.context';
+import type { ClaveTexto } from '../core/i18n/catalogos/es';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
@@ -16,19 +18,25 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
       : 'text-neutral-600 hover:text-lux-blue dark:text-neutral-400 dark:hover:text-white',
   ].join(' ');
 
-/** Enlaces de la vitrina pública, comunes a la barra y al cajón. */
-const ENLACES_PUBLICOS: { to: string; label: string; end?: boolean }[] = [
-  { to: '/', label: 'Inicio', end: true },
-  { to: '/especialista', label: 'Especialista' },
-  { to: '/catalogo', label: 'Vitrina' },
-  { to: '/agendar', label: 'Agendar Cita' },
-  { to: '/portal', label: 'Mi Expediente' },
+/**
+ * Enlaces de la vitrina pública, comunes a la barra y al cajón.
+ *
+ * Guardan la **clave**, no el rótulo: el texto se resuelve al pintar, así que
+ * cambiar de idioma renombra los enlaces sin tocar esta lista (`DSO-54`).
+ */
+const ENLACES_PUBLICOS: { to: string; clave: ClaveTexto; end?: boolean }[] = [
+  { to: '/', clave: 'nav.publico.inicio', end: true },
+  { to: '/especialista', clave: 'nav.publico.especialista' },
+  { to: '/catalogo', clave: 'nav.publico.catalogo' },
+  { to: '/agendar', clave: 'nav.publico.agendar' },
+  { to: '/portal', clave: 'nav.publico.portal' },
 ];
 
 /** Shell del entorno PÚBLICO (portal del paciente) con la identidad de la óptica. */
 export const PublicLayout = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useIdioma();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -62,7 +70,7 @@ export const PublicLayout = () => {
                   className={navLinkClass}
                   end={e.end}
                 >
-                  {e.label}
+                  {t(e.clave)}
                 </NavLink>
               ))}
               {isAuthenticated ? (
@@ -70,32 +78,32 @@ export const PublicLayout = () => {
                   {/* `/pedidos` exige sesión y no tenía ningún enlace: solo se
                       llegaba escribiendo la URL a mano. */}
                   <NavLink to="/pedidos" className={navLinkClass}>
-                    Mis Pedidos
+                    {t('nav.publico.pedidos')}
                   </NavLink>
                   <Link
                     to={homePathForRole(user?.rol)}
                     className={navLinkClass({ isActive: false })}
                   >
-                    Panel
+                    {t('nav.publico.panel')}
                   </Link>
                   <button
                     type="button"
                     onClick={logout}
                     className={navLinkClass({ isActive: false })}
                   >
-                    Salir
+                    {t('nav.publico.salir')}
                   </button>
                 </>
               ) : (
                 <>
                   <NavLink to="/registro" className={navLinkClass}>
-                    Crear cuenta
+                    {t('nav.publico.crearCuenta')}
                   </NavLink>
                   <Link
                     to="/login"
                     className="transition-luxe border border-lux-blue px-4 py-2 text-[11px] font-semibold uppercase tracking-wider2 text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-tinta-claro dark:text-lux-tinta-claro dark:hover:bg-lux-tinta-claro dark:hover:text-black"
                   >
-                    Iniciar sesión
+                    {t('nav.publico.entrar')}
                   </Link>
                 </>
               )}
@@ -108,7 +116,7 @@ export const PublicLayout = () => {
 
             <button
               onClick={toggleTheme}
-              title="Tema visual"
+              title={t('comun.tema.titulo')}
               className="transition-luxe cursor-pointer rounded-full p-2 text-lux-tinta hover:bg-lux-tinta/10"
             >
               {theme === 'light' ? (
@@ -121,11 +129,11 @@ export const PublicLayout = () => {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              aria-label="Abrir menú"
+              aria-label={t('publico.menu.abrir')}
               className="transition-luxe flex cursor-pointer items-center gap-1.5 border border-lux-blue px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-tinta-claro dark:text-lux-tinta-claro dark:hover:bg-lux-tinta-claro dark:hover:text-black lg:hidden"
             >
               <Menu className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Menú</span>
+              <span className="hidden sm:inline">{t('publico.menu.etiqueta')}</span>
             </button>
           </div>
         </div>
@@ -166,7 +174,7 @@ export const PublicLayout = () => {
           <MarcaOptica tamano="sm" />
           <button
             onClick={() => setMenuOpen(false)}
-            aria-label="Cerrar menú"
+            aria-label={t('publico.menu.cerrar')}
             className="transition-luxe cursor-pointer rounded-full border border-neutral-200 p-2 hover:bg-neutral-100 dark:border-white/10 dark:hover:bg-white/5"
           >
             <X className="h-4 w-4" />
@@ -182,7 +190,7 @@ export const PublicLayout = () => {
               onClick={() => setMenuOpen(false)}
               className={claseCajon}
             >
-              <span>{e.label}</span>
+              <span>{t(e.clave)}</span>
               <ChevronRight className="h-3.5 w-3.5 opacity-40" />
             </NavLink>
           ))}
@@ -193,7 +201,7 @@ export const PublicLayout = () => {
                 onClick={() => setMenuOpen(false)}
                 className={claseCajon}
               >
-                <span>Mis Pedidos</span>
+                <span>{t('nav.publico.pedidos')}</span>
                 <ChevronRight className="h-3.5 w-3.5 opacity-40" />
               </NavLink>
               <Link
@@ -201,11 +209,11 @@ export const PublicLayout = () => {
                 onClick={() => setMenuOpen(false)}
                 className={claseCajon}
               >
-                <span>Panel</span>
+                <span>{t('nav.publico.panel')}</span>
                 <ChevronRight className="h-3.5 w-3.5 opacity-40" />
               </Link>
               <button type="button" onClick={logout} className={claseCajon}>
-                <span>Salir</span>
+                <span>{t('nav.publico.salir')}</span>
                 <ChevronRight className="h-3.5 w-3.5 opacity-40" />
               </button>
             </>
@@ -216,7 +224,7 @@ export const PublicLayout = () => {
                 onClick={() => setMenuOpen(false)}
                 className={claseCajon}
               >
-                <span>Crear cuenta</span>
+                <span>{t('nav.publico.crearCuenta')}</span>
                 <ChevronRight className="h-3.5 w-3.5 opacity-40" />
               </NavLink>
               <Link
@@ -224,7 +232,7 @@ export const PublicLayout = () => {
                 onClick={() => setMenuOpen(false)}
                 className={claseCajon}
               >
-                <span>Iniciar sesión</span>
+                <span>{t('nav.publico.entrar')}</span>
                 <ChevronRight className="h-3.5 w-3.5 opacity-40" />
               </Link>
             </>
@@ -245,8 +253,7 @@ export const PublicLayout = () => {
 
       <footer className="transition-luxe border-t border-lux-blue/5 bg-lux-gray dark:border-white/5 dark:bg-[#070708]">
         <div className="mx-auto max-w-6xl px-4 py-6 text-[10px] uppercase tracking-widest text-neutral-400 md:px-6">
-          © {new Date().getFullYear()} Óptica Dr. Luigi Semeraro — Pérez
-          Zeledón, Costa Rica
+          © {new Date().getFullYear()} {t('publico.pie.ubicacion')}
         </div>
       </footer>
     </div>

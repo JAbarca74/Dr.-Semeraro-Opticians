@@ -18,26 +18,39 @@ import { homePathForRole } from '../../core/models/rol';
 import { mensajeDeError } from '../../shared/error';
 import { MarcaOptica } from '../../shared/MarcaOptica';
 import { SelectorIdioma } from '../../shared/SelectorIdioma';
+import { useIdioma } from '../../core/i18n/idioma.context';
+import type { ClaveTexto } from '../../core/i18n/catalogos/es';
 
-const SLIDES = [
+/**
+ * ⚠️ **`title` es texto plano y el resto son claves.** Los títulos son nombres
+ * de marca —«Ray-Ban & Oakley Elite», «Varilux® & Eyezen™», «OneSight
+ * Foundation»— y no se traducen en ningún idioma; el subtítulo y la
+ * descripción sí, porque son texto comercial nuestro.
+ */
+const SLIDES: {
+  title: string;
+  subtitle: ClaveTexto;
+  desc: ClaveTexto;
+  image: string;
+}[] = [
   {
     title: 'Ray-Ban & Oakley Elite',
-    subtitle: 'Nuestra herencia en lentes icónicos',
-    desc: 'Fusionamos la sofisticación clásica con el rendimiento deportivo de nivel mundial en monturas y materiales patentados.',
+    subtitle: 'login.slide1.subtitulo',
+    desc: 'login.slide1.desc',
     image:
       'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'Varilux® & Eyezen™',
-    subtitle: 'Ingeniería en óptica de alta precisión',
-    desc: 'Lentes oftálmicos de vanguardia que garantizan transiciones visuales fluidas, descanso digital y protección avanzada.',
+    subtitle: 'login.slide2.subtitulo',
+    desc: 'login.slide2.desc',
     image:
       'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'OneSight Foundation',
-    subtitle: 'Un compromiso con la visión global',
-    desc: 'Ayudamos a erradicar los problemas de visión no resueltos, equipando a comunidades con atención de calidad.',
+    subtitle: 'login.slide3.subtitulo',
+    desc: 'login.slide3.desc',
     image:
       'https://images.unsplash.com/photo-1517948430535-1e2469d314fe?auto=format&fit=crop&q=80&w=800',
   },
@@ -50,16 +63,17 @@ const SLIDES = [
  */
 const DEMO = import.meta.env.DEV
   ? [
-      { label: 'Administrador del sistema', email: 'admin@optica.local', password: 'admin1234' },
-      { label: 'Dr. Semeraro (Doctor)', email: 'doctor@optica.local', password: 'doctor1234' },
-      { label: 'Recepción (front desk)', email: 'recepcion@optica.local', password: 'recepcion1234' },
+      { label: 'login.demo.admin' as ClaveTexto, email: 'admin@optica.local', password: 'admin1234' },
+      { label: 'login.demo.doctor' as ClaveTexto, email: 'doctor@optica.local', password: 'doctor1234' },
+      { label: 'login.demo.recepcion' as ClaveTexto, email: 'recepcion@optica.local', password: 'recepcion1234' },
       // Cuarto rol del sistema. Su destino no es el panel interno sino el
       // portal público (`homePathForRole` → `/portal`).
-      { label: 'Paciente (portal)', email: 'paciente@optica.local', password: 'paciente1234' },
+      { label: 'login.demo.paciente' as ClaveTexto, email: 'paciente@optica.local', password: 'paciente1234' },
     ]
   : [];
 
 export const LoginPage = () => {
+  const { t } = useIdioma();
   const { login } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -88,7 +102,7 @@ export const LoginPage = () => {
       // Respeta la ruta de origen; si no hay, envía al inicio según el rol.
       navigate(from ?? homePathForRole(sesion?.rol), { replace: true });
     } catch (e) {
-      setError(mensajeDeError(e, 'Credenciales inválidas'));
+      setError(mensajeDeError(e, t('login.error')));
     } finally {
       setLoading(false);
     }
@@ -112,7 +126,7 @@ export const LoginPage = () => {
             <SelectorIdioma className="hidden sm:flex" />
             <button
               onClick={toggleTheme}
-              title="Cambiar modo visual"
+              title={t('comun.tema.titulo')}
               className="transition-luxe cursor-pointer rounded-full border border-neutral-200 bg-neutral-100/50 p-2 text-neutral-800 hover:bg-neutral-100 dark:border-white/10 dark:bg-white/5 dark:text-yellow-400 dark:hover:bg-white/15"
             >
               {theme === 'light' ? (
@@ -132,7 +146,7 @@ export const LoginPage = () => {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-lux-tinta/5 via-transparent to-lux-blue/5" />
           <div className="relative z-10">
             <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-lux-tinta">
-              Innovación y estilo exclusivo
+              {t('login.eslogan')}
             </span>
             <div className="mt-3 h-px w-12 bg-lux-tinta" />
           </div>
@@ -158,13 +172,13 @@ export const LoginPage = () => {
                 </div>
                 <div>
                   <span className="block font-mono text-[11px] uppercase tracking-widest text-neutral-400">
-                    {SLIDES[slide].subtitle}
+                    {t(SLIDES[slide].subtitle)}
                   </span>
                   <h2 className="mt-1 font-serif text-3xl italic tracking-tight text-lux-blue dark:text-white">
                     {SLIDES[slide].title}
                   </h2>
                   <p className="mt-3 max-w-md text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-                    {SLIDES[slide].desc}
+                    {t(SLIDES[slide].desc)}
                   </p>
                 </div>
               </motion.div>
@@ -188,13 +202,13 @@ export const LoginPage = () => {
 
           <div className="relative z-10 flex items-center justify-between font-mono text-[10px] uppercase tracking-wider">
             <span className="text-neutral-400">
-              Óptica Dr. Luigi Semeraro · Pérez Zeledón
+              {t('login.sede')}
             </span>
             <Link
               to="/"
               className="group flex items-center gap-1 text-lux-tinta hover:underline"
             >
-              Ir al sitio de la óptica
+              {t('login.irAlSitio')}
               <ArrowRight className="transition-luxe h-3 w-3 group-hover:translate-x-0.5" />
             </Link>
           </div>
@@ -210,14 +224,13 @@ export const LoginPage = () => {
           >
             <div className="mb-8">
               <span className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-lux-tinta">
-                Portal interno autenticado
+                {t('login.kicker')}
               </span>
               <h1 className="font-serif text-3xl italic leading-none tracking-tight">
                 Óptica Dr. Luigi Semeraro
               </h1>
               <p className="mt-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-                Acceda con credenciales clínicas para gestionar fichas de pacientes,
-                consultas y bodegas.
+                {t('login.descripcion')}
               </p>
             </div>
 
@@ -234,14 +247,14 @@ export const LoginPage = () => {
             <form onSubmit={onSubmit} className="space-y-6">
               <div className="space-y-1">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-                  Correo corporativo
+                  {t('login.campo.correo')}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" strokeWidth={1} />
                   <input
                     type="email"
                     name="email"
-                    placeholder="admin@optica.local"
+                    placeholder={t('login.campo.correoEjemplo')}
                     value={email}
                     required
                     onChange={(e) => {
@@ -255,14 +268,14 @@ export const LoginPage = () => {
 
               <div className="space-y-1">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-                  Contraseña de acceso
+                  {t('login.campo.clave')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" strokeWidth={1} />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
-                    placeholder="Contraseña del sistema"
+                    placeholder={t('login.campo.claveEjemplo')}
                     value={password}
                     required
                     onChange={(e) => {
@@ -291,7 +304,7 @@ export const LoginPage = () => {
                 whileTap={loading ? {} : { scale: 0.99 }}
                 className="transition-luxe w-full cursor-pointer bg-lux-blue py-3.5 text-xs font-semibold uppercase tracking-wider2 text-white shadow-md hover:bg-lux-tinta disabled:opacity-60 dark:bg-lux-tinta-claro dark:text-black dark:hover:bg-white"
               >
-                {loading ? 'Autenticando…' : 'Autenticar credenciales'}
+                {loading ? t('login.enviando') : t('login.enviar')}
               </motion.button>
             </form>
 
@@ -299,7 +312,7 @@ export const LoginPage = () => {
             <div className="mt-8 border-t border-neutral-200/20 pt-6">
               <span className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-lux-tinta">
                 <Sparkles className="h-3.5 w-3.5" />
-                Acceso directo (demo RBAC)
+                {t('login.demo')}
               </span>
               <div className="space-y-2">
                 {DEMO.map((d) => (
@@ -311,7 +324,7 @@ export const LoginPage = () => {
                   >
                     <div>
                       <span className="transition-luxe block text-xs font-semibold text-neutral-800 group-hover:text-lux-tinta dark:text-white">
-                        {d.label}
+                        {t(d.label)}
                       </span>
                       <span className="mt-0.5 block font-mono text-[9px] opacity-50">
                         {d.email}

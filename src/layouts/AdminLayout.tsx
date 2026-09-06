@@ -12,14 +12,16 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../core/auth/auth.context';
 import { SelectorIdioma } from '../shared/SelectorIdioma';
+import { useIdioma } from '../core/i18n/idioma.context';
+import type { ClaveTexto } from '../core/i18n/catalogos/es';
 import { useTheme } from '../core/theme/theme.context';
 import { Rol, rolLabel } from '../core/models/rol';
 import { MarcaOptica } from '../shared/MarcaOptica';
 
 interface NavItem {
   to: string;
-  label: string;
-  drawerLabel: string;
+  label: ClaveTexto;
+  drawerLabel: ClaveTexto;
   roles?: Rol[];
   end?: boolean;
   /**
@@ -37,16 +39,16 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   // `/admin` renderiza el DashboardPage; las métricas viven en `/admin/metricas`.
   // Rotularlo «Métricas» mandaba a la gente al sitio equivocado.
-  { to: '/admin', label: 'Panel', drawerLabel: 'Panel General', end: true },
+  { to: '/admin', label: 'nav.admin.panel', drawerLabel: 'nav.admin.panelCajon', end: true },
   {
     to: '/admin/personas',
-    label: 'Personas',
-    drawerLabel: 'Pacientes y Personal',
+    label: 'nav.admin.personas',
+    drawerLabel: 'nav.admin.personasCajon',
   },
   {
     to: '/admin/expedientes',
-    label: 'Expedientes',
-    drawerLabel: 'Fichas y Expedientes',
+    label: 'nav.admin.expedientes',
+    drawerLabel: 'nav.admin.expedientesCajon',
     roles: [Rol.DOCTOR, Rol.ADMINISTRADOR],
   },
   // El listado de productos sí lo puede leer cualquiera, pero el detalle y el
@@ -54,8 +56,8 @@ const NAV_ITEMS: NavItem[] = [
   // luego fallaba al abrir un producto.
   {
     to: '/admin/inventario',
-    label: 'Bodega',
-    drawerLabel: 'Depósito y Bodega',
+    label: 'nav.admin.bodega',
+    drawerLabel: 'nav.admin.bodegaCajon',
     roles: [Rol.ADMINISTRADOR],
   },
   // ⚠️ `roles` aquí no es cosmética: sin ella el Doctor veía el enlace, lo
@@ -63,27 +65,31 @@ const NAV_ITEMS: NavItem[] = [
   // `[ADMINISTRADOR, RECEPCION]` y bajo `/admin` solo llega el Administrador.
   {
     to: '/admin/ventas',
-    label: 'Caja & Ventas',
-    drawerLabel: 'Caja y Cobro Diario',
+    label: 'nav.admin.ventas',
+    drawerLabel: 'nav.admin.ventasCajon',
     roles: [Rol.ADMINISTRADOR],
   },
-  { to: '/admin/agenda', label: 'Citas', drawerLabel: 'Coordinación de Citas' },
+  {
+    to: '/admin/agenda',
+    label: 'nav.admin.citas',
+    drawerLabel: 'nav.admin.citasCajon',
+  },
   {
     to: '/admin/laboratorio',
-    label: 'Lab',
-    drawerLabel: 'Control de Laboratorio',
+    label: 'nav.admin.laboratorio',
+    drawerLabel: 'nav.admin.laboratorioCajon',
   },
   {
     to: '/admin/usuarios',
-    label: 'Usuarios',
-    drawerLabel: 'Usuarios y Roles (RBAC)',
+    label: 'nav.admin.usuarios',
+    drawerLabel: 'nav.admin.usuariosCajon',
     roles: [Rol.ADMINISTRADOR],
     soloCajon: true,
   },
   {
     to: '/admin/auditoria',
-    label: 'Auditoría',
-    drawerLabel: 'Auditoría y Trazabilidad',
+    label: 'nav.admin.auditoria',
+    drawerLabel: 'nav.admin.auditoriaCajon',
     roles: [Rol.ADMINISTRADOR],
     soloCajon: true,
   },
@@ -92,8 +98,8 @@ const NAV_ITEMS: NavItem[] = [
   // administración». El Doctor no ve la facturación de la óptica.
   {
     to: '/admin/metricas',
-    label: 'Métricas',
-    drawerLabel: 'Métricas y KPI',
+    label: 'nav.admin.metricas',
+    drawerLabel: 'nav.admin.metricasCajon',
     roles: [Rol.ADMINISTRADOR],
     soloCajon: true,
   },
@@ -102,6 +108,7 @@ const NAV_ITEMS: NavItem[] = [
 /** Shell del entorno PRIVADO con la identidad de Óptica Dr. Luigi Semeraro. */
 export const AdminLayout = () => {
   const { user, logout, hasRole } = useAuth();
+  const { t } = useIdioma();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -155,7 +162,7 @@ export const AdminLayout = () => {
               >
                 {({ isActive }) => (
                   <>
-                    <span>{item.label}</span>
+                    <span>{t(item.label)}</span>
                     {isActive ? (
                       <motion.span
                         layoutId="navIndicator"
@@ -178,7 +185,7 @@ export const AdminLayout = () => {
             <SelectorIdioma className="hidden sm:flex" />
             <button
               onClick={toggleTheme}
-              title="Tema visual"
+              title={t('comun.tema.titulo')}
               className="transition-luxe cursor-pointer rounded-full p-2 text-lux-tinta hover:bg-lux-tinta/10"
             >
               {theme === 'light' ? (
@@ -193,7 +200,7 @@ export const AdminLayout = () => {
             >
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-lux-tinta" />
               <Menu className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Menú</span>
+              <span className="hidden sm:inline">{t('publico.menu.etiqueta')}</span>
             </button>
           </div>
         </div>
@@ -267,9 +274,7 @@ export const AdminLayout = () => {
         <div className="space-y-6">
           <div className="flex items-center justify-between border-b border-lux-tinta/20 pb-4">
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">
-                Menú de Operaciones
-              </span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">{t('nav.admin.menuOperaciones')}</span>
               <MarcaOptica tamano="sm" />
             </div>
             <button
@@ -316,7 +321,7 @@ export const AdminLayout = () => {
               }}
               className="transition-luxe flex w-full items-center justify-between border-b border-neutral-100 px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:border-white/5 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white"
             >
-              <span>Mi Cuenta</span>
+              <span>{t('nav.admin.cuenta')}</span>
               <ChevronRight className="h-3.5 w-3.5 opacity-40" />
             </button>
             {/* El Administrador tiene permiso sobre el front desk
@@ -330,16 +335,14 @@ export const AdminLayout = () => {
                 }}
                 className="transition-luxe flex w-full items-center justify-between border-b border-neutral-100 px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:border-white/5 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white"
               >
-                <span>Ir a Recepción</span>
+                <span>{t('nav.admin.irRecepcion')}</span>
                 <ChevronRight className="h-3.5 w-3.5 opacity-40" />
               </button>
             ) : null}
           </nav>
 
           <div className="flex items-center gap-1.5 border border-neutral-100 bg-neutral-50 p-4 text-[9px] font-bold uppercase tracking-widest text-lux-tinta dark:border-white/5 dark:bg-white/5">
-            <Sparkles className="h-3.5 w-3.5" />
-            Sesión clínica autenticada · RBAC activo
-          </div>
+            <Sparkles className="h-3.5 w-3.5" />{t('nav.admin.sesionRbac')}</div>
         </div>
 
         {/* Tarjeta de usuario + logout */}
@@ -361,9 +364,7 @@ export const AdminLayout = () => {
             onClick={onLogout}
             className="transition-luxe flex w-full cursor-pointer items-center justify-center gap-2 border border-red-200 bg-red-50 p-2.5 text-[10px] font-bold uppercase tracking-widest text-red-700 hover:bg-red-100 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40"
           >
-            <LogOut className="h-3.5 w-3.5" />
-            Salir del portal clínico
-          </button>
+            <LogOut className="h-3.5 w-3.5" />{t('nav.admin.salir')}</button>
         </div>
       </aside>
     </div>

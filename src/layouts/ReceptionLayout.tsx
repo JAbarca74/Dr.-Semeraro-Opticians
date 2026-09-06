@@ -12,44 +12,55 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../core/auth/auth.context';
 import { SelectorIdioma } from '../shared/SelectorIdioma';
+import { useIdioma } from '../core/i18n/idioma.context';
+import type { ClaveTexto } from '../core/i18n/catalogos/es';
 import { useTheme } from '../core/theme/theme.context';
 import { rolLabel } from '../core/models/rol';
 import { MarcaOptica } from '../shared/MarcaOptica';
 
 interface NavItem {
   to: string;
-  label: string;
-  drawerLabel: string;
+  label: ClaveTexto;
+  drawerLabel: ClaveTexto;
   end?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: '/recepcion', label: 'Panel', drawerLabel: 'Panel Central', end: true },
+  {
+    to: '/recepcion',
+    label: 'nav.recepcion.panel',
+    drawerLabel: 'nav.recepcion.panelCajon',
+    end: true,
+  },
   {
     to: '/recepcion/pacientes',
-    label: 'Pacientes',
-    drawerLabel: 'Registro de Pacientes',
+    label: 'nav.recepcion.pacientes',
+    drawerLabel: 'nav.recepcion.pacientesCajon',
   },
   {
     to: '/recepcion/recetas',
-    label: 'Verificar',
-    drawerLabel: 'Verificar Receta',
+    label: 'nav.recepcion.verificar',
+    drawerLabel: 'nav.recepcion.verificarCajon',
   },
-  { to: '/recepcion/agenda', label: 'Citas', drawerLabel: 'Agenda Médica' },
+  {
+    to: '/recepcion/agenda',
+    label: 'nav.recepcion.citas',
+    drawerLabel: 'nav.recepcion.citasCajon',
+  },
   {
     to: '/recepcion/ventas',
-    label: 'Caja & Ventas',
-    drawerLabel: 'Caja y Cobro Diario',
+    label: 'nav.admin.ventas',
+    drawerLabel: 'nav.admin.ventasCajon',
   },
   {
     to: '/recepcion/existencias',
-    label: 'Existencias',
-    drawerLabel: 'Existencias de Bodega',
+    label: 'nav.recepcion.existencias',
+    drawerLabel: 'nav.recepcion.existenciasCajon',
   },
   {
     to: '/recepcion/laboratorio',
-    label: 'Lab',
-    drawerLabel: 'Logística de Taller',
+    label: 'nav.admin.laboratorio',
+    drawerLabel: 'nav.recepcion.laboratorioCajon',
   },
 ];
 
@@ -60,6 +71,7 @@ const NAV_ITEMS: NavItem[] = [
  */
 export const ReceptionLayout = () => {
   const { user, logout } = useAuth();
+  const { t } = useIdioma();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -107,7 +119,7 @@ export const ReceptionLayout = () => {
               >
                 {({ isActive }) => (
                   <>
-                    <span>{item.label}</span>
+                    <span>{t(item.label)}</span>
                     {isActive ? (
                       <motion.span
                         layoutId="recepNavIndicator"
@@ -130,7 +142,7 @@ export const ReceptionLayout = () => {
             <SelectorIdioma className="hidden sm:flex" />
             <button
               onClick={toggleTheme}
-              title="Tema visual"
+              title={t('comun.tema.titulo')}
               className="transition-luxe cursor-pointer rounded-full p-2 text-lux-tinta hover:bg-lux-tinta/10"
             >
               {theme === 'light' ? (
@@ -145,7 +157,7 @@ export const ReceptionLayout = () => {
             >
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-lux-tinta" />
               <Menu className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Menú</span>
+              <span className="hidden sm:inline">{t('publico.menu.etiqueta')}</span>
             </button>
           </div>
         </div>
@@ -174,7 +186,7 @@ export const ReceptionLayout = () => {
               Óptica Dr. Luigi Semeraro · Recepción
             </span>
             <span className="block text-[9px] uppercase tracking-wider text-neutral-400">
-              Front desk · Pérez Zeledón, Costa Rica · Sello de receta SHA-256
+              {t('nav.recepcion.pie')}
             </span>
           </div>
           <span className="font-mono text-[9px] text-neutral-400">
@@ -207,9 +219,7 @@ export const ReceptionLayout = () => {
         <div className="space-y-6">
           <div className="flex items-center justify-between border-b border-lux-tinta/20 pb-4">
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">
-                Menú de Recepción
-              </span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">{t('nav.recepcion.menu')}</span>
               <MarcaOptica tamano="sm" />
             </div>
             <button
@@ -258,15 +268,13 @@ export const ReceptionLayout = () => {
               }}
               className="transition-luxe flex w-full items-center justify-between border-b border-neutral-100 px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:border-white/5 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white"
             >
-              <span>Mi Cuenta</span>
+              <span>{t('nav.admin.cuenta')}</span>
               <ChevronRight className="h-3.5 w-3.5 opacity-40" />
             </button>
           </nav>
 
           <div className="flex items-center gap-1.5 border border-neutral-100 bg-neutral-50 p-4 text-[9px] font-bold uppercase tracking-widest text-lux-tinta dark:border-white/5 dark:bg-white/5">
-            <Sparkles className="h-3.5 w-3.5" />
-            Sesión de recepción · RBAC activo
-          </div>
+            <Sparkles className="h-3.5 w-3.5" />{t('nav.recepcion.sesionRbac')}</div>
         </div>
 
         {/* Tarjeta de usuario + logout */}
@@ -288,9 +296,7 @@ export const ReceptionLayout = () => {
             onClick={onLogout}
             className="transition-luxe flex w-full cursor-pointer items-center justify-center gap-2 border border-red-200 bg-red-50 p-2.5 text-[10px] font-bold uppercase tracking-widest text-red-700 hover:bg-red-100 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40"
           >
-            <LogOut className="h-3.5 w-3.5" />
-            Cerrar sesión
-          </button>
+            <LogOut className="h-3.5 w-3.5" />{t('nav.recepcion.salir')}</button>
         </div>
       </aside>
     </div>
