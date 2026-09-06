@@ -27,6 +27,7 @@ import {
 import { aCsv, descargarCsv } from '../../shared/csv';
 import { descargarArchivo } from '../../shared/descarga';
 import { mensajeDeError } from '../../shared/error';
+import { useIdioma } from '../../core/i18n/idioma.context';
 import {
   Alert,
   LuxButton,
@@ -90,6 +91,7 @@ const Indicador = ({
  * navegador exigiría una librería de tipografía solo para esto.
  */
 export const MetricasPage = () => {
+  const { t } = useIdioma();
   const [datos, setDatos] = useState<ResumenMetricas | null>(null);
   const [desde, setDesde] = useState(primerDiaDelMes());
   const [hasta, setHasta] = useState(hoyISO());
@@ -103,10 +105,13 @@ export const MetricasPage = () => {
       setDatos(await resumenMetricas({ desde: d, hasta: h }));
       setError('');
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudieron cargar las métricas'));
+      setError(mensajeDeError(e, t('metricas.error')));
     } finally {
       setCargando(false);
     }
+    // `t` solo da el texto de respaldo del error. En las dependencias haría
+    // que cambiar de idioma recalculara las métricas contra la base.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -154,7 +159,7 @@ export const MetricasPage = () => {
       );
       setError('');
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudo generar el PDF del resumen'));
+      setError(mensajeDeError(e, t('metricas.errorPdf')));
     } finally {
       setGenerandoPdf(false);
     }
@@ -165,9 +170,9 @@ export const MetricasPage = () => {
   return (
     <div className="space-y-8">
       <SectionHeader
-        kicker="CU-19 · Inteligencia de negocio"
-        title="Métricas e indicadores"
-        description="Desempeño de ventas, movimiento de inventario y estado de la agenda. Solo lectura: este panel no modifica datos."
+        kicker={t('metricas.kicker')}
+        title={t('metricas.titulo')}
+        description={t('metricas.descripcion')}
       />
 
       {error ? <Alert>{error}</Alert> : null}
@@ -177,7 +182,7 @@ export const MetricasPage = () => {
         <form onSubmit={aplicar} className="flex flex-wrap items-end gap-3">
           <div>
             <label className={fieldLabelClass} htmlFor="desde">
-              Desde
+              {t('metricas.desde')}
             </label>
             <input
               id="desde"
@@ -189,7 +194,7 @@ export const MetricasPage = () => {
           </div>
           <div>
             <label className={fieldLabelClass} htmlFor="hasta">
-              Hasta
+              {t('metricas.hasta')}
             </label>
             <input
               id="hasta"
@@ -201,11 +206,11 @@ export const MetricasPage = () => {
           </div>
           <LuxButton type="submit" variant="ghost" disabled={rangoInvertido || cargando}>
             <CalendarRange size={14} />
-            Aplicar
+            {t('metricas.aplicar')}
           </LuxButton>
           <LuxButton type="button" variant="ghost" onClick={restablecer}>
             <RotateCcw size={13} />
-            Mes actual
+            {t('metricas.mesActual')}
           </LuxButton>
 
           {/*
@@ -222,7 +227,7 @@ export const MetricasPage = () => {
               disabled={!datos}
             >
               <FileSpreadsheet size={13} />
-              Resumen CSV
+              {t('metricas.csv')}
             </LuxButton>
             <LuxButton
               type="button"
@@ -231,12 +236,12 @@ export const MetricasPage = () => {
               disabled={!datos || generandoPdf}
             >
               <FileDown size={13} />
-              {generandoPdf ? 'Generando…' : 'Resumen PDF'}
+              {generandoPdf ? t('metricas.generando') : t('metricas.pdf')}
             </LuxButton>
           </span>
           {rangoInvertido ? (
             <p className="w-full text-[10px] text-red-600 dark:text-red-400">
-              La fecha «desde» no puede ser posterior a «hasta».
+              {t('metricas.rangoInvertido')}
             </p>
           ) : null}
         </form>
@@ -245,7 +250,7 @@ export const MetricasPage = () => {
       {!datos ? (
         <LuxCard className="p-12 text-center">
           <p className="text-sm text-neutral-500">
-            {cargando ? 'Calculando métricas…' : 'No se pudieron cargar las métricas.'}
+            {cargando ? t('metricas.calculando') : `${t('metricas.error')}.`}
           </p>
         </LuxCard>
       ) : datos.sinDatos ? (
@@ -253,7 +258,7 @@ export const MetricasPage = () => {
         <LuxCard className="flex flex-col items-center gap-3 p-12 text-center">
           <BarChart3 className="h-9 w-9 text-neutral-300" strokeWidth={1.3} />
           <p className="text-sm text-neutral-500">
-            No hay registros disponibles para este periodo
+            {t('metricas.ex21')}
           </p>
           <p className="text-xs text-neutral-400">
             {periodoLegible(datos.periodo.desde, datos.periodo.hasta)}
@@ -262,47 +267,47 @@ export const MetricasPage = () => {
       ) : (
         <>
           <p className="text-[10px] uppercase tracking-widest text-neutral-400">
-            Periodo: {periodoLegible(datos.periodo.desde, datos.periodo.hasta)}
+            {t('metricas.periodo')}: {periodoLegible(datos.periodo.desde, datos.periodo.hasta)}
           </p>
 
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             <Indicador
               icono={TrendingUp}
-              etiqueta="Ingresos internos"
+              etiqueta={t('metricas.ingresos')}
               valor={colones(datos.ventas.ingresos)}
-              pie={`${datos.ventas.cantidad} venta(s) registrada(s)`}
+              pie={`${datos.ventas.cantidad} ${t('metricas.ventasRegistradas')}`}
             />
             <Indicador
               icono={Receipt}
-              etiqueta="Ticket promedio"
+              etiqueta={t('metricas.ticket')}
               valor={colones(datos.ventas.ticketPromedio)}
               pie={
                 datos.ventas.anuladas > 0
-                  ? `${datos.ventas.anuladas} anulada(s), fuera del ingreso`
-                  : 'Sin anulaciones en el periodo'
+                  ? `${datos.ventas.anuladas} ${t('metricas.anuladas')}`
+                  : t('metricas.sinAnulaciones')
               }
             />
             <Indicador
               icono={Package}
-              etiqueta="Unidades vendidas"
+              etiqueta={t('metricas.unidadesVendidas')}
               valor={String(datos.inventario.unidadesVendidas)}
-              pie={`${datos.inventario.unidadesEnBodega} en bodega hoy`}
+              pie={`${datos.inventario.unidadesEnBodega} ${t('metricas.enBodegaHoy')}`}
             />
             <Indicador
               icono={CalendarRange}
-              etiqueta="Citas del periodo"
+              etiqueta={t('metricas.citas')}
               valor={String(datos.agenda.total)}
-              pie={`${datos.inventario.bajoStock} producto(s) bajo stock`}
+              pie={`${datos.inventario.bajoStock} ${t('metricas.bajoStock')}`}
             />
           </div>
 
           <div className="grid gap-6 xl:grid-cols-2">
             {/* CU-19 paso 5: top de aros vendidos. */}
             <LuxCard className="p-6">
-              <p className={cx(fieldLabelClass, 'mb-4')}>Aros más vendidos</p>
+              <p className={cx(fieldLabelClass, 'mb-4')}>{t('metricas.topAros')}</p>
               {datos.topAros.length === 0 ? (
                 <p className="py-6 text-center text-xs text-neutral-400">
-                  No hubo salidas de producto en este periodo.
+                  {t('metricas.sinSalidas')}
                 </p>
               ) : (
                 <ul className="space-y-3">
@@ -336,7 +341,7 @@ export const MetricasPage = () => {
 
             {/* Estado de la agenda. */}
             <LuxCard className="p-6">
-              <p className={cx(fieldLabelClass, 'mb-4')}>Estado de la agenda</p>
+              <p className={cx(fieldLabelClass, 'mb-4')}>{t('metricas.agenda')}</p>
               <ul className="space-y-3">
                 {Object.entries(datos.agenda.porEstado).map(([estado, total]) => (
                   <li key={estado}>
@@ -364,28 +369,28 @@ export const MetricasPage = () => {
           </div>
 
           <LuxCard className="p-6">
-            <p className={cx(fieldLabelClass, 'mb-3')}>Inventario</p>
+            <p className={cx(fieldLabelClass, 'mb-3')}>{t('metricas.inventario')}</p>
             <dl className="grid gap-4 sm:grid-cols-4 text-xs">
               <div>
-                <dt className="text-neutral-400">Productos en catálogo</dt>
+                <dt className="text-neutral-400">{t('metricas.productosCatalogo')}</dt>
                 <dd className="text-lg font-semibold tabular-nums">
                   {datos.inventario.productos}
                 </dd>
               </div>
               <div>
-                <dt className="text-neutral-400">Unidades en bodega</dt>
+                <dt className="text-neutral-400">{t('metricas.unidadesBodega')}</dt>
                 <dd className="text-lg font-semibold tabular-nums">
                   {datos.inventario.unidadesEnBodega}
                 </dd>
               </div>
               <div>
-                <dt className="text-neutral-400">Bajo stock</dt>
+                <dt className="text-neutral-400">{t('metricas.bajoStockCorto')}</dt>
                 <dd className="text-lg font-semibold tabular-nums">
                   {datos.inventario.bajoStock}
                 </dd>
               </div>
               <div>
-                <dt className="text-neutral-400">Salidas del periodo</dt>
+                <dt className="text-neutral-400">{t('metricas.salidasPeriodo')}</dt>
                 <dd className="text-lg font-semibold tabular-nums">
                   {datos.inventario.unidadesVendidas}
                 </dd>
@@ -396,8 +401,7 @@ export const MetricasPage = () => {
               alguien leería «tenía 55 unidades en marzo», y no es lo que dice.
             */}
             <p className="mt-4 text-[10px] text-neutral-400">
-              Las existencias y la alerta de stock son del día de hoy: la bodega no
-              guarda historia. Solo las salidas corresponden al periodo consultado.
+              {t('metricas.avisoStock')}
             </p>
           </LuxCard>
         </>

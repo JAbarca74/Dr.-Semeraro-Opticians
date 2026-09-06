@@ -1,3 +1,5 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
+import type { ClaveTexto } from '../../core/i18n/catalogos/es';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -25,22 +27,23 @@ import {
 } from '../../shared/ui';
 
 const BRANDS = [
-  { name: 'Ray-Ban®', desc: 'Estilo clásico e inconfundible' },
-  { name: 'Oakley®', desc: 'Rendimiento deportivo extremo' },
-  { name: 'Persol®', desc: 'Artesanía italiana inigualable' },
-  { name: 'Varilux®', desc: 'Lentes progresivas líderes' },
-  { name: 'Transitions®', desc: 'Control adaptativo inteligente' },
-  { name: 'Eyezen™', desc: 'Filtros de descanso digital' },
+  { name: 'Ray-Ban®', desc: 'marca.rayban' },
+  { name: 'Oakley®', desc: 'marca.oakley' },
+  { name: 'Persol®', desc: 'marca.persol' },
+  { name: 'Varilux®', desc: 'marca.varilux' },
+  { name: 'Transitions®', desc: 'marca.transitions' },
+  { name: 'Eyezen™', desc: 'marca.eyezen' },
 ];
 
 interface Kpi {
-  label: string;
+  label: ClaveTexto;
   value: string;
   caption: string;
   icon: typeof Users;
 }
 
 export const DashboardPage = () => {
+  const { t } = useIdioma();
   const { hasRole } = useAuth();
   const navigate = useNavigate();
   const [pacientes, setPacientes] = useState(0);
@@ -69,33 +72,33 @@ export const DashboardPage = () => {
 
   const kpis: Kpi[] = [
     {
-      label: 'Pacientes registrados',
+      label: 'panel.pacientes',
       value: pacientes.toString().padStart(2, '0'),
-      caption: 'Fichas clínicas activas',
+      caption: 'panel.pacientesSub',
       icon: Users,
     },
     {
-      label: 'Expedientes clínicos',
+      label: 'panel.expedientes',
       value: expedientes.toString().padStart(2, '0'),
-      caption: 'Con evaluaciones y refracción',
+      caption: 'panel.expedientesSub',
       icon: FileText,
     },
     {
-      label: 'Citas de hoy',
+      label: 'panel.citasHoy',
       value: citasHoy.toString().padStart(2, '0'),
-      caption: 'Sin contar las canceladas',
+      caption: 'panel.citasHoySub',
       icon: CalendarClock,
     },
     {
-      label: 'Personal de clínica',
+      label: 'panel.personal',
       value: empleados.toString().padStart(2, '0'),
-      caption: 'Empleados y especialistas',
+      caption: 'panel.personalSub',
       icon: Activity,
     },
     {
-      label: 'Integridad documental',
+      label: 'panel.integridad',
       value: '100%',
-      caption: 'Recetas selladas con SHA-256',
+      caption: 'panel.integridadSub',
       icon: ShieldCheck,
     },
   ];
@@ -121,38 +124,35 @@ export const DashboardPage = () => {
             Óptica Dr. Luigi Semeraro
           </span>
           <h1 className="font-serif text-4xl italic leading-none tracking-tight text-white md:text-6xl">
-            La belleza de la precisión visual
+            {t('panel.lema')}
           </h1>
           <p className="mx-auto max-w-2xl text-xs font-light leading-relaxed text-zinc-300 md:text-sm">
-            Potenciamos la consulta del Dr. Luigi Semeraro con la cartera de aros de
-            diseño y lentes computarizados más respetada del mundo.
+            {t('panel.intro')}
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-2">
             <button
               onClick={() => navigate('/admin/personas')}
               className="transition-luxe border border-white px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white hover:bg-white hover:text-black"
             >
-              Gestionar pacientes
+              {t('panel.gestionarPacientes')}
             </button>
             <button
               onClick={() => navigate('/admin/expedientes')}
               className="transition-luxe border border-lux-tinta-claro px-6 py-3 text-xs font-semibold uppercase tracking-widest text-lux-tinta-claro hover:bg-lux-tinta-claro hover:text-black"
             >
-              Abrir expedientes
+              {t('panel.abrirExpedientes')}
             </button>
           </div>
         </div>
         <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1 opacity-60">
-          <span className="font-mono text-[8px] uppercase tracking-widest text-white/50">
-            Ver métricas
-          </span>
+          <span className="font-mono text-[8px] uppercase tracking-widest text-white/50">{t('panel.verMetricas')}</span>
           <div className="h-6 w-px animate-bounce bg-lux-tinta-claro/60" />
         </div>
       </motion.section>
 
       {/* MARCAS */}
       <section>
-        <Kicker>Nuestras marcas emblemáticas en clínica</Kicker>
+        <Kicker>{t('panel.marcas')}</Kicker>
         <motion.div
           variants={stagger}
           initial="initial"
@@ -167,7 +167,7 @@ export const DashboardPage = () => {
                   {b.name}
                 </span>
                 <span className="mt-1.5 text-[9px] uppercase tracking-wider opacity-60">
-                  {b.desc}
+                  {t(b.desc as ClaveTexto)}
                 </span>
               </LuxCard>
             </motion.div>
@@ -177,7 +177,7 @@ export const DashboardPage = () => {
 
       {/* KPIs */}
       <section>
-        <Kicker>Indicadores en tiempo real</Kicker>
+        <Kicker>{t('panel.indicadores')}</Kicker>
         <motion.div
           variants={stagger}
           initial="initial"
@@ -188,7 +188,7 @@ export const DashboardPage = () => {
           {kpis.map((k) => {
             const Icon = k.icon;
             return (
-              <motion.div key={k.label} variants={fadeUpItem}>
+              <motion.div key={t(k.label)} variants={fadeUpItem}>
                 <LuxCard hover className="group flex flex-col gap-4 p-6">
                   <div className="flex items-center justify-between">
                     <Icon className="h-5 w-5 text-lux-tinta" strokeWidth={1.5} />
@@ -201,7 +201,7 @@ export const DashboardPage = () => {
                   </div>
                   <div>
                     <span className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-200">
-                      {k.label}
+                      {t(k.label)}
                     </span>
                     <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-neutral-400">
                       {k.caption}
