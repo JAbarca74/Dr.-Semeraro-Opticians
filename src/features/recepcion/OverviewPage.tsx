@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +11,7 @@ import { useAuth } from '../../core/auth/auth.context';
 import { RecepCard, RecepHeader, recepFade } from './RecepcionShared';
 
 export const OverviewPage = () => {
+  const { t } = useIdioma();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [pacientes, setPacientes] = useState(0);
@@ -29,9 +31,9 @@ export const OverviewPage = () => {
   return (
     <div>
       <RecepHeader
-        cu="Panel Central · Recepción"
-        title="Buen día, recepción"
-        description="Centro operativo del front desk de Óptica Dr. Luigi Semeraro. Gestione el registro de pacientes y verifique la autenticidad de las recetas emitidas."
+        cu={t('recepcion.kicker')}
+        title={t('recepcion.saludo')}
+        description={t('recepcion.descripcion')}
       />
 
       <div className="grid gap-6 lg:grid-cols-4">
@@ -43,10 +45,10 @@ export const OverviewPage = () => {
                 {pacientes.toString().padStart(2, '0')}
               </span>
               <p className="mt-2 text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
-                Pacientes registrados
+                {t('recepcion.pacientesRegistrados')}
               </p>
               <p className="text-[10px] uppercase tracking-wider text-neutral-400">
-                Base demográfica activa
+                {t('recepcion.baseActiva')}
               </p>
             </div>
           </RecepCard>
@@ -60,10 +62,10 @@ export const OverviewPage = () => {
                 {citasHoy.toString().padStart(2, '0')}
               </span>
               <p className="mt-2 text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
-                Citas de hoy
+                {t('recepcion.citasHoy')}
               </p>
               <p className="text-[10px] uppercase tracking-wider text-neutral-400">
-                Sin contar las canceladas
+                {t('recepcion.sinCanceladas')}
               </p>
             </div>
           </RecepCard>
@@ -73,10 +75,10 @@ export const OverviewPage = () => {
           <RecepCard className="flex h-full flex-col justify-between p-7">
             <div>
               <p className="font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-lux-blue">
-                Acciones rápidas
+                {t('recepcion.accionesRapidas')}
               </p>
               <h2 className="mt-2 font-serif text-2xl font-light text-lux-dark dark:text-white">
-                ¿Qué desea gestionar?
+                {t('recepcion.queGestionar')}
               </h2>
             </div>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -85,7 +87,7 @@ export const OverviewPage = () => {
                 className="group flex items-center justify-between border border-neutral-200 px-4 py-4 text-left transition-all duration-300 hover:border-lux-tinta hover:bg-lux-ice dark:border-neutral-700 dark:hover:bg-neutral-900"
               >
                 <span className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-lux-dark dark:text-neutral-200">
-                  <CalendarClock className="h-4 w-4 text-lux-tinta" /> Citas
+                  <CalendarClock className="h-4 w-4 text-lux-tinta" /> {t('nav.recepcion.citas')}
                 </span>
                 <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-lux-tinta" />
               </button>
@@ -94,7 +96,7 @@ export const OverviewPage = () => {
                 className="group flex items-center justify-between border border-neutral-200 px-4 py-4 text-left transition-all duration-300 hover:border-lux-tinta hover:bg-lux-ice dark:border-neutral-700 dark:hover:bg-neutral-900"
               >
                 <span className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-lux-dark dark:text-neutral-200">
-                  <Users className="h-4 w-4 text-lux-tinta" /> Pacientes
+                  <Users className="h-4 w-4 text-lux-tinta" /> {t('nav.recepcion.pacientes')}
                 </span>
                 <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-lux-tinta" />
               </button>
@@ -103,7 +105,7 @@ export const OverviewPage = () => {
                 className="group flex items-center justify-between border border-neutral-200 px-4 py-4 text-left transition-all duration-300 hover:border-lux-tinta hover:bg-lux-ice dark:border-neutral-700 dark:hover:bg-neutral-900"
               >
                 <span className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-lux-dark dark:text-neutral-200">
-                  <ShieldCheck className="h-4 w-4 text-lux-tinta" /> Verificar receta
+                  <ShieldCheck className="h-4 w-4 text-lux-tinta" /> {t('recepcion.verificarReceta')}
                 </span>
                 <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-lux-tinta" />
               </button>
@@ -116,7 +118,7 @@ export const OverviewPage = () => {
         {...recepFade}
         className="mt-8 font-mono text-[10px] uppercase tracking-widest text-neutral-400"
       >
-        Operador: {user?.email} · Perfil de recepción · Acceso conforme a RBAC
+        {t('recepcion.operador')}: {user?.email} · {t('recepcion.perfilRbac')}
       </motion.p>
     </div>
   );
