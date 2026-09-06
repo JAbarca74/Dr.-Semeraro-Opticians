@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { KeyRound, UserCircle } from 'lucide-react';
@@ -16,6 +17,7 @@ import {
 } from '../../shared/ui';
 
 export const CuentaPage = () => {
+  const { t } = useIdioma();
   const { user } = useAuth();
   const [actual, setActual] = useState('');
   const [nueva, setNueva] = useState('');
@@ -29,17 +31,17 @@ export const CuentaPage = () => {
     setMensaje('');
     setError('');
     if (nueva !== confirmar) {
-      setError('La confirmación no coincide');
+      setError(t('cuenta.noCoincide'));
       return;
     }
     if (nueva.length < 8) {
-      setError('La nueva contraseña debe tener al menos 8 caracteres');
+      setError(t('cuenta.claveCorta'));
       return;
     }
     setGuardando(true);
     try {
       await cambiarPasswordRequest(actual, nueva);
-      setMensaje('Contraseña actualizada correctamente');
+      setMensaje(t('cuenta.actualizada'));
       setActual('');
       setNueva('');
       setConfirmar('');
@@ -55,9 +57,9 @@ export const CuentaPage = () => {
   return (
     <section className="space-y-10">
       <SectionHeader
-        kicker="Sesión clínica"
-        title="Mi cuenta"
-        description="Datos de la sesión y gestión de credenciales de acceso."
+        kicker={t('cuenta.kicker')}
+        title={t('cuenta.titulo')}
+        description={t('cuenta.descripcion')}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -73,7 +75,7 @@ export const CuentaPage = () => {
                 {user?.email}
               </span>
               <span className="mt-1 block font-mono text-[10px] uppercase tracking-widest text-lux-tinta">
-                {rolLabel(user?.rol)} · Autenticado
+                {rolLabel(user?.rol)} · {t('cuenta.autenticado')}
               </span>
             </div>
           </LuxCard>
@@ -85,12 +87,12 @@ export const CuentaPage = () => {
             <div className="mb-5 flex items-center gap-2 border-b border-neutral-100 pb-4 dark:border-white/5">
               <KeyRound className="h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
               <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
-                Cambiar contraseña
+                {t('cuenta.cambiarClave')}
               </h2>
             </div>
             <form onSubmit={onSubmit} className="space-y-4">
               <label className="block">
-                <span className={fieldLabelClass}>Contraseña actual</span>
+                <span className={fieldLabelClass}>{t('cuenta.claveActual')}</span>
                 <input
                   type="password"
                   className={fieldInputClass}
@@ -101,7 +103,7 @@ export const CuentaPage = () => {
               </label>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className={fieldLabelClass}>Nueva contraseña</span>
+                  <span className={fieldLabelClass}>{t('cuenta.claveNueva')}</span>
                   <input
                     type="password"
                     className={fieldInputClass}
@@ -112,7 +114,7 @@ export const CuentaPage = () => {
                   />
                 </label>
                 <label className="block">
-                  <span className={fieldLabelClass}>Confirmar nueva</span>
+                  <span className={fieldLabelClass}>{t('cuenta.claveConfirmar')}</span>
                   <input
                     type="password"
                     className={fieldInputClass}
@@ -124,7 +126,7 @@ export const CuentaPage = () => {
               </div>
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <LuxButton type="submit" disabled={guardando}>
-                  Actualizar contraseña
+                  {t('cuenta.actualizar')}
                 </LuxButton>
                 {mensaje ? (
                   <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
