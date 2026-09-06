@@ -3,12 +3,11 @@ import { AlertTriangle, MessageCircle, Package, Truck } from 'lucide-react';
 import { misPedidos } from '../../core/api/portal.service';
 import { parametrosPublicos } from '../../core/api/catalogo.service';
 import {
-  ETAPAS_PEDIDO,
+  CLAVE_ETAPA,
   construirMensajePedido,
-  fechaCorta,
-  fechaHoraLarga,
   type PedidoPaciente,
 } from '../../core/models/portal';
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { enlaceWhatsapp, numeroLegible } from '../../core/models/catalogo';
 import { mensajeDeError } from '../../shared/error';
 import {
@@ -33,6 +32,7 @@ import {
  * renombrar el enum porque `DSO-27` y `DSO-28` ya están validados con él.
  */
 export const SeguimientoPedidosPage = () => {
+  const { t, fechaCorta, fechaHora } = useIdioma();
   const [pedidos, setPedidos] = useState<PedidoPaciente[]>([]);
   const [whatsapp, setWhatsapp] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -47,7 +47,7 @@ export const SeguimientoPedidosPage = () => {
         setPedidos(p);
         setError('');
       })
-      .catch((e) => setError(mensajeDeError(e, 'No se pudieron cargar sus pedidos')))
+      .catch((e) => setError(mensajeDeError(e, t('pedidos.error'))))
       .finally(() => setCargando(false));
 
     parametrosPublicos()
@@ -59,6 +59,10 @@ export const SeguimientoPedidosPage = () => {
       .catch(() => {
         // Sin parámetros no se puede redirigir; el botón lo dirá al pulsarlo.
       });
+    // `t` solo se usa para el texto de respaldo del error. Meterlo en las
+    // dependencias haría que cambiar de idioma volviera a pedir los datos a la
+    // API, que no es lo que pide un cambio de idioma.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /** Flujo alterno de CU-14: consultar por WhatsApp con el n.º de pedido. */
@@ -66,7 +70,7 @@ export const SeguimientoPedidosPage = () => {
     setAvisoCanal('');
     const respaldo = telefono
       ? `Llámenos al ${telefono}.`
-      : 'Por favor comuníquese con la óptica por teléfono.';
+      : t('contacto.llamePorTelefono');
 
     if (!whatsapp) {
       setAvisoCanal(`Canal no disponible. ${respaldo}`);
@@ -84,9 +88,9 @@ export const SeguimientoPedidosPage = () => {
   return (
     <section className="space-y-10">
       <SectionHeader
-        kicker="Portal del paciente"
-        title="Seguimiento de pedidos"
-        description="Consulte en qué etapa está la fabricación de sus lentes."
+        kicker={t('pedidos.kicker')}
+        title={t('pedidos.titulo')}
+        description={t('pedidos.descripcion')}
       />
 
       {error ? <Alert>{error}</Alert> : null}
@@ -111,7 +115,7 @@ export const SeguimientoPedidosPage = () => {
           <LuxCard className="flex flex-col items-center gap-4 p-12 text-center">
             <Package className="h-9 w-9 text-neutral-300" strokeWidth={1.3} />
             <p className="text-sm text-neutral-500">
-              {cargando ? 'Cargando sus pedidos…' : 'No tiene pedidos registrados actualmente'}
+              {cargando ? t('pedidos.cargando') : t('pedidos.vacio')}
             </p>
           </LuxCard>
         )
@@ -124,13 +128,21 @@ export const SeguimientoPedidosPage = () => {
                 <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-lux-tinta">
-                      Pedido #{pedido.idOrdenLaboratorio}
+                      {t('pedidos.numero')} #{pedido.idOrdenLaboratorio}
                     </p>
                     <h3 className="mt-1 font-serif text-xl italic font-light text-lux-blue dark:text-white">
                       {pedido.laboratorio}
                     </h3>
                   </div>
-                  <Badge tone={cancelado ? 'red' : 'tinta'}>{pedido.etapa}</Badge>
+                  {/*
+                    Se traduce por posición, no por el texto que manda la API:
+                    `pedido.etapa` llega siempre en español (ver `CLAVE_ETAPA`).
+                  */}
+                  <Badge tone={cancelado ? 'red' : 'tinta'}>
+                    {cancelado
+                      ? t('pedidos.etapa.cancelado')
+                      : t(CLAVE_ETAPA[pedido.indiceEtapa ?? 0])}
+                  </Badge>
                 </div>
 
                 {/*
@@ -141,15 +153,15 @@ export const SeguimientoPedidosPage = () => {
                   <p className="mb-5 flex items-start gap-2 border border-red-200 bg-red-50 px-3 py-2.5 text-[11px] text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-400">
                     <AlertTriangle size={13} className="mt-0.5 shrink-0" />
                     <span>
-                      Este pedido está cancelado. Consúltenos si necesita más información.
+                      {t('pedidos.cancelado.aviso')}
                     </span>
                   </p>
                 ) : (
                   <ol className="mb-5 grid gap-2 sm:grid-cols-4">
-                    {ETAPAS_PEDIDO.map((etapa, indice) => {
+                    {CLAVE_ETAPA.map((clave, indice) => {
                       const alcanzada = indice <= (pedido.indiceEtapa ?? -1);
                       return (
-                        <li key={etapa} className="flex flex-col gap-1.5">
+                        <li key={clave} className="flex flex-col gap-1.5">
                           <span
                             className={cx(
                               'h-1',
@@ -166,7 +178,7 @@ export const SeguimientoPedidosPage = () => {
                                 : 'text-neutral-400',
                             )}
                           >
-                            {etapa}
+                            {t(clave)}
                           </span>
                         </li>
                       );
@@ -178,27 +190,26 @@ export const SeguimientoPedidosPage = () => {
                   <p className="mb-5 flex items-start gap-2 border border-amber-200 bg-amber-50 px-3 py-2.5 text-[11px] text-amber-800 dark:border-amber-900/30 dark:bg-amber-950/30 dark:text-amber-300">
                     <AlertTriangle size={13} className="mt-0.5 shrink-0" />
                     <span>
-                      El laboratorio reportó un retraso. La fecha estimada se corrió;
-                      le avisaremos en cuanto avance.
+                      {t('pedidos.retraso')}
                     </span>
                   </p>
                 ) : null}
 
                 <dl className="grid gap-3 text-xs sm:grid-cols-3">
                   <div>
-                    <dt className={fieldLabelClass}>Solicitado</dt>
+                    <dt className={fieldLabelClass}>{t('pedidos.solicitado')}</dt>
                     <dd className="text-neutral-600 dark:text-neutral-300">
                       {fechaCorta(pedido.fechaSolicitud)}
                     </dd>
                   </div>
                   <div>
-                    <dt className={fieldLabelClass}>Entrega estimada</dt>
+                    <dt className={fieldLabelClass}>{t('pedidos.entregaEstimada')}</dt>
                     <dd className="text-neutral-600 dark:text-neutral-300">
                       {fechaCorta(pedido.fechaEstimadaEntrega)}
                     </dd>
                   </div>
                   <div className="sm:col-span-3">
-                    <dt className={fieldLabelClass}>Detalle</dt>
+                    <dt className={fieldLabelClass}>{t('pedidos.detalle')}</dt>
                     <dd className="whitespace-pre-line text-neutral-600 dark:text-neutral-300">
                       {pedido.especificaciones}
                     </dd>
@@ -208,7 +219,7 @@ export const SeguimientoPedidosPage = () => {
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-150 pt-4 dark:border-white/10">
                   {/* EX-16: el CU manda decir a qué momento corresponde el dato. */}
                   <p className="text-[10px] text-neutral-400">
-                    Información actualizada al {fechaHoraLarga(pedido.actualizadoAl)}
+                    {t('pedidos.actualizado')} {fechaHora(pedido.actualizadoAl)}
                   </p>
                   <LuxButton
                     type="button"
@@ -216,7 +227,7 @@ export const SeguimientoPedidosPage = () => {
                     onClick={() => consultar(pedido)}
                   >
                     <MessageCircle size={13} />
-                    Consultar por WhatsApp
+                    {t('pedidos.consultar')}
                   </LuxButton>
                 </div>
               </LuxCard>
@@ -228,8 +239,7 @@ export const SeguimientoPedidosPage = () => {
       <LuxCard className="flex items-center gap-3 bg-lux-gray p-6 dark:bg-[#0e0e0e]">
         <Truck className="h-5 w-5 shrink-0 text-lux-tinta" strokeWidth={1.3} />
         <p className="text-xs text-neutral-500 dark:text-neutral-400">
-          Los estados los actualiza la óptica conforme el laboratorio avanza. Si algo
-          no cuadra, escríbanos y lo revisamos.
+          {t('pedidos.pie')}
         </p>
       </LuxCard>
     </section>
