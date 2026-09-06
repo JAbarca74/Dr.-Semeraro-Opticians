@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, CalendarPlus, Check, ExternalLink, Send, X } from 'lucide-react';
@@ -84,6 +85,7 @@ export const PanelCitas = ({
   onError: (m: string) => void;
   onAviso: (m: string) => void;
 }) => {
+  const { t } = useIdioma();
   const [form, setForm] = useState<FormCita>(FORM_CITA_VACIO);
   const [elegido, setElegido] = useState<CupoElegido | null>(null);
   const [moviendo, setMoviendo] = useState<Cita | null>(null);
@@ -198,7 +200,7 @@ export const PanelCitas = ({
       onAviso(
         generados.length > 0
           ? `${generados.length} recordatorio(s) preparado(s). Ábralos en WhatsApp para enviarlos.`
-          : 'No hay citas confirmadas en las próximas 24 horas sin recordatorio.',
+          : t('agenda.sinRecordatorios'),
       );
     } catch (e) {
       onError(mensajeDeError(e));
@@ -227,7 +229,7 @@ export const PanelCitas = ({
     <>
       <motion.div {...fadeUp} className="flex flex-wrap items-center justify-between gap-4">
         <label className="flex items-center gap-3">
-          <span className={fieldLabelClass}>Agenda del</span>
+          <span className={fieldLabelClass}>{t('agenda.agendaDel')}</span>
           <input
             type="date"
             className={fieldInputClass}
@@ -240,9 +242,7 @@ export const PanelCitas = ({
           />
         </label>
         <LuxButton variant="tinta" onClick={onGenerarRecordatorios} disabled={generando}>
-          <Bell className="h-3.5 w-3.5" />
-          Preparar recordatorios (próximas 24 h)
-        </LuxButton>
+          <Bell className="h-3.5 w-3.5" />{t('agenda.prepararRecordatorios')}</LuxButton>
       </motion.div>
 
       {moviendo ? (
@@ -263,9 +263,7 @@ export const PanelCitas = ({
       {/* CU-05 paso 2 — calendario de cupos ocupados y disponibles */}
       <motion.div {...fadeUp}>
         <LuxCard className="p-6">
-          <h2 className="mb-5 border-b border-neutral-100 pb-4 text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:border-white/5 dark:text-neutral-200">
-            Calendario del día
-          </h2>
+          <h2 className="mb-5 border-b border-neutral-100 pb-4 text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:border-white/5 dark:text-neutral-200">{t('agenda.calendarioDia')}</h2>
           {bloquesDelDia.length === 0 ? (
             <p className="py-8 text-center text-sm text-neutral-400">
               No hay atención configurada para este día. Defina un bloque en la
@@ -307,14 +305,12 @@ export const PanelCitas = ({
                         >
                           <span>{cupo.hora}</span>{' '}
                           <span className="text-[10px] uppercase tracking-wider">
-                            {cupo.ocupado ? 'Ocupado' : 'Libre'}
+                            {cupo.ocupado ? t('agenda.ocupado') : t('agenda.libre')}
                           </span>
                         </button>
                       ))}
                       {lista.length === 0 ? (
-                        <span className="text-sm text-neutral-400">
-                          Este bloque no genera cupos.
-                        </span>
+                        <span className="text-sm text-neutral-400">{t('agenda.sinCupos')}</span>
                       ) : null}
                     </div>
                   </div>
@@ -335,7 +331,7 @@ export const PanelCitas = ({
             </h2>
             <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <label>
-                <span className={fieldLabelClass}>Paciente</span>
+                <span className={fieldLabelClass}>{t('agenda.paciente')}</span>
                 <select
                   className={fieldInputClass}
                   value={form.idPaciente || ''}
@@ -363,7 +359,7 @@ export const PanelCitas = ({
                 requerido
               />
               <label>
-                <span className={fieldLabelClass}>Motivo (opcional)</span>
+                <span className={fieldLabelClass}>{t('agenda.motivoOpcional')}</span>
                 <input
                   className={fieldInputClass}
                   value={form.motivo}
@@ -371,9 +367,7 @@ export const PanelCitas = ({
                 />
               </label>
               <div className="col-span-full flex items-center gap-3 pt-2">
-                <LuxButton type="submit" disabled={guardando}>
-                  Guardar cita
-                </LuxButton>
+                <LuxButton type="submit" disabled={guardando}>{t('agenda.guardarCita')}</LuxButton>
                 <LuxButton type="button" variant="ghost" onClick={cancelarSeleccion}>
                   <X className="h-3.5 w-3.5" /> Cancelar
                 </LuxButton>
@@ -386,9 +380,7 @@ export const PanelCitas = ({
       {recordatorios.length > 0 ? (
         <motion.div {...fadeUp}>
           <LuxCard className="p-4">
-            <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-lux-tinta">
-              Recordatorios preparados
-            </p>
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-lux-tinta">{t('agenda.recordatoriosPreparados')}</p>
             <ul className="space-y-3 text-xs text-neutral-500">
               {recordatorios.map((r) => (
                 <li
@@ -412,8 +404,7 @@ export const PanelCitas = ({
                         rel="noreferrer"
                         className="transition-luxe inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-lux-tinta hover:underline"
                       >
-                        <ExternalLink className="h-3 w-3" /> Abrir en WhatsApp
-                      </a>
+                        <ExternalLink className="h-3 w-3" />{t('agenda.abrirWhatsapp')}</a>
                     ) : null}
                     {r.estadoEnvio !== EstadoEnvio.ENVIADO ? (
                       <button
@@ -421,8 +412,7 @@ export const PanelCitas = ({
                         onClick={() => marcarEnviado(r.idComunicacionWhatsapp)}
                         className="transition-luxe inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta"
                       >
-                        <Send className="h-3 w-3" /> Marcar enviado
-                      </button>
+                        <Send className="h-3 w-3" />{t('agenda.marcarEnviado')}</button>
                     ) : null}
                   </span>
                 </li>
@@ -437,7 +427,7 @@ export const PanelCitas = ({
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-100 bg-neutral-50/60 text-left dark:border-white/5 dark:bg-white/5">
-                {['Hora', 'Paciente', 'Doctor', 'Estado', 'Motivo', ''].map((h) => (
+                {['Hora', t('agenda.paciente'), t('agenda.doctor'), t('agenda.estado'), t('agenda.motivo'), ''].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400"
@@ -490,9 +480,7 @@ export const PanelCitas = ({
               })}
               {citas.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-10 text-center text-sm text-neutral-400">
-                    Sin citas para esta fecha.
-                  </td>
+                  <td colSpan={6} className="px-5 py-10 text-center text-sm text-neutral-400">{t('agenda.sinCitasFecha')}</td>
                 </tr>
               ) : null}
             </tbody>
