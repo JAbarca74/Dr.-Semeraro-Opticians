@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
@@ -35,6 +36,7 @@ const FORM_VACIO: CreateUsuario = {
 };
 
 export const UsuariosPage = () => {
+  const { t } = useIdioma();
   const { user } = useAuth();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [personas, setPersonas] = useState<Persona[]>([]);
@@ -51,7 +53,7 @@ export const UsuariosPage = () => {
   const cargar = () => {
     listarUsuarios()
       .then(setUsuarios)
-      .catch((e) => setError(mensajeDeError(e, 'No se pudieron cargar los usuarios')));
+      .catch((e) => setError(mensajeDeError(e, t('usuarios.error'))));
     listarPersonas()
       .then(setPersonas)
       .catch(() => undefined);
@@ -59,13 +61,16 @@ export const UsuariosPage = () => {
 
   useEffect(() => {
     cargar();
+    // `cargar` recrea su identidad en cada render por depender de `t`. Meterlo
+    // en las dependencias volvería a pedir los usuarios en cada pintado.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     if (!form.idPersona) {
-      setError('Seleccione una persona');
+      setError(t('usuarios.seleccionePersona'));
       return;
     }
     setGuardando(true);
@@ -106,7 +111,7 @@ export const UsuariosPage = () => {
 
   const restablecerPassword = async (u: Usuario) => {
     if (!reset || reset.valor.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres.');
+      setError(t('usuarios.claveCorta'));
       return;
     }
     await aplicar(
@@ -123,22 +128,20 @@ export const UsuariosPage = () => {
   return (
     <section className="space-y-10">
       <SectionHeader
-        kicker="Control de acceso · RBAC"
-        title="Usuarios y roles"
-        description="Alta de usuarios del sistema y asignación de roles de seguridad."
+        kicker={t('usuarios.kicker')}
+        title={t('usuarios.titulo')}
+        description={t('usuarios.descripcion')}
       />
 
       <motion.div {...fadeUp}>
         <LuxCard className="p-6">
           <div className="mb-5 flex items-center gap-2 border-b border-neutral-100 pb-4 dark:border-white/5">
             <ShieldCheck className="h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
-            <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
-              Nuevo usuario
-            </h2>
+            <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">{t('usuarios.nuevo')}</h2>
           </div>
           <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <label>
-              <span className={fieldLabelClass}>Persona</span>
+              <span className={fieldLabelClass}>{t('usuarios.persona')}</span>
               <select
                 className={fieldInputClass}
                 value={form.idPersona}
@@ -146,7 +149,7 @@ export const UsuariosPage = () => {
                   setForm({ ...form, idPersona: Number(e.target.value) })
                 }
               >
-                <option value={0}>Seleccione…</option>
+                <option value={0}>{t('usuarios.seleccione')}</option>
                 {personas.map((p) => (
                   <option key={p.idPersona} value={p.idPersona}>
                     {p.nombre} ({p.cedula})
@@ -155,7 +158,7 @@ export const UsuariosPage = () => {
               </select>
             </label>
             <label>
-              <span className={fieldLabelClass}>Correo</span>
+              <span className={fieldLabelClass}>{t('usuarios.correo')}</span>
               <input
                 type="email"
                 className={fieldInputClass}
@@ -165,7 +168,7 @@ export const UsuariosPage = () => {
               />
             </label>
             <label>
-              <span className={fieldLabelClass}>Contraseña</span>
+              <span className={fieldLabelClass}>{t('usuarios.clave')}</span>
               <input
                 type="password"
                 className={fieldInputClass}
@@ -191,7 +194,7 @@ export const UsuariosPage = () => {
             </label>
             <div className="col-span-full flex flex-wrap items-center gap-3 pt-2">
               <LuxButton type="submit" disabled={guardando}>
-                Crear usuario
+                {t('usuarios.crear')}
               </LuxButton>
               {error ? <Alert>{error}</Alert> : null}
             </div>
@@ -243,7 +246,7 @@ export const UsuariosPage = () => {
                       disabled={esCuentaPropia(u)}
                       title={
                         esCuentaPropia(u)
-                          ? 'No puede cambiar su propio rol.'
+                          ? t('usuarios.noPropioRol')
                           : undefined
                       }
                     >
@@ -267,7 +270,7 @@ export const UsuariosPage = () => {
                             type="password"
                             autoFocus
                             minLength={8}
-                            placeholder="Nueva contraseña"
+                            placeholder={t('usuarios.claveNueva')}
                             aria-label={`Nueva contraseña de ${u.email}`}
                             value={reset.valor}
                             onChange={(e) =>
@@ -296,12 +299,12 @@ export const UsuariosPage = () => {
                           onClick={() => setReset({ id: u.idUsuario, valor: '' })}
                           className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta"
                         >
-                          Restablecer contraseña
+                          {t('usuarios.restablecer')}
                         </button>
                       )}
                       {esCuentaPropia(u) ? (
                         <span className="text-[11px] uppercase tracking-wider text-neutral-400">
-                          Su cuenta
+                          {t('usuarios.suCuenta')}
                         </span>
                       ) : (
                         <button
@@ -318,9 +321,7 @@ export const UsuariosPage = () => {
               ))}
               {usuarios.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-sm text-neutral-400">
-                    Sin usuarios.
-                  </td>
+                  <td colSpan={5} className="px-5 py-10 text-center text-sm text-neutral-400">{t('usuarios.vacio')}</td>
                 </tr>
               ) : null}
             </tbody>

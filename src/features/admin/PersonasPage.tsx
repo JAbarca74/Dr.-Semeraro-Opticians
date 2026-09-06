@@ -1,3 +1,4 @@
+import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { Pencil, UserPlus, X } from 'lucide-react';
@@ -43,6 +44,7 @@ const FORM_VACIO: PersonaInput = {
 };
 
 export const PersonasPage = () => {
+  const { t } = useIdioma();
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [form, setForm] = useState<PersonaInput>(FORM_VACIO);
   const [editId, setEditId] = useState<number | null>(null);
@@ -52,10 +54,13 @@ export const PersonasPage = () => {
   const cargar = () =>
     listarPersonas()
       .then(setPersonas)
-      .catch((e) => setError(mensajeDeError(e, 'No se pudieron cargar las personas')));
+      .catch((e) => setError(mensajeDeError(e, t('personas.error'))));
 
   useEffect(() => {
     cargar();
+    // `cargar` depende de `t` para el texto de respaldo, así que cambia de
+    // identidad en cada render. En las dependencias volvería a pedir los datos.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSubmit = async (e: FormEvent) => {
@@ -115,9 +120,9 @@ export const PersonasPage = () => {
   return (
     <section className="space-y-10">
       <SectionHeader
-        kicker="Directorio clínico"
-        title="Personas"
-        description="Gestión unificada de pacientes y personal de la óptica."
+        kicker={t('personas.kicker')}
+        title={t('personas.titulo')}
+        description={t('personas.descripcion')}
       />
 
       {/* Formulario */}
@@ -126,12 +131,12 @@ export const PersonasPage = () => {
           <div className="mb-5 flex items-center gap-2 border-b border-neutral-100 pb-4 dark:border-white/5">
             <UserPlus className="h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
             <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
-              {editId ? 'Editar persona' : 'Nueva persona'}
+              {editId ? t('personas.editar') : t('personas.nueva')}
             </h2>
           </div>
           <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <label>
-              <span className={fieldLabelClass}>Cédula</span>
+              <span className={fieldLabelClass}>{t('persona.cedula')}</span>
               <input
                 className={fieldInputClass}
                 value={form.cedula}
@@ -140,7 +145,7 @@ export const PersonasPage = () => {
               />
             </label>
             <label>
-              <span className={fieldLabelClass}>Nombre completo</span>
+              <span className={fieldLabelClass}>{t('persona.nombreCompleto')}</span>
               <input
                 className={fieldInputClass}
                 value={form.nombre}
@@ -149,7 +154,7 @@ export const PersonasPage = () => {
               />
             </label>
             <label>
-              <span className={fieldLabelClass}>Tipo</span>
+              <span className={fieldLabelClass}>{t('persona.tipo')}</span>
               <select
                 className={fieldInputClass}
                 value={form.tipo}
@@ -172,7 +177,7 @@ export const PersonasPage = () => {
               inputClass={fieldInputClass}
             />
             <label>
-              <span className={fieldLabelClass}>Correo</span>
+              <span className={fieldLabelClass}>{t('persona.correo')}</span>
               <input
                 type="email"
                 className={fieldInputClass}
@@ -182,7 +187,7 @@ export const PersonasPage = () => {
             </label>
             {form.tipo === TipoPersona.EMPLEADO ? (
               <label>
-                <span className={fieldLabelClass}>Puesto</span>
+                <span className={fieldLabelClass}>{t('persona.puesto')}</span>
                 <input
                   className={fieldInputClass}
                   value={form.puesto ?? ''}
@@ -193,7 +198,7 @@ export const PersonasPage = () => {
               <>
                 {/* Encabezado del expediente clínico impreso (CU-02). */}
                 <label>
-                  <span className={fieldLabelClass}>Fecha de nacimiento</span>
+                  <span className={fieldLabelClass}>{t('persona.nacimiento')}</span>
                   <input
                     type="date"
                     className={fieldInputClass}
@@ -204,7 +209,7 @@ export const PersonasPage = () => {
                   />
                 </label>
                 <label>
-                  <span className={fieldLabelClass}>Ocupación</span>
+                  <span className={fieldLabelClass}>{t('persona.ocupacion')}</span>
                   <input
                     className={fieldInputClass}
                     value={form.ocupacion ?? ''}
@@ -214,7 +219,7 @@ export const PersonasPage = () => {
                   />
                 </label>
                 <label className="sm:col-span-2">
-                  <span className={fieldLabelClass}>Dirección completa</span>
+                  <span className={fieldLabelClass}>{t('persona.direccion')}</span>
                   <input
                     className={fieldInputClass}
                     value={form.direccion ?? ''}
@@ -224,9 +229,7 @@ export const PersonasPage = () => {
                   />
                 </label>
                 <label>
-                  <span className={fieldLabelClass}>
-                    Contacto en caso de emergencia
-                  </span>
+                  <span className={fieldLabelClass}>{t('personas.contactoEmergencia')}</span>
                   <input
                     className={fieldInputClass}
                     value={form.contactoEmergencia ?? ''}
@@ -249,7 +252,7 @@ export const PersonasPage = () => {
 
             <div className="col-span-full flex flex-wrap items-center gap-3 pt-2">
               <LuxButton type="submit" disabled={guardando}>
-                {editId ? 'Guardar cambios' : 'Crear persona'}
+                {editId ? t('personas.guardar') : t('personas.crear')}
               </LuxButton>
               {editId ? (
                 <LuxButton type="button" variant="ghost" onClick={cancelar}>
@@ -268,7 +271,7 @@ export const PersonasPage = () => {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-100 bg-neutral-50/60 text-left dark:border-white/5 dark:bg-white/5">
-                {['Cédula', 'Nombre', 'Tipo', 'Contacto', ''].map((h) => (
+                {[t('persona.cedula'), t('persona.nombre'), 'Tipo', t('persona.contacto'), ''].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400"
@@ -309,9 +312,7 @@ export const PersonasPage = () => {
               ))}
               {personas.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-sm text-neutral-400">
-                    Sin personas registradas.
-                  </td>
+                  <td colSpan={5} className="px-5 py-10 text-center text-sm text-neutral-400">{t('personas.vacio')}</td>
                 </tr>
               ) : null}
             </tbody>
