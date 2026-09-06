@@ -6,9 +6,11 @@ import { verificarReceta } from '../../core/api/expedientes.service';
 import type { VerificacionReceta } from '../../core/models/expediente';
 import { Kicker, LuxButton, LuxCard, fadeUp } from '../../shared/ui';
 import { API_BASE } from '../../core/api/http';
+import { useIdioma } from '../../core/i18n/idioma.context';
 
 export const VerificarRecetaPage = () => {
   const { hash = '' } = useParams();
+  const { t, fechaHora } = useIdioma();
   const [resultado, setResultado] = useState<VerificacionReceta | null>(null);
   const [cargando, setCargando] = useState(true);
 
@@ -22,7 +24,7 @@ export const VerificarRecetaPage = () => {
   if (cargando) {
     return (
       <p className="text-sm uppercase tracking-widest text-neutral-400">
-        Verificando receta…
+        {t('receta.verificando')}
       </p>
     );
   }
@@ -32,9 +34,9 @@ export const VerificarRecetaPage = () => {
   return (
     <section className="mx-auto max-w-xl space-y-8">
       <motion.div {...fadeUp} className="space-y-2">
-        <Kicker>Sello digital · SHA-256</Kicker>
+        <Kicker>{t('receta.kicker')}</Kicker>
         <h1 className="font-serif text-3xl italic tracking-tight text-lux-blue dark:text-white">
-          Verificación de receta
+          {t('receta.titulo')}
         </h1>
       </motion.div>
 
@@ -53,9 +55,7 @@ export const VerificarRecetaPage = () => {
             <ShieldX className="h-5 w-5" strokeWidth={1.8} />
           )}
           <p className="text-sm font-semibold">
-            {valida
-              ? 'Receta auténtica y sin alteraciones'
-              : 'Receta no válida o no encontrada'}
+            {valida ? t('receta.valida') : t('receta.invalida')}
           </p>
         </div>
       </motion.div>
@@ -64,13 +64,14 @@ export const VerificarRecetaPage = () => {
         <motion.div {...fadeUp}>
           <LuxCard className="space-y-4 p-6 text-sm">
             {[
-              ['Paciente', resultado?.paciente],
-              ['Especialista', resultado?.doctor],
+              [t('receta.paciente'), resultado?.paciente],
+              [t('receta.especialista'), resultado?.doctor],
               [
-                'Firmada',
-                resultado?.firmadoEn
-                  ? new Date(resultado.firmadoEn).toLocaleString()
-                  : '—',
+                t('receta.firmada'),
+                // Antes usaba `toLocaleString()` sin locale, que sigue al
+                // navegador y no al idioma elegido: con la página en italiano
+                // la fecha salía en el formato del sistema del visitante.
+                resultado?.firmadoEn ? fechaHora(resultado.firmadoEn) : '—',
               ],
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between border-b border-neutral-100 pb-2 last:border-0 dark:border-white/5">
@@ -85,7 +86,12 @@ export const VerificarRecetaPage = () => {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-neutral-100 dark:border-white/5">
-                    {['Ojo', 'Esfera', 'Cilindro', 'Eje'].map((h) => (
+                    {[
+                      t('receta.ojo'),
+                      t('receta.esfera'),
+                      t('receta.cilindro'),
+                      t('receta.eje'),
+                    ].map((h) => (
                       <th
                         key={h}
                         className="py-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400"
@@ -117,7 +123,7 @@ export const VerificarRecetaPage = () => {
               rel="noreferrer"
             >
               <LuxButton type="button">
-                <Download className="h-3.5 w-3.5" /> Descargar PDF
+                <Download className="h-3.5 w-3.5" /> {t('receta.descargarPdf')}
               </LuxButton>
             </a>
           </LuxCard>
