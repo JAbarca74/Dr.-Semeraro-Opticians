@@ -43,7 +43,6 @@ const producto: Producto = {
   indiceRefraccion: null,
   filtro: null,
   tratamiento: null,
-  formasRostroCompatibles: null,
   esPublico: false,
   imagenUrl: null,
 };
