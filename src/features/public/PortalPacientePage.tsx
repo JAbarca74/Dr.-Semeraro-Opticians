@@ -25,6 +25,7 @@ import {
   fieldLabelClass,
 } from '../../shared/ui';
 import { API_BASE } from '../../core/api/http';
+import { useIdioma } from '../../core/i18n/idioma.context';
 
 /**
  * Portal del paciente.
@@ -38,6 +39,7 @@ import { API_BASE } from '../../core/api/http';
  *   (CU-12, `DSO-40`), que es la sección que exige sesión.
  */
 export const PortalPacientePage = () => {
+  const { t, fechaHora } = useIdioma();
   const { hasRole } = useAuth();
   const esPaciente = hasRole([Rol.PACIENTE]);
   const [entrada, setEntrada] = useState('');
@@ -52,7 +54,7 @@ export const PortalPacientePage = () => {
     setResultado(null);
     const h = normalizarHash(entrada);
     if (!h) {
-      setError('Ingrese el código de su receta o la URL del certificado QR.');
+      setError(t('portal.errorVacio'));
       return;
     }
     setCargando(true);
@@ -61,7 +63,7 @@ export const PortalPacientePage = () => {
       setHash(h);
       setResultado(r);
     } catch (e) {
-      setError(mensajeDeError(e, 'No se pudo consultar la receta.'));
+      setError(mensajeDeError(e, t('portal.errorConsulta')));
     } finally {
       setCargando(false);
     }
@@ -79,18 +81,18 @@ export const PortalPacientePage = () => {
       {esPaciente ? (
         <div className="space-y-5">
           <SectionHeader
-            kicker="Portal del paciente · CU-12"
-            title="Mis expedientes"
-            description="Sus consultas, su fórmula y sus recetas selladas, listas para descargar."
+            kicker={t('portal.kickerExp')}
+            title={t('portal.tituloExp')}
+            description={t('portal.descripcionExp')}
           />
           <MisExpedientes />
         </div>
       ) : null}
 
       <SectionHeader
-        kicker="Portal del paciente · CU-16"
-        title="Mi expediente y receta"
-        description="Consulte y valide su fórmula de dioptrías firmada digitalmente. Ingrese el código de su receta o escanee el QR del certificado que le entregó el especialista."
+        kicker={t('portal.kicker')}
+        title={t('portal.titulo')}
+        description={t('portal.descripcion')}
       />
 
       {!resultado ? (
@@ -99,22 +101,21 @@ export const PortalPacientePage = () => {
           <motion.div {...fadeUp} className="lg:col-span-5">
             <LuxCard className="flex h-full flex-col justify-between gap-6 p-8">
               <div className="space-y-4">
-                <Kicker>Acceso seguro por certificado</Kicker>
+                <Kicker>{t('portal.acceso')}</Kicker>
                 <h3 className="flex items-center gap-2 font-serif text-xl font-light text-lux-blue dark:text-white">
-                  <LogIn className="h-5 w-5" strokeWidth={1.5} /> Consultar mi receta
+                  <LogIn className="h-5 w-5" strokeWidth={1.5} /> {t('portal.consultar')}
                 </h3>
                 <p className="text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-                  Su receta está protegida con un sello digital SHA-256. Ingrese el
-                  código para validar su autenticidad y descargar el documento.
+                  {t('portal.consultarNota')}
                 </p>
                 <form onSubmit={onSubmit} className="space-y-4 pt-1">
                   <div>
-                    <span className={fieldLabelClass}>Código o URL del certificado</span>
+                    <span className={fieldLabelClass}>{t('portal.campo.codigo')}</span>
                     <input
                       className={fieldInputClass}
                       value={entrada}
                       onChange={(e) => setEntrada(e.target.value)}
-                      placeholder="p. ej. 9f86d081… o /verificar/9f86d081…"
+                      placeholder={t('portal.campo.codigoEjemplo')}
                     />
                   </div>
                   {error ? (
@@ -124,17 +125,16 @@ export const PortalPacientePage = () => {
                     </div>
                   ) : null}
                   <LuxButton type="submit" disabled={cargando} className="w-full">
-                    {cargando ? 'Validando…' : 'Validar receta'}
+                    {cargando ? t('portal.validando') : t('portal.validar')}
                   </LuxButton>
                 </form>
               </div>
               <div className="space-y-2 border border-neutral-200 bg-lux-gray p-4 dark:border-white/10 dark:bg-white/5">
                 <span className="flex items-center gap-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-lux-tinta">
-                  <ShieldCheck className="h-3.5 w-3.5" /> Estándar de seguridad clínica
+                  <ShieldCheck className="h-3.5 w-3.5" /> {t('portal.estandar')}
                 </span>
                 <p className="text-[10px] leading-relaxed text-neutral-500 dark:text-neutral-400">
-                  La verificación es pública y no expone datos sensibles: recomputa el
-                  hash del documento para confirmar que no fue alterado.
+                  {t('portal.estandarNota')}
                 </p>
               </div>
             </LuxCard>
@@ -143,15 +143,15 @@ export const PortalPacientePage = () => {
           {/* Aviso editorial */}
           <motion.div {...fadeUp} className="lg:col-span-7">
             <LuxCard className="flex h-full flex-col justify-center gap-6 bg-lux-gray p-10 dark:bg-[#0e0e0e]">
-              <Kicker>Protección de datos sanitarios</Kicker>
+              <Kicker>{t('portal.proteccion')}</Kicker>
               <h2 className="font-serif text-2xl font-light leading-tight tracking-tight text-lux-blue dark:text-white md:text-3xl">
-                Su fórmula, firmada y a prueba de falsificaciones
+                {t('portal.lema')}
               </h2>
               <ul className="space-y-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
                 {[
-                  'Cada receta lleva un hash SHA-256 único e inmutable.',
-                  'El certificado QR enlaza a esta verificación pública.',
-                  'Puede descargar el PDF oficial y presentarlo en cualquier laboratorio.',
+                  t('portal.punto1'),
+                  t('portal.punto2'),
+                  t('portal.punto3'),
                 ].map((t) => (
                   <li key={t} className="flex items-start gap-3">
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-neutral-200 bg-white text-lux-tinta dark:border-white/10 dark:bg-black">
@@ -181,8 +181,8 @@ export const PortalPacientePage = () => {
                 <ShieldX className="h-5 w-5" strokeWidth={1.8} />
               )}
               {valida
-                ? 'Receta auténtica y sin alteraciones'
-                : 'Receta no válida o no encontrada'}
+                ? t('receta.valida')
+                : t('receta.invalida')}
             </span>
             <button
               onClick={() => {
@@ -191,7 +191,7 @@ export const PortalPacientePage = () => {
               }}
               className="font-mono text-[10px] uppercase tracking-widest opacity-70 hover:opacity-100"
             >
-              Nueva consulta
+              {t('portal.nuevaConsulta')}
             </button>
           </div>
 
@@ -203,7 +203,7 @@ export const PortalPacientePage = () => {
                     Óptica Dr. Luigi Semeraro
                   </h3>
                   <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
-                    Receta óptica certificada · Pérez Zeledón, Costa Rica
+                    {t('portal.recetaCertificada')}
                   </p>
                 </div>
                 <ShieldCheck className="h-8 w-8 text-lux-tinta" strokeWidth={1.2} />
@@ -211,14 +211,10 @@ export const PortalPacientePage = () => {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 {[
-                  ['Paciente', resultado?.paciente],
-                  ['Especialista', resultado?.doctor],
-                  [
-                    'Firmada',
-                    resultado?.firmadoEn
-                      ? new Date(resultado.firmadoEn).toLocaleString()
-                      : '—',
-                  ],
+                  [t('receta.paciente'), resultado?.paciente],
+                  [t('receta.especialista'), resultado?.doctor],
+                  // La fecha sigue al idioma elegido, no al del navegador.
+                  [t('receta.firmada'), fechaHora(resultado?.firmadoEn)],
                 ].map(([k, v]) => (
                   <div key={k}>
                     <span className="block text-[10px] font-bold uppercase tracking-widest text-neutral-400">
@@ -233,7 +229,12 @@ export const PortalPacientePage = () => {
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="border-b border-neutral-200 dark:border-white/10">
-                      {['Ojo', 'Esfera', 'Cilindro', 'Eje'].map((h) => (
+                      {[
+                        t('receta.ojo'),
+                        t('receta.esfera'),
+                        t('receta.cilindro'),
+                        t('receta.eje'),
+                      ].map((h) => (
                         <th
                           key={h}
                           className="py-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400"
@@ -266,11 +267,11 @@ export const PortalPacientePage = () => {
               <div className="flex flex-wrap gap-3 pt-2">
                 <a href={`${API_BASE}/recetas/${hash}/pdf`} target="_blank" rel="noreferrer">
                   <LuxButton type="button">
-                    <Download className="h-3.5 w-3.5" /> Descargar PDF
+                    <Download className="h-3.5 w-3.5" /> {t('receta.descargarPdf')}
                   </LuxButton>
                 </a>
                 <LuxButton type="button" variant="ghost" onClick={() => window.print()}>
-                  <Printer className="h-3.5 w-3.5" /> Imprimir
+                  <Printer className="h-3.5 w-3.5" /> {t('portal.imprimir')}
                 </LuxButton>
               </div>
             </LuxCard>

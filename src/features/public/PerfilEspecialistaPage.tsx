@@ -12,11 +12,11 @@ import { listarEspecialistas } from '../../core/api/especialistas.service';
 import { parametrosPublicos } from '../../core/api/catalogo.service';
 import {
   construirMensajeEspecialista,
-  experienciaLegible,
   type EspecialistaVitrina,
 } from '../../core/models/especialista';
 import { enlaceWhatsapp, numeroLegible } from '../../core/models/catalogo';
 import { mensajeDeError } from '../../shared/error';
+import { useIdioma } from '../../core/i18n/idioma.context';
 import {
   Alert,
   Kicker,
@@ -43,6 +43,7 @@ import {
  * real, se está reabriendo §3.9.
  */
 export const PerfilEspecialistaPage = () => {
+  const { t } = useIdioma();
   const [especialista, setEspecialista] = useState<EspecialistaVitrina | null>(
     null,
   );
@@ -63,7 +64,7 @@ export const PerfilEspecialistaPage = () => {
         setError('');
       })
       .catch((e) =>
-        setError(mensajeDeError(e, 'No se pudo cargar el perfil del especialista')),
+        setError(mensajeDeError(e, t('especialista.error'))),
       )
       .finally(() => setCargando(false));
 
@@ -76,6 +77,9 @@ export const PerfilEspecialistaPage = () => {
       .catch(() => {
         // Sin parámetros no se puede redirigir; el botón lo dirá con EX-15.
       });
+    // `t` solo se usa para el texto de respaldo del error. Meterlo en las
+    // dependencias haría que cambiar de idioma volviera a pedir el perfil.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -92,7 +96,7 @@ export const PerfilEspecialistaPage = () => {
 
     const respaldo = telefono
       ? `Llámenos al ${telefono}.`
-      : 'Por favor comuníquese con la óptica por teléfono.';
+      : t('contacto.llamePorTelefono');
 
     if (!whatsapp) {
       setAvisoCanal(`Canal no disponible. ${respaldo}`);
@@ -110,20 +114,30 @@ export const PerfilEspecialistaPage = () => {
     }
   };
 
-  const experiencia = especialista
-    ? experienciaLegible(especialista.aniosExperiencia)
-    : null;
+  /**
+   * ⚠️ **El plural se resuelve aquí, no en el modelo.** `experienciaLegible()`
+   * devolvía el texto ya armado en español; con tres idiomas el número y su
+   * sustantivo tienen que juntarse en la pantalla, que es la que sabe el
+   * idioma. Se distingue el singular para no escribir «1 años».
+   */
+  const anios = especialista?.aniosExperiencia ?? null;
+  const experiencia =
+    anios === null || anios <= 0
+      ? null
+      : anios === 1
+        ? t('especialista.experiencia.uno')
+        : `${anios} ${t('especialista.experiencia.varios')}`;
 
   return (
     <section className="space-y-12">
       <SectionHeader
-        kicker="Dirección clínica"
-        title={especialista ? especialista.nombre : 'Nuestro especialista'}
+        kicker={t('especialista.kicker')}
+        title={especialista ? especialista.nombre : t('especialista.titulo')}
         /*
           Descripción fija y genérica **a propósito**: la biografía se pinta en
           el cuerpo, y ponerla también aquí la mostraba dos veces seguidas.
         */
-        description="Conozca al especialista a cargo de la dirección clínica de la óptica y contáctelo por WhatsApp."
+        description={t('especialista.descripcion')}
       />
 
       {error ? <Alert>{error}</Alert> : null}
@@ -141,8 +155,8 @@ export const PerfilEspecialistaPage = () => {
         <LuxCard className="p-12 text-center">
           <p className="text-sm text-neutral-500">
             {cargando
-              ? 'Cargando el perfil…'
-              : 'El perfil del especialista aún no está publicado.'}
+              ? t('especialista.cargando')
+              : t('especialista.noPublicado')}
           </p>
         </LuxCard>
       ) : (
@@ -162,7 +176,7 @@ export const PerfilEspecialistaPage = () => {
                 <span className="flex h-full w-full flex-col items-center justify-center gap-2 bg-stone-100 text-neutral-300 dark:bg-neutral-900 dark:text-neutral-700">
                   <ImageOff size={28} />
                   <span className="text-[10px] uppercase tracking-wider">
-                    Sin fotografía
+                    {t('especialista.sinFoto')}
                   </span>
                 </span>
               )}
@@ -173,7 +187,7 @@ export const PerfilEspecialistaPage = () => {
               */}
               {especialista.codigoProfesional ? (
                 <span className="absolute bottom-5 left-5 font-mono text-[9px] uppercase tracking-widest text-white/80">
-                  Cód. {especialista.codigoProfesional}
+                  {t('especialista.codigo')} {especialista.codigoProfesional}
                 </span>
               ) : null}
             </motion.div>
@@ -211,7 +225,7 @@ export const PerfilEspecialistaPage = () => {
                 className="transition-luxe inline-flex items-center gap-2 bg-lux-tinta px-7 py-3.5 text-[11px] font-semibold uppercase tracking-wider2 text-white hover:bg-lux-blue dark:hover:bg-lux-tinta-claro dark:hover:text-black"
               >
                 <MessageCircle size={14} />
-                Agendar o consultar por WhatsApp
+                {t('especialista.contactar')}
               </button>
 
               {/*
@@ -219,13 +233,13 @@ export const PerfilEspecialistaPage = () => {
                 y quien no la tiene va al registro del CU-10.
               */}
               <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                ¿Ya es paciente?{' '}
+                {t('especialista.yaPaciente')}{' '}
                 <Link to="/login" className="underline hover:text-lux-tinta">
-                  Inicie sesión
+                  {t('especialista.entrar')}
                 </Link>{' '}
-                para ver su expediente, o{' '}
+                {t('especialista.paraVer')}{' '}
                 <Link to="/registro" className="underline hover:text-lux-tinta">
-                  cree su cuenta
+                  {t('especialista.crearCuenta')}
                 </Link>
                 .
               </p>
@@ -266,14 +280,14 @@ export const PerfilEspecialistaPage = () => {
           <div className="flex items-center gap-3">
             <Award className="h-6 w-6 text-lux-tinta" strokeWidth={1.2} />
             <p className="font-serif text-xl font-light text-lux-blue dark:text-white">
-              Atención por cita en Pérez Zeledón, Costa Rica
+              {t('especialista.atencion')}
             </p>
           </div>
           <Link
             to="/catalogo"
             className="transition-luxe inline-flex items-center gap-2 border border-lux-blue px-6 py-3 text-[11px] font-semibold uppercase tracking-wider2 text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-tinta-claro dark:text-lux-tinta-claro dark:hover:bg-lux-tinta-claro dark:hover:text-black"
           >
-            Ver la colección
+            {t('especialista.verColeccion')}
           </Link>
         </LuxCard>
       </motion.div>
