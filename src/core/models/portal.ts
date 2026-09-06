@@ -40,6 +40,21 @@ export const ETAPAS_PEDIDO = [
 
 export type EtapaPedido = (typeof ETAPAS_PEDIDO)[number] | 'Cancelado';
 
+/**
+ * Clave de traducción de cada etapa, **por posición** (`DSO-54`).
+ *
+ * ⚠️ El nombre de la etapa lo manda la API en español, así que no se puede
+ * traducir el texto que llega: se traduce **la posición**, que es lo que el
+ * backend sí garantiza (`indiceEtapa`). Un pedido cancelado no tiene posición
+ * —es `null` por EX-17— y se rotula aparte.
+ */
+export const CLAVE_ETAPA = [
+  'pedidos.etapa.recibido',
+  'pedidos.etapa.fabricacion',
+  'pedidos.etapa.listo',
+  'pedidos.etapa.entregado',
+] as const;
+
 export interface PedidoPaciente {
   idOrdenLaboratorio: number;
   idVenta: number;
@@ -67,22 +82,7 @@ export const construirMensajePedido = (
   `Hola, quisiera consultar por mi pedido n.º ${pedido.idOrdenLaboratorio} ` +
   `en ${nombreOptica}. Aparece como «${pedido.etapa}».`;
 
-/** Fecha y hora larga en español, para el sello de EX-16. */
-export const fechaHoraLarga = (iso: string): string =>
-  new Date(iso).toLocaleString('es-CR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 
-/** Fecha `YYYY-MM-DD` legible; `—` cuando no hay. */
-export const fechaCorta = (iso: string | null): string => {
-  if (!iso) return '—';
-  const [anio, mes, dia] = iso.slice(0, 10).split('-');
-  return `${dia}/${mes}/${anio}`;
-};
 
 /** Formato de una refracción, tal como se lee en la receta impresa. */
 export const refraccionLegible = (r: RefraccionPaciente): string => {
