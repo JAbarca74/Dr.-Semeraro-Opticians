@@ -20,6 +20,19 @@ export const CATEGORIAS: CategoriaProducto[] = [
   CategoriaProducto.ACCESORIO,
 ];
 
+/**
+ * Clave de traducción de cada categoría (`DSO-54`).
+ *
+ * ⚠️ El valor del enum (`Aro`, `Lente`, `Accesorio`) **viaja a la API y se
+ * guarda en la base**: no se traduce, se traduce solo su rótulo. Si algún día
+ * se tradujera el valor, el filtro dejaría de encontrar nada.
+ */
+export const CLAVE_CATEGORIA: Record<CategoriaProducto, string> = {
+  [CategoriaProducto.ARO]: 'catalogo.categoria.aro',
+  [CategoriaProducto.LENTE]: 'catalogo.categoria.lente',
+  [CategoriaProducto.ACCESORIO]: 'catalogo.categoria.accesorio',
+};
+
 export interface Producto {
   idProducto: number;
   sku: string;
@@ -37,7 +50,6 @@ export interface Producto {
   indiceRefraccion: number | null;
   filtro: string | null;
   tratamiento: string | null;
-  formasRostroCompatibles: string[] | null;
   /** CU-09 paso 2: si el producto se muestra en el catálogo público. */
   esPublico: boolean;
   imagenUrl: string | null;
@@ -64,7 +76,6 @@ export interface ProductoInput {
   tratamiento?: string;
   esPublico?: boolean;
   imagenUrl?: string;
-  formasRostroCompatibles?: string[];
 }
 
 export const TipoMovimiento = {
