@@ -43,6 +43,15 @@ lerna-debug.log*
 /.contexto
 /CLAUDE.md
 
+# --- Documentación (decisión del 2026-09-15) ---
+# Solo el README raíz queda versionado. El resto de la documentación
+# —arquitectura, ADR, WBS, convenciones, entregables del curso— vive
+# en local: no hace falta para construir ni desplegar, y describe la
+# estructura interna del sistema.
+/docs
+*.md
+!/README.md
+
 # --- Documentos ofimáticos y PDF ---
 # Se generan a partir de su fuente en Markdown; no se despliegan.
 *.doc
