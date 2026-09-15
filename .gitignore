@@ -1,29 +1,103 @@
-# Dependencias
-/node_modules
+# ─────────────────────────────────────────────────────────────
+# optica-semeraro-web · qué NO va al repositorio
+# Criterio: solo se versiona lo necesario para construir, probar
+# y desplegar la aplicación, más los entregables del curso (docs/).
+# ─────────────────────────────────────────────────────────────
 
-# Compilado
+# --- Dependencias ---
+/node_modules
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/install-state.gz
+
+# --- Compilado y artefactos de build ---
 /dist
 /dist-ssr
+/build
+/.vite
 *.tsbuildinfo
 
-# Entorno
+# --- Entorno y secretos (NUNCA versionar) ---
 .env
-.env.local
+.env.*
+!.env.example
 *.local
 
-# Logs
+# --- Logs ---
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Editor / SO
-.idea
-.vscode
-.DS_Store
-Thumbs.db
-
-# Cobertura
+# --- Cobertura y reportes de pruebas ---
 /coverage
+/.nyc_output
+/test-results
+/playwright-report
 
-# Contexto local del asistente (no es entregable del curso)
+# --- Herramientas locales del asistente (no son entregables) ---
+/.claude
 /.contexto
 /CLAUDE.md
+
+# --- Documentos ofimáticos y PDF ---
+# Se generan a partir de su fuente en Markdown; no se despliegan.
+*.doc
+*.docx
+*.dot
+*.dotx
+*.xls
+*.xlsx
+*.xlsm
+*.ppt
+*.pptx
+*.potx
+*.odt
+*.ods
+*.odp
+*.pdf
+*.rtf
+~$*
+
+# --- Respaldos, temporales y residuos de merge ---
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# --- Archivos comprimidos ---
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.gz
+
+# --- Editores ---
+.idea/
+.vscode/
+!.vscode/extensions.json
+*.suo
+*.njsproj
+*.sln
+*.sw?
+
+# --- Sistema operativo ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
