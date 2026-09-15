@@ -56,7 +56,16 @@ export const router = createBrowserRouter([
       { path: '/verificar/:hash', element: <VerificarRecetaPage /> },
       {
         element: <ProtectedRoute />,
-        children: [{ path: '/pedidos', element: <SeguimientoPedidosPage /> }],
+        children: [
+          {
+            // CU-14 consume `GET /portal/pedidos`, que la API reserva al rol
+            // Paciente. Sin este guard el personal entraba y se encontraba un
+            // 403: el mismo defecto que se corrigió en las rutas de bodega,
+            // ventas y métricas (ver `06-estado-y-hallazgos.md` §3.22 y §3.28).
+            element: <RoleRoute roles={[Rol.PACIENTE]} />,
+            children: [{ path: '/pedidos', element: <SeguimientoPedidosPage /> }],
+          },
+        ],
       },
     ],
   },

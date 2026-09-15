@@ -250,7 +250,7 @@ export const ReceptionLayout = () => {
                       : 'text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white',
                   ].join(' ')}
                 >
-                  <span>{item.drawerLabel}</span>
+                  <span>{t(item.drawerLabel)}</span>
                   {active ? (
                     <span className="h-1.5 w-1.5 rounded-full bg-lux-tinta" />
                   ) : (
