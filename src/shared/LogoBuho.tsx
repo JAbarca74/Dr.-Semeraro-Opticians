@@ -2,6 +2,8 @@ type Props = {
   className?: string;
   /** Texto accesible; se expone como `aria-label` del SVG. */
   title?: string;
+  /** Los ojos parpadean de vez en cuando. Solo para pantallas de espera o de aviso. */
+  parpadeo?: boolean;
 };
 
 /**
@@ -19,7 +21,13 @@ type Props = {
  * Hereda el color mediante `currentColor`, así que sirve igual en tema claro y
  * oscuro. El brillo de las pupilas es el único color fijo (blanco).
  */
-export function LogoBuho({ className = '', title = 'Óptica Dr. Luigi Semeraro' }: Props) {
+export function LogoBuho({
+  className = '',
+  title = 'Óptica Dr. Luigi Semeraro',
+  parpadeo = false,
+}: Props) {
+  // `fill-box` hace que el origen sea el centro de cada pupila, no del lienzo.
+  const ojo = parpadeo ? 'animate-parpadeo [transform-box:fill-box] origin-center' : undefined;
   return (
     <svg
       viewBox="0 0 107 123"
@@ -61,10 +69,14 @@ export function LogoBuho({ className = '', title = 'Óptica Dr. Luigi Semeraro' 
       />
 
       {/* Pupilas con su brillo */}
-      <circle cx="29" cy="42" r="9.5" fill="currentColor" />
-      <circle cx="77" cy="42" r="9.5" fill="currentColor" />
-      <circle cx="32.2" cy="38.6" r="2.1" fill="#fff" />
-      <circle cx="80.2" cy="38.6" r="2.1" fill="#fff" />
+      <g className={ojo}>
+        <circle cx="29" cy="42" r="9.5" fill="currentColor" />
+        <circle cx="32.2" cy="38.6" r="2.1" fill="#fff" />
+      </g>
+      <g className={ojo}>
+        <circle cx="77" cy="42" r="9.5" fill="currentColor" />
+        <circle cx="80.2" cy="38.6" r="2.1" fill="#fff" />
+      </g>
 
       {/* Pico en forma de gota */}
       <path

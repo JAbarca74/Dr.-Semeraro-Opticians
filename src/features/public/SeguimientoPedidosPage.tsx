@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, MessageCircle, Package, Truck } from 'lucide-react';
+import { AlertTriangle, MessageCircle, Truck } from 'lucide-react';
 import { misPedidos } from '../../core/api/portal.service';
 import { parametrosPublicos } from '../../core/api/catalogo.service';
 import {
@@ -10,6 +10,7 @@ import {
 import { useIdioma } from '../../core/i18n/idioma.context';
 import { enlaceWhatsapp, numeroLegible } from '../../core/models/catalogo';
 import { mensajeDeError } from '../../shared/error';
+import { BarraEtapa, Cargando, EstadoVacio } from '../../shared/ilustraciones';
 import {
   Alert,
   Badge,
@@ -112,11 +113,12 @@ export const SeguimientoPedidosPage = () => {
       */}
       {pedidos.length === 0 ? (
         error ? null : (
-          <LuxCard className="flex flex-col items-center gap-4 p-12 text-center">
-            <Package className="h-9 w-9 text-neutral-300" strokeWidth={1.3} />
-            <p className="text-sm text-neutral-500">
-              {cargando ? t('pedidos.cargando') : t('pedidos.vacio')}
-            </p>
+          <LuxCard className="p-12 text-center">
+            {cargando ? (
+              <Cargando>{t('pedidos.cargando')}</Cargando>
+            ) : (
+              <EstadoVacio>{t('pedidos.vacio')}</EstadoVacio>
+            )}
           </LuxCard>
         )
       ) : (
@@ -162,14 +164,7 @@ export const SeguimientoPedidosPage = () => {
                       const alcanzada = indice <= (pedido.indiceEtapa ?? -1);
                       return (
                         <li key={clave} className="flex flex-col gap-1.5">
-                          <span
-                            className={cx(
-                              'h-1',
-                              alcanzada
-                                ? 'bg-lux-tinta'
-                                : 'bg-neutral-200 dark:bg-neutral-800',
-                            )}
-                          />
+                          <BarraEtapa alcanzada={alcanzada} indice={indice} />
                           <span
                             className={cx(
                               'text-[10px] uppercase tracking-wider',

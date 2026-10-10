@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Download, FileText, ShieldCheck, Stethoscope } from 'lucide-react';
+import { Download, ShieldCheck, Stethoscope } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { misExpedientes } from '../../core/api/portal.service';
 import {
@@ -9,6 +9,7 @@ import {
 import { useIdioma } from '../../core/i18n/idioma.context';
 import { mensajeDeError } from '../../shared/error';
 import { API_BASE } from '../../core/api/http';
+import { Cargando, EstadoVacio } from '../../shared/ilustraciones';
 import {
   Alert,
   Badge,
@@ -52,7 +53,7 @@ export const MisExpedientes = () => {
   if (cargando) {
     return (
       <LuxCard className="p-10 text-center">
-        <p className="text-sm text-neutral-500">{t('expediente.cargando')}</p>
+        <Cargando>{t('expediente.cargando')}</Cargando>
       </LuxCard>
     );
   }
@@ -63,8 +64,7 @@ export const MisExpedientes = () => {
   if (evaluaciones.length === 0) {
     return (
       <LuxCard className="flex flex-col items-center gap-4 p-12 text-center">
-        <FileText className="h-9 w-9 text-neutral-300" strokeWidth={1.3} />
-        <p className="text-sm text-neutral-500">{t('expediente.ex14')}</p>
+        <EstadoVacio>{t('expediente.ex14')}</EstadoVacio>
         <p className="max-w-md text-xs text-neutral-400">
           {t('expediente.ex14.detalle')}
         </p>
