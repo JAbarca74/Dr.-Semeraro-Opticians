@@ -132,3 +132,19 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(var(--lux-tinta) / 0.6);
 }
+
+/* Quien pide menos movimiento al sistema no recibe animaciones decorativas.
+   Las de framer-motion las cubre `MotionConfig reducedMotion="user"` (App.tsx);
+   esto cubre las de CSS (`animate-*`, transiciones y el scroll suave). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

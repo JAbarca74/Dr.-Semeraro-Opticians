@@ -1,4 +1,5 @@
 import { useIdioma } from '../../core/i18n/idioma.context';
+import { Cargando, EstadoVacio, Exito } from '../../shared/ilustraciones';
 import type { ClaveTexto } from '../../core/i18n/catalogos/es';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -241,9 +242,9 @@ export const LaboratorioPage = () => {
         </p>
       ) : null}
       {ok ? (
-        <p role="status" className="mb-4 border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
-          {ok}
-        </p>
+        <div className="mb-4">
+          <Exito>{ok}</Exito>
+        </div>
       ) : null}
 
       <AnimatePresence>
@@ -363,7 +364,11 @@ export const LaboratorioPage = () => {
               {ordenes.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center text-neutral-500">
-                    {cargando ? t('lab.cargando') : t('lab.vacio')}
+                    {cargando ? (
+                      <Cargando>{t('lab.cargando')}</Cargando>
+                    ) : (
+                      <EstadoVacio>{t('lab.vacio')}</EstadoVacio>
+                    )}
                   </td>
                 </tr>
               ) : (
