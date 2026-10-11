@@ -16,10 +16,14 @@
      Ver .contexto/Imagenes/IDENTIDAD-PAPELERIA.md */
   :root {
     --lux-tinta: 60 73 125; /* #3c497d — azul de marca elegido por el cliente */
+    /* Los <select> nativos de los formularios abren una lista del sistema que
+       no se puede estilizar; al menos que siga el tema. */
+    color-scheme: light;
   }
 
   .dark {
     --lux-tinta: 159 169 209; /* #9FA9D1 — mismo azul al 72 % de luminosidad */
+    color-scheme: dark;
   }
 
   html {
