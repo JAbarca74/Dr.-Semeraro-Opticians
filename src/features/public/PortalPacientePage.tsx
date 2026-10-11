@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { SpinnerLentes } from '../../shared/ilustraciones';
 import { motion } from 'framer-motion';
 import {
   Download,
@@ -125,7 +126,13 @@ export const PortalPacientePage = () => {
                     </div>
                   ) : null}
                   <LuxButton type="submit" disabled={cargando} className="w-full">
-                    {cargando ? t('portal.validando') : t('portal.validar')}
+                    {cargando ? (
+                      <>
+                        <SpinnerLentes className="h-4 w-7" /> {t('portal.validando')}
+                      </>
+                    ) : (
+                      t('portal.validar')
+                    )}
                   </LuxButton>
                 </form>
               </div>

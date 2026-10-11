@@ -66,10 +66,37 @@ export default {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
         },
+        // Parpadeo del búho: cerrado un instante cada ~5 s.
+        parpadeo: {
+          '0%, 92%, 100%': { transform: 'scaleY(1)' },
+          '95%': { transform: 'scaleY(0.08)' },
+        },
+        // Trazo que se dibuja: requiere `pathLength="1"` y `strokeDasharray: 1`.
+        trazar: {
+          from: { strokeDashoffset: '1' },
+          to: { strokeDashoffset: '0' },
+        },
+        llenar: {
+          from: { transform: 'scaleX(0)' },
+          to: { transform: 'scaleX(1)' },
+        },
+        desplegar: {
+          from: { opacity: '0', transform: 'translateY(-4px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        flotar: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-4px)' },
+        },
       },
       animation: {
         'reveal-up': 'revealFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         shimmer: 'shimmer 2.2s linear infinite',
+        parpadeo: 'parpadeo 5s ease-in-out infinite',
+        desplegar: 'desplegar 0.18s cubic-bezier(0.16, 1, 0.3, 1) both',
+        flotar: 'flotar 4s ease-in-out infinite',
+        trazar: 'trazar 0.8s cubic-bezier(0.16, 1, 0.3, 1) both',
+        llenar: 'llenar 0.6s cubic-bezier(0.16, 1, 0.3, 1) both',
       },
     },
   },

@@ -15,6 +15,7 @@ import {
 } from '../../core/models/catalogo';
 import { CATEGORIAS, CategoriaProducto } from '../../core/models/inventario';
 import { mensajeDeError } from '../../shared/error';
+import { Cargando, EstadoVacio } from '../../shared/ilustraciones';
 import { useIdioma } from '../../core/i18n/idioma.context';
 import { tipoCambioVigente } from '../../core/api/tipo-cambio.service';
 import { aproximadoUsd, type TipoCambio } from '../../core/models/moneda';
@@ -286,9 +287,11 @@ export const CatalogoPage = () => {
       {productos.length === 0 ? (
         error ? null : (
           <LuxCard className="p-12 text-center">
-            <p className="text-sm text-neutral-500">
-              {cargando ? t('catalogo.cargando') : t('catalogo.ex11')}
-            </p>
+            {cargando ? (
+              <Cargando>{t('catalogo.cargando')}</Cargando>
+            ) : (
+              <EstadoVacio>{t('catalogo.ex11')}</EstadoVacio>
+            )}
             {!cargando ? (
               <p className="mt-2 text-xs text-neutral-400">
                 {t('catalogo.ex11.detalle')}

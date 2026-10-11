@@ -1,5 +1,5 @@
 import { Link, isRouteErrorResponse, useRouteError } from 'react-router-dom';
-import { AlertTriangle } from 'lucide-react';
+import { LogoBuho } from './LogoBuho';
 import { MarcaOptica } from './MarcaOptica';
 
 /**
@@ -29,8 +29,8 @@ export const ErrorPage = () => {
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-white px-6 py-16 text-center dark:bg-[#0a0a0a]">
       <MarcaOptica />
 
-      <span className="flex h-14 w-14 items-center justify-center border border-lux-tinta/40 text-lux-tinta">
-        <AlertTriangle className="h-6 w-6" strokeWidth={1.5} />
+      <span className="flex h-20 w-20 items-center justify-center border border-lux-tinta/40 text-lux-tinta">
+        <LogoBuho parpadeo className="h-14 w-auto animate-flotar" />
       </span>
 
       <div className="space-y-3">

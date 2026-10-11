@@ -1,4 +1,5 @@
 import { useIdioma } from '../../core/i18n/idioma.context';
+import { Cargando, EstadoVacio } from '../../shared/ilustraciones';
 import type { ClaveTexto } from '../../core/i18n/catalogos/es';
 import { useEffect, useState, type FormEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -506,7 +507,11 @@ export const InventarioPage = () => {
               {productos.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center text-neutral-500">
-                    {cargando ? t('inv.cargando') : t('inv.vacio')}
+                    {cargando ? (
+                      <Cargando>{t('inv.cargando')}</Cargando>
+                    ) : (
+                      <EstadoVacio>{t('inv.vacio')}</EstadoVacio>
+                    )}
                   </td>
                 </tr>
               ) : (
