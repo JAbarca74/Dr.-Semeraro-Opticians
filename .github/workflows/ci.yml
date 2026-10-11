@@ -21,6 +21,9 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      - name: Escanear secretos
+        run: npm run seguridad:secretos
+
       - name: Lint
         run: npm run lint
 

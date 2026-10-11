@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, ShieldCheck, ShieldX } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { verificarReceta } from '../../core/api/expedientes.service';
 import type { VerificacionReceta } from '../../core/models/expediente';
 import { Kicker, LuxButton, LuxCard, fadeUp } from '../../shared/ui';
+import { Cargando, SelloVerificacion } from '../../shared/ilustraciones';
 import { API_BASE } from '../../core/api/http';
 import { useIdioma } from '../../core/i18n/idioma.context';
 
@@ -23,9 +24,9 @@ export const VerificarRecetaPage = () => {
 
   if (cargando) {
     return (
-      <p className="text-sm uppercase tracking-widest text-neutral-400">
+      <Cargando className="text-sm uppercase tracking-widest">
         {t('receta.verificando')}
-      </p>
+      </Cargando>
     );
   }
 
@@ -49,11 +50,7 @@ export const VerificarRecetaPage = () => {
               : 'border-red-500/30 bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400',
           ].join(' ')}
         >
-          {valida ? (
-            <ShieldCheck className="h-5 w-5" strokeWidth={1.8} />
-          ) : (
-            <ShieldX className="h-5 w-5" strokeWidth={1.8} />
-          )}
+          <SelloVerificacion valido={Boolean(valida)} className="h-7 w-7 shrink-0" />
           <p className="text-sm font-semibold">
             {valida ? t('receta.valida') : t('receta.invalida')}
           </p>

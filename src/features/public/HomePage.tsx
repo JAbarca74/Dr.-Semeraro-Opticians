@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   User,
 } from 'lucide-react';
+import { IlustracionLentes } from '../../shared/ilustraciones';
 import { Kicker, LuxCard, fadeUp, fadeUpItem, stagger } from '../../shared/ui';
 import { useIdioma } from '../../core/i18n/idioma.context';
 import type { ClaveTexto } from '../../core/i18n/catalogos/es';
@@ -67,6 +68,13 @@ export const HomePage = () => {
             referrerPolicy="no-referrer"
             className="h-full w-full object-cover"
           />
+        </div>
+        {/* Anteojos que se trazan al cargar; solo escritorio, de fondo y sin texto. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-16 right-10 z-10 hidden text-lux-tinta-claro/50 lg:block"
+        >
+          <IlustracionLentes className="h-40 w-72" />
         </div>
         <div className="relative z-20 mx-auto w-full max-w-7xl px-6 text-center md:px-10 md:text-left">
           <motion.div {...fadeUp} className="max-w-3xl space-y-7">

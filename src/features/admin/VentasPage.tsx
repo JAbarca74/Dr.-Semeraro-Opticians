@@ -1,4 +1,5 @@
 import { useIdioma } from '../../core/i18n/idioma.context';
+import { EstadoVacio, Exito } from '../../shared/ilustraciones';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -228,12 +229,7 @@ export const VentasPage = () => {
 
       {error ? <Alert>{error}</Alert> : null}
       {ok ? (
-        <p
-          role="status"
-          className="border border-emerald-300/40 bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:border-emerald-900/30 dark:bg-emerald-950/30 dark:text-emerald-300"
-        >
-          {ok}
-        </p>
+        <Exito>{ok}</Exito>
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
@@ -432,11 +428,13 @@ export const VentasPage = () => {
                         «Todavía no hay ventas registradas» habiendo decenas en
                         la base: no era un vacío, era una respuesta falsa.
                       */}
-                      {error
-                        ? t('ventas.errorHistorial')
-                        : filtroPaciente
-                          ? t('ventas.vacioPaciente')
-                          : t('ventas.vacio')}
+                      {error ? (
+                        t('ventas.errorHistorial')
+                      ) : (
+                        <EstadoVacio>
+                          {filtroPaciente ? t('ventas.vacioPaciente') : t('ventas.vacio')}
+                        </EstadoVacio>
+                      )}
                     </td>
                   </tr>
                 ) : (

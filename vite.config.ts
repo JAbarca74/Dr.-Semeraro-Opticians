@@ -1,10 +1,57 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vitest/config';
+import { loadEnv } from 'vite';
+import type { Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
+/**
+ * Política de seguridad de contenido (CSP) del build de producción.
+ *
+ * Es la defensa que hace de red de seguridad frente a XSS: el token de sesión vive
+ * en `localStorage`, así que un script inyectado podría leerlo. Con esta política
+ * solo se ejecuta JavaScript propio (`script-src 'self'`), no se puede incrustar
+ * contenido activo (`object-src 'none'`) y las peticiones solo salen hacia la API.
+ *
+ * Solo en `build`: el servidor de desarrollo inyecta scripts en línea (HMR) y esta
+ * política los bloquearía. El origen de la API se toma de `VITE_API_URL`, el mismo
+ * valor que usa `core/api/http.ts`. `frame-ancestors` no se admite en `<meta>`: va
+ * en las cabeceras (`vercel.json` / `public/_headers`).
+ */
+const politicaCsp = (apiUrl: string): Plugin => ({
+  name: 'optica-csp',
+  apply: 'build',
+  transformIndexHtml(html) {
+    const origenApi = new URL(apiUrl).origin;
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self'",
+      // `unsafe-inline` solo en estilos: framer-motion y React escriben `style=""`.
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      // Fotos de la vitrina y del sitio: https de cualquier origen, nunca http.
+      "img-src 'self' data: blob: https:",
+      `connect-src 'self' ${origenApi}`,
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join('; ');
+    return html.replace(
+      '<meta charset="UTF-8" />',
+      `<meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="${csp}" />`,
+    );
+  },
+});
+
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    react(),
+    politicaCsp(
+      loadEnv(mode, process.cwd(), 'VITE_').VITE_API_URL ??
+        'http://localhost:3000/api',
+    ),
+  ],
   server: {
     // Respeta el puerto que inyecte el entorno (previews con puerto asignado);
     // en local sigue siendo 5173.
@@ -90,4 +137,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

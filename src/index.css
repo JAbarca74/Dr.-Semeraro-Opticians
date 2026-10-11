@@ -16,10 +16,14 @@
      Ver .contexto/Imagenes/IDENTIDAD-PAPELERIA.md */
   :root {
     --lux-tinta: 60 73 125; /* #3c497d — azul de marca elegido por el cliente */
+    /* Los <select> nativos de los formularios abren una lista del sistema que
+       no se puede estilizar; al menos que siga el tema. */
+    color-scheme: light;
   }
 
   .dark {
     --lux-tinta: 159 169 209; /* #9FA9D1 — mismo azul al 72 % de luminosidad */
+    color-scheme: dark;
   }
 
   html {
@@ -131,4 +135,20 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(var(--lux-tinta) / 0.6);
+}
+
+/* Quien pide menos movimiento al sistema no recibe animaciones decorativas.
+   Las de framer-motion las cubre `MotionConfig reducedMotion="user"` (App.tsx);
+   esto cubre las de CSS (`animate-*`, transiciones y el scroll suave). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

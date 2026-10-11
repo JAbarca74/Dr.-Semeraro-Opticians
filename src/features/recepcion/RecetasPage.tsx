@@ -1,4 +1,5 @@
 import { useIdioma } from '../../core/i18n/idioma.context';
+import { SpinnerLentes } from '../../shared/ilustraciones';
 import { useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { Download, ScanLine, ShieldCheck, ShieldX } from 'lucide-react';
@@ -79,7 +80,13 @@ export const RecetasPage = () => {
                 </p>
               ) : null}
               <RecepButton type="submit" disabled={cargando}>
-                {cargando ? t('verificacion.verificando') : t('verificacion.verificar')}
+                {cargando ? (
+                  <>
+                    <SpinnerLentes className="h-4 w-7" /> {t('verificacion.verificando')}
+                  </>
+                ) : (
+                  t('verificacion.verificar')
+                )}
               </RecepButton>
             </form>
           </RecepCard>
