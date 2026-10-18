@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import {
   Users,
   FileText,
-  ShieldCheck,
   Activity,
   ArrowRight,
   CalendarClock,
@@ -46,6 +45,7 @@ export const DashboardPage = () => {
   const { t } = useIdioma();
   const { hasRole } = useAuth();
   const navigate = useNavigate();
+  const esDoctor = hasRole([Rol.DOCTOR]);
   const [pacientes, setPacientes] = useState(0);
   const [empleados, setEmpleados] = useState(0);
   const [expedientes, setExpedientes] = useState(0);
@@ -60,17 +60,17 @@ export const DashboardPage = () => {
       .catch(() => undefined);
     // Las canceladas no cuentan: el panel responde «a cuánta gente se atiende
     // hoy», no «cuántas filas hay en la tabla».
-    listarCitas({ fecha: new Date().toISOString().slice(0, 10) })
+    if (esDoctor) listarCitas({ fecha: new Date().toISOString().slice(0, 10) })
       .then((cs) => setCitasHoy(cs.filter((c) => c.estado !== EstadoCita.CANCELADA).length))
       .catch(() => undefined);
-    if (hasRole([Rol.DOCTOR, Rol.ADMINISTRADOR])) {
+    if (esDoctor) {
       listarExpedientes()
         .then((es) => setExpedientes(es.length))
         .catch(() => undefined);
     }
-  }, [hasRole]);
+  }, [esDoctor]);
 
-  const kpis: Kpi[] = [
+  const todosKpis: Kpi[] = [
     {
       label: 'panel.pacientes',
       value: pacientes.toString().padStart(2, '0'),
@@ -95,13 +95,12 @@ export const DashboardPage = () => {
       caption: 'panel.personalSub',
       icon: Activity,
     },
-    {
-      label: 'panel.integridad',
-      value: '100%',
-      caption: 'panel.integridadSub',
-      icon: ShieldCheck,
-    },
+
   ];
+
+  const kpis = todosKpis.filter((k) => esDoctor
+    ? k.label !== 'panel.personal'
+    : k.label !== 'panel.expedientes' && k.label !== 'panel.citasHoy');
 
   return (
     <div className="space-y-12">
@@ -127,7 +126,7 @@ export const DashboardPage = () => {
             {t('panel.lema')}
           </h1>
           <p className="mx-auto max-w-2xl text-xs font-light leading-relaxed text-zinc-300 md:text-sm">
-            {t('panel.intro')}
+            {t(esDoctor ? 'panel.intro' : 'roles.admin.descripcion')}
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-2">
             <button
@@ -137,15 +136,15 @@ export const DashboardPage = () => {
               {t('panel.gestionarPacientes')}
             </button>
             <button
-              onClick={() => navigate('/admin/expedientes')}
+              onClick={() => navigate(esDoctor ? '/admin/expedientes' : '/admin/inventario')}
               className="transition-luxe border border-lux-tinta-claro px-6 py-3 text-xs font-semibold uppercase tracking-widest text-lux-tinta-claro hover:bg-lux-tinta-claro hover:text-black"
             >
-              {t('panel.abrirExpedientes')}
+              {t(esDoctor ? 'panel.abrirExpedientes' : 'nav.admin.bodega')}
             </button>
           </div>
         </div>
         <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1 opacity-60">
-          <span className="font-mono text-[8px] uppercase tracking-widest text-white/50">{t('panel.verMetricas')}</span>
+          <span className="font-mono text-[8px] uppercase tracking-widest text-white/50">{t(esDoctor ? 'panel.indicadores' : 'panel.verMetricas')}</span>
           <div className="h-6 w-px animate-bounce bg-lux-tinta-claro/60" />
         </div>
       </motion.section>
@@ -204,7 +203,7 @@ export const DashboardPage = () => {
                       {t(k.label)}
                     </span>
                     <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-neutral-400">
-                      {k.caption}
+                      {t(k.caption as ClaveTexto)}
                     </span>
                   </div>
                 </LuxCard>

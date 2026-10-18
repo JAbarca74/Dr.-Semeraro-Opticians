@@ -6,6 +6,7 @@ import { ReceptionLayout } from './layouts/ReceptionLayout';
 import { ProtectedRoute } from './core/guards/ProtectedRoute';
 import { RoleRoute } from './core/guards/RoleRoute';
 import { Rol } from './core/models/rol';
+import { ROLES_RUTA } from './core/models/acceso';
 import { ErrorPage } from './shared/ErrorPage';
 
 import { HomePage } from './features/public/HomePage';
@@ -29,9 +30,6 @@ import { UsuariosPage } from './features/admin/UsuariosPage';
 import { AuditoriaPage } from './features/admin/AuditoriaPage';
 import { CuentaPage } from './features/admin/CuentaPage';
 
-import { OverviewPage } from './features/recepcion/OverviewPage';
-import { PacientesPage as PacientesRecepcionPage } from './features/recepcion/PacientesPage';
-import { RecetasPage as RecetasRecepcionPage } from './features/recepcion/RecetasPage';
 import { LaboratorioPage } from './features/recepcion/LaboratorioPage';
 
 /**
@@ -79,76 +77,30 @@ export const router = createBrowserRouter([
           {
             element: <AdminLayout />,
             children: [
-              { path: '/admin', element: <DashboardPage /> },
-              { path: '/admin/personas', element: <PersonasPage /> },
-              { path: '/admin/agenda', element: <AgendaPage /> },
-              // El mismo tablero que ve Recepción, no una copia: CU-07 nombra a
-              // «Doctor/Recepción», y el guard de `/recepcion` deja fuera al
-              // Doctor. Sin esta ruta, el caso de uso quedaría a medias.
-              { path: '/admin/laboratorio', element: <LaboratorioPage /> },
-              { path: '/admin/cuenta', element: <CuentaPage /> },
-              { path: '/admin/expedientes', element: <ExpedientesPage /> },
-              /*
-                ⚠️ **Este bloque tiene que reflejar los `@Roles` de la API.**
-                Cuando no lo hacía, el Doctor entraba a `/admin/metricas` y a
-                `/admin/ventas`, veía la pantalla entera y se quedaba mirando un
-                403 —y en ventas, un «Todavía no hay ventas registradas» que era
-                falso—. El guard del router no protege el dato (de eso ya se
-                encarga el backend); protege al usuario de una pantalla que
-                nunca le va a funcionar.
-
-                - `ventas`  → la API es `[ADMINISTRADOR, RECEPCION]`, y bajo
-                  `/admin` solo llega el Administrador. Recepción tiene la suya
-                  en `/recepcion/ventas`.
-                - `metricas` → la API es `[ADMINISTRADOR]`, y es la precondición
-                  literal de CU-19: «Dashboard **exclusivo para la
-                  administración**». Abrirla al Doctor sería ampliar el alcance,
-                  y eso es Solicitud de Cambio al CCC.
-                - `inventario` → solo el listado está abierto a cualquier sesión;
-                  **el detalle y el kardex son `[ADMINISTRADOR, RECEPCION]`**. Al
-                  Doctor le cargaba la tabla y luego fallaba al abrir cualquier
-                  producto. Una bodega en la que no se puede abrir nada es peor
-                  que no ofrecerla. Recepción entra por `/recepcion/existencias`.
-              */
-              {
-                element: <RoleRoute roles={[Rol.ADMINISTRADOR]} />,
-                children: [
-                  { path: '/admin/inventario', element: <InventarioPage /> },
-                  { path: '/admin/ventas', element: <VentasPage /> },
-                  { path: '/admin/metricas', element: <MetricasPage /> },
-                  { path: '/admin/usuarios', element: <UsuariosPage /> },
-                  { path: '/admin/auditoria', element: <AuditoriaPage /> },
-                ],
-              },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin']} />, children: [{ path: '/admin', element: <DashboardPage /> }] },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin/personas']} />, children: [{ path: '/admin/personas', element: <PersonasPage /> }] },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin/cuenta']} />, children: [{ path: '/admin/cuenta', element: <CuentaPage /> }] },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin/agenda']} />, children: [{ path: '/admin/agenda', element: <AgendaPage /> }] },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin/expedientes']} />, children: [{ path: '/admin/expedientes', element: <ExpedientesPage /> }] },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin/laboratorio']} />, children: [{ path: '/admin/laboratorio', element: <LaboratorioPage /> }] },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin/inventario']} />, children: [{ path: '/admin/inventario', element: <InventarioPage /> }] },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin/ventas']} />, children: [{ path: '/admin/ventas', element: <VentasPage /> }] },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin/metricas']} />, children: [{ path: '/admin/metricas', element: <MetricasPage /> }] },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin/usuarios']} />, children: [{ path: '/admin/usuarios', element: <UsuariosPage /> }] },
+              { element: <RoleRoute roles={ROLES_RUTA['/admin/auditoria']} />, children: [{ path: '/admin/auditoria', element: <AuditoriaPage /> }] },
             ],
           },
         ],
       },
       {
-        element: <RoleRoute roles={[Rol.RECEPCION, Rol.ADMINISTRADOR]} />,
+        element: <RoleRoute roles={[Rol.RECEPCION]} />,
         children: [
           {
             element: <ReceptionLayout />,
             children: [
-              { path: '/recepcion', element: <OverviewPage /> },
-              { path: '/recepcion/pacientes', element: <PacientesRecepcionPage /> },
-              { path: '/recepcion/recetas', element: <RecetasRecepcionPage /> },
-              // `CuentaPage` no depende del entorno: solo cambia la contraseña
-              // de quien tiene la sesión abierta, sea cual sea su rol.
+              { path: '/recepcion', element: <Navigate to="/recepcion/agenda" replace /> },
               { path: '/recepcion/cuenta', element: <CuentaPage /> },
-              // La misma agenda que ve el consultorio, no una copia: CU-05 es
-              // el módulo de Recepción. `AgendaPage` se adapta al rol y le
-              // muestra solo la pestaña de citas, porque configurar los
-              // horarios (CU-06) es del Doctor.
               { path: '/recepcion/agenda', element: <AgendaPage /> },
-              // La misma caja que ve la administración: CU-04 nombra a
-              // «Administrador o Recepción» y son los dos entornos que la usan.
-              { path: '/recepcion/ventas', element: <VentasPage /> },
-              // La misma vista de bodega que ve la administración, no una
-              // copia: el mostrador consulta existencias tanto como el
-              // consultorio, y CU-03 no distingue entre los dos.
-              { path: '/recepcion/existencias', element: <InventarioPage /> },
-              { path: '/recepcion/laboratorio', element: <LaboratorioPage /> },
             ],
           },
         ],

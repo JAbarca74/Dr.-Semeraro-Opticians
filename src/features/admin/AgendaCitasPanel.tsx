@@ -1,17 +1,14 @@
 import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, CalendarPlus, Check, ExternalLink, Send, X } from 'lucide-react';
+import { CalendarPlus, Check, X } from 'lucide-react';
 import {
   cambiarEstadoCita,
   crearCita,
   cuposDe,
   reprogramarCita,
 } from '../../core/api/agenda.service';
-import {
-  generarRecordatorios,
-  marcarRecordatorioEnviado,
-} from '../../core/api/whatsapp.service';
+
 import {
   EstadoCita,
   TRANSICIONES_ESTADO,
@@ -20,9 +17,10 @@ import {
   type DisponibilidadMedica,
 } from '../../core/models/agenda';
 import type { Persona } from '../../core/models/persona';
-import { EstadoEnvio, type ComunicacionWhatsapp } from '../../core/models/whatsapp';
+
 import { mensajeDeError } from '../../shared/error';
 import { TelefonoInput } from '../../shared/TelefonoInput';
+import { PacienteParaCita } from './PacienteParaCita';
 import {
   Badge,
   LuxButton,
@@ -73,6 +71,7 @@ export const PanelCitas = ({
   onCambio,
   onError,
   onAviso,
+  onPacienteCreado,
 }: {
   pacientes: Persona[];
   disponibilidad: DisponibilidadMedica[];
@@ -84,6 +83,7 @@ export const PanelCitas = ({
   onCambio: () => void;
   onError: (m: string) => void;
   onAviso: (m: string) => void;
+  onPacienteCreado: (persona: Persona) => void;
 }) => {
   const { t } = useIdioma();
   const [form, setForm] = useState<FormCita>(FORM_CITA_VACIO);
@@ -91,8 +91,9 @@ export const PanelCitas = ({
   const [moviendo, setMoviendo] = useState<Cita | null>(null);
   const [cupos, setCupos] = useState<Record<number, Cupo[]>>({});
   const [guardando, setGuardando] = useState(false);
-  const [generando, setGenerando] = useState(false);
-  const [recordatorios, setRecordatorios] = useState<ComunicacionWhatsapp[]>([]);
+  const [nuevoPaciente, setNuevoPaciente] = useState(false);
+
+
 
   /** Solo los bloques activos que atienden el día elegido tienen cupos que ofrecer. */
   const bloquesDelDia = useMemo(
@@ -123,6 +124,7 @@ export const PanelCitas = ({
   const cancelarSeleccion = () => {
     setElegido(null);
     setForm(FORM_CITA_VACIO);
+    setNuevoPaciente(false);
   };
 
   /** Un clic en un cupo libre: o agenda una cita nueva, o suelta ahí la que se está moviendo. */
@@ -191,40 +193,6 @@ export const PanelCitas = ({
     }
   };
 
-  const onGenerarRecordatorios = async () => {
-    onError('');
-    setGenerando(true);
-    try {
-      const generados = await generarRecordatorios();
-      setRecordatorios(generados);
-      onAviso(
-        generados.length > 0
-          ? `${generados.length} recordatorio(s) preparado(s). Ábralos en WhatsApp para enviarlos.`
-          : t('agenda.sinRecordatorios'),
-      );
-    } catch (e) {
-      onError(mensajeDeError(e));
-    } finally {
-      setGenerando(false);
-    }
-  };
-
-  const marcarEnviado = async (id: number) => {
-    onError('');
-    try {
-      const actualizada = await marcarRecordatorioEnviado(id);
-      setRecordatorios((previos) =>
-        previos.map((r) =>
-          r.idComunicacionWhatsapp === id
-            ? { ...r, estadoEnvio: actualizada.estadoEnvio }
-            : r,
-        ),
-      );
-    } catch (e) {
-      onError(mensajeDeError(e));
-    }
-  };
-
   return (
     <>
       <motion.div {...fadeUp} className="flex flex-wrap items-center justify-between gap-4">
@@ -241,8 +209,7 @@ export const PanelCitas = ({
             }}
           />
         </label>
-        <LuxButton variant="tinta" onClick={onGenerarRecordatorios} disabled={generando}>
-          <Bell className="h-3.5 w-3.5" />{t('agenda.prepararRecordatorios')}</LuxButton>
+
       </motion.div>
 
       {moviendo ? (
@@ -266,8 +233,7 @@ export const PanelCitas = ({
           <h2 className="mb-5 border-b border-neutral-100 pb-4 text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:border-white/5 dark:text-neutral-200">{t('agenda.calendarioDia')}</h2>
           {bloquesDelDia.length === 0 ? (
             <p className="py-8 text-center text-sm text-neutral-400">
-              No hay atención configurada para este día. Defina un bloque en la
-              pestaña «Disponibilidad».
+              {t('roles.agenda.sinHorario')}
             </p>
           ) : (
             <div className="space-y-6">
@@ -329,7 +295,15 @@ export const PanelCitas = ({
               <CalendarPlus className="h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
               Nueva cita — {fechaFiltro} a las {elegido.hora}
             </h2>
-            <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <LuxButton type="button" variant="ghost" onClick={() => setNuevoPaciente((previo) => !previo)}>
+              {t('roles.agenda.nuevoPaciente')}
+            </LuxButton>
+            {nuevoPaciente ? <PacienteParaCita onCancelar={() => setNuevoPaciente(false)} onCreado={(persona) => {
+              onPacienteCreado(persona);
+              setForm({ ...form, idPaciente: persona.idPersona, telefono: persona.telefono ?? '' });
+              setNuevoPaciente(false);
+            }} /> : null}
+            <form onSubmit={onSubmit} className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <label>
                 <span className={fieldLabelClass}>{t('agenda.paciente')}</span>
                 <select
@@ -377,50 +351,6 @@ export const PanelCitas = ({
         </motion.div>
       ) : null}
 
-      {recordatorios.length > 0 ? (
-        <motion.div {...fadeUp}>
-          <LuxCard className="p-4">
-            <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-lux-tinta">{t('agenda.recordatoriosPreparados')}</p>
-            <ul className="space-y-3 text-xs text-neutral-500">
-              {recordatorios.map((r) => (
-                <li
-                  key={r.idComunicacionWhatsapp}
-                  className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-50 pb-2 last:border-0 dark:border-white/5"
-                >
-                  <span className="max-w-xl">
-                    <strong className="text-lux-blue dark:text-white">
-                      {nombrePersona(r.idPaciente)}
-                    </strong>{' '}
-                    — {r.mensaje}
-                  </span>
-                  <span className="flex items-center gap-3">
-                    <Badge tone={r.estadoEnvio === EstadoEnvio.ENVIADO ? 'green' : 'neutral'}>
-                      {r.estadoEnvio}
-                    </Badge>
-                    {r.urlWhatsapp ? (
-                      <a
-                        href={r.urlWhatsapp}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="transition-luxe inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-lux-tinta hover:underline"
-                      >
-                        <ExternalLink className="h-3 w-3" />{t('agenda.abrirWhatsapp')}</a>
-                    ) : null}
-                    {r.estadoEnvio !== EstadoEnvio.ENVIADO ? (
-                      <button
-                        type="button"
-                        onClick={() => marcarEnviado(r.idComunicacionWhatsapp)}
-                        className="transition-luxe inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta"
-                      >
-                        <Send className="h-3 w-3" />{t('agenda.marcarEnviado')}</button>
-                    ) : null}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </LuxCard>
-        </motion.div>
-      ) : null}
 
       <motion.div {...fadeUp}>
         <LuxCard className="overflow-x-auto">

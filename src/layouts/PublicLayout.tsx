@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ChevronRight, Menu, Moon, Sun, X } from 'lucide-react';
 import { useAuth } from '../core/auth/auth.context';
 import { useTheme } from '../core/theme/theme.context';
+import { Rol } from '../core/models/rol';
 import { homePathForRole } from '../core/models/rol';
 import { MarcaOptica } from '../shared/MarcaOptica';
 import { BotonWhatsappFlotante } from '../shared/BotonWhatsappFlotante';
@@ -77,9 +78,9 @@ export const PublicLayout = () => {
                 <>
                   {/* `/pedidos` exige sesión y no tenía ningún enlace: solo se
                       llegaba escribiendo la URL a mano. */}
-                  <NavLink to="/pedidos" className={navLinkClass}>
+                  {user?.rol === Rol.PACIENTE ? <NavLink to="/pedidos" className={navLinkClass}>
                     {t('nav.publico.pedidos')}
-                  </NavLink>
+                  </NavLink> : null}
                   <Link
                     to={homePathForRole(user?.rol)}
                     className={navLinkClass({ isActive: false })}
@@ -196,14 +197,14 @@ export const PublicLayout = () => {
           ))}
           {isAuthenticated ? (
             <>
-              <NavLink
+              {user?.rol === Rol.PACIENTE ? <NavLink
                 to="/pedidos"
                 onClick={() => setMenuOpen(false)}
                 className={claseCajon}
               >
                 <span>{t('nav.publico.pedidos')}</span>
                 <ChevronRight className="h-3.5 w-3.5 opacity-40" />
-              </NavLink>
+              </NavLink> : null}
               <Link
                 to={homePathForRole(user?.rol)}
                 onClick={() => setMenuOpen(false)}

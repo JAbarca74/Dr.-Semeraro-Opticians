@@ -808,6 +808,12 @@ export const es = {
 
   // --- Paciente en el expediente ---
   'exp.campo.paciente': 'Paciente',
+  "roles.admin.descripcion": "Gestione inventario, ventas, pedidos y administración del negocio.",
+  "roles.agenda.nuevoPaciente": "Registrar paciente para esta cita",
+  "roles.agenda.fichaMinima": "Registre identificación y contacto. Esto no crea una cuenta de acceso al portal.",
+  "roles.agenda.guardarPaciente": "Guardar y seleccionar paciente",
+  "roles.agenda.sinHorario": "No hay atención configurada para este día. El doctor debe definir su disponibilidad.",
+  'roles.doctor.pacientes': 'Registre y actualice los datos de sus pacientes para la atención clínica.',
 } as const;
 
 /**

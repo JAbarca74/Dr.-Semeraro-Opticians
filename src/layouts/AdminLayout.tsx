@@ -16,6 +16,7 @@ import { useIdioma } from '../core/i18n/idioma.context';
 import type { ClaveTexto } from '../core/i18n/catalogos/es';
 import { useTheme } from '../core/theme/theme.context';
 import { Rol, rolLabel } from '../core/models/rol';
+import { puedeAccederRuta } from '../core/models/acceso';
 import { MarcaOptica } from '../shared/MarcaOptica';
 
 interface NavItem {
@@ -49,20 +50,16 @@ const NAV_ITEMS: NavItem[] = [
     to: '/admin/expedientes',
     label: 'nav.admin.expedientes',
     drawerLabel: 'nav.admin.expedientesCajon',
-    roles: [Rol.DOCTOR, Rol.ADMINISTRADOR],
+    roles: [Rol.DOCTOR],
   },
-  // El listado de productos sí lo puede leer cualquiera, pero el detalle y el
-  // kardex son `[ADMINISTRADOR, RECEPCION]`: al Doctor la tabla le cargaba y
-  // luego fallaba al abrir un producto.
+  // La visibilidad efectiva de todos los destinos se toma de ROLES_RUTA.
   {
     to: '/admin/inventario',
     label: 'nav.admin.bodega',
     drawerLabel: 'nav.admin.bodegaCajon',
     roles: [Rol.ADMINISTRADOR],
   },
-  // ⚠️ `roles` aquí no es cosmética: sin ella el Doctor veía el enlace, lo
-  // pulsaba y el router lo devolvía al panel. La API de ventas es
-  // `[ADMINISTRADOR, RECEPCION]` y bajo `/admin` solo llega el Administrador.
+  // Ventas se conserva exclusivamente en Administración.
   {
     to: '/admin/ventas',
     label: 'nav.admin.ventas',
@@ -107,7 +104,7 @@ const NAV_ITEMS: NavItem[] = [
 
 /** Shell del entorno PRIVADO con la identidad de Óptica Dr. Luigi Semeraro. */
 export const AdminLayout = () => {
-  const { user, logout, hasRole } = useAuth();
+  const { user, logout } = useAuth();
   const { t } = useIdioma();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -115,7 +112,7 @@ export const AdminLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   /** Todo lo que el rol puede ver: alimenta el cajón «Menú». */
-  const visibleItems = NAV_ITEMS.filter((i) => !i.roles || hasRole(i.roles));
+  const visibleItems = NAV_ITEMS.filter((i) => puedeAccederRuta(i.to, user?.rol));
   /** Lo que cabe en la barra superior sin desbordarla. */
   const barraItems = visibleItems.filter((i) => !i.soloCajon);
 
@@ -324,21 +321,7 @@ export const AdminLayout = () => {
               <span>{t('nav.admin.cuenta')}</span>
               <ChevronRight className="h-3.5 w-3.5 opacity-40" />
             </button>
-            {/* El Administrador tiene permiso sobre el front desk
-                      (`RoleRoute [RECEPCION, ADMINISTRADOR]`), pero hasta ahora
-                      solo se llegaba escribiendo la URL: una ruta huérfana. */}
-            {hasRole([Rol.ADMINISTRADOR]) ? (
-              <button
-                onClick={() => {
-                  navigate('/recepcion');
-                  setMenuOpen(false);
-                }}
-                className="transition-luxe flex w-full items-center justify-between border-b border-neutral-100 px-3.5 py-3.5 text-left text-xs font-semibold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 hover:text-lux-blue dark:border-white/5 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-white"
-              >
-                <span>{t('nav.admin.irRecepcion')}</span>
-                <ChevronRight className="h-3.5 w-3.5 opacity-40" />
-              </button>
-            ) : null}
+
           </nav>
 
           <div className="flex items-center gap-1.5 border border-neutral-100 bg-neutral-50 p-4 text-[9px] font-bold uppercase tracking-widest text-lux-tinta dark:border-white/5 dark:bg-white/5">

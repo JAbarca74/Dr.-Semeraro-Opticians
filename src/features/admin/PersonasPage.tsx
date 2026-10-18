@@ -14,6 +14,8 @@ import {
 } from '../../core/models/persona';
 import { mensajeDeError } from '../../shared/error';
 import { sinVacios } from '../../shared/form';
+import { useAuth } from '../../core/auth/auth.context';
+import { Rol } from '../../core/models/rol';
 import { TelefonoInput } from '../../shared/TelefonoInput';
 import {
   Alert,
@@ -45,6 +47,8 @@ const FORM_VACIO: PersonaInput = {
 
 export const PersonasPage = () => {
   const { t } = useIdioma();
+  const { hasRole } = useAuth();
+  const esDoctor = hasRole([Rol.DOCTOR]);
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [form, setForm] = useState<PersonaInput>(FORM_VACIO);
   const [editId, setEditId] = useState<number | null>(null);
@@ -63,6 +67,15 @@ export const PersonasPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const datosPermitidos = (): PersonaInput => {
+    if (!esDoctor) return form;
+    const paciente = { ...form };
+    delete paciente.puesto;
+    delete paciente.fechaIngreso;
+    delete paciente.observaciones;
+    return { ...paciente, tipo: TipoPersona.PACIENTE };
+  };
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
@@ -73,10 +86,10 @@ export const PersonasPage = () => {
         // incluidas: el backend las interpreta como «borra este campo». Si se
         // omitieran, `Object.assign` conservaría el valor anterior y el dato
         // seguiría en la base aunque la pantalla se viera vacía.
-        await actualizarPersona(editId, form);
+        await actualizarPersona(editId, datosPermitidos());
       } else {
         // En un alta sí sobran: una clave vacía no aporta nada al registro nuevo.
-        await crearPersona(sinVacios(form));
+        await crearPersona(sinVacios(datosPermitidos()));
       }
       setForm(FORM_VACIO);
       setEditId(null);
@@ -121,8 +134,8 @@ export const PersonasPage = () => {
     <section className="space-y-10">
       <SectionHeader
         kicker={t('personas.kicker')}
-        title={t('personas.titulo')}
-        description={t('personas.descripcion')}
+        title={t(esDoctor ? 'pacientes.titulo' : 'personas.titulo')}
+        description={t(esDoctor ? 'roles.doctor.pacientes' : 'personas.descripcion')}
       />
 
       {/* Formulario */}
@@ -162,7 +175,7 @@ export const PersonasPage = () => {
                   setForm({ ...form, tipo: e.target.value as TipoPersona })
                 }
               >
-                {Object.values(TipoPersona).map((t) => (
+                {(esDoctor ? [TipoPersona.PACIENTE] : Object.values(TipoPersona)).map((t) => (
                   <option key={t} value={t}>
                     {t}
                   </option>
