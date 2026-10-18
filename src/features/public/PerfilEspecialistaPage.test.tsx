@@ -241,7 +241,7 @@ describe('3. EX-15 · enlace de WhatsApp no disponible', () => {
 });
 
 describe('4. Flujos alternos y estados vacíos', () => {
-  it('ofrece iniciar sesión y crear cuenta (CU-10)', async () => {
+  it('ofrece iniciar sesión y activar la cuenta mediante invitación', async () => {
     pintar();
 
     await screen.findByText('Luigi Semeraro Román');
@@ -249,7 +249,7 @@ describe('4. Flujos alternos y estados vacíos', () => {
       'href',
       '/login',
     );
-    expect(screen.getByRole('link', { name: /cree su cuenta/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /active su cuenta mediante la invitación/i })).toHaveAttribute(
       'href',
       '/registro',
     );
