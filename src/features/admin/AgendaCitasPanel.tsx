@@ -1,3 +1,4 @@
+import { AccesoPortalPaciente } from './AccesoPortalPaciente';
 import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
@@ -303,6 +304,7 @@ export const PanelCitas = ({
               setForm({ ...form, idPaciente: persona.idPersona, telefono: persona.telefono ?? '' });
               setNuevoPaciente(false);
             }} /> : null}
+            {form.idPaciente ? <AccesoPortalPaciente key={form.idPaciente} idPersona={form.idPaciente} /> : null}
             <form onSubmit={onSubmit} className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <label>
                 <span className={fieldLabelClass}>{t('agenda.paciente')}</span>

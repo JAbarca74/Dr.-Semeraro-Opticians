@@ -97,7 +97,7 @@ export const HomePage = () => {
                 {t('home.cta.catalogo')} <ArrowRight className="h-4 w-4" />
               </button>
               <button
-                onClick={() => navigate('/portal')}
+                onClick={() => navigate('/validar-receta')}
                 className="transition-luxe flex items-center gap-2 border border-white/40 px-8 py-4 text-xs font-bold uppercase tracking-widest text-white hover:bg-white hover:text-black"
               >
                 <ShieldCheck className="h-4 w-4 text-lux-tinta-claro" />{' '}

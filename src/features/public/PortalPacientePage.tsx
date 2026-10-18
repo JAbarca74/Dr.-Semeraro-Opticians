@@ -28,17 +28,7 @@ import {
 import { API_BASE } from '../../core/api/http';
 import { useIdioma } from '../../core/i18n/idioma.context';
 
-/**
- * Portal del paciente.
- *
- * Sirve a **dos personas distintas en la misma ruta**, y por eso no está detrás
- * de `ProtectedRoute`:
- *
- * - Quien llega con el **QR de una receta en la mano** y no tiene cuenta: el
- *   verificador por hash es público y sigue siéndolo (CU-16).
- * - Quien **inicia sesión como Paciente**: además ve «Mis Expedientes»
- *   (CU-12, `DSO-40`), que es la sección que exige sesión.
- */
+/** /portal exige sesión de Paciente; /validar-receta conserva la consulta pública por hash. */
 export const PortalPacientePage = () => {
   const { t, fechaHora } = useIdioma();
   const { hasRole } = useAuth();
