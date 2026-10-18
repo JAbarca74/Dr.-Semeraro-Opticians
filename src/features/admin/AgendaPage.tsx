@@ -10,6 +10,7 @@ import {
   listarDisponibilidad,
 } from '../../core/api/agenda.service';
 import { listarPersonas } from '../../core/api/personas.service';
+import { miCuenta } from '../../core/api/cuenta.service';
 import {
   DIAS_SEMANA,
   type Cita,
@@ -45,27 +46,12 @@ const FORM_DISPONIBILIDAD_VACIO: DisponibilidadInput = {
 
 type Tab = 'citas' | 'disponibilidad';
 
-/**
- * Agenda del consultorio, compartida por los entornos `/admin` y `/recepcion`.
- *
- * **Decisión del PO (2026-08-20):** configurar la disponibilidad (CU-06) queda
- * abierto a **Administrador, Recepción y Doctor**, y cerrado al **Paciente**.
- * El TFM lo describía como «exclusivo del Doctor»; la desviación es consciente
- * —en el mostrador también se ajustan horarios— y coincide con los `@Roles` del
- * `DisponibilidadController`. Queda pendiente formalizarla ante el CCC.
- *
- * La comprobación se conserva aunque hoy la cumplan todos los que llegan aquí:
- * el día que un rol nuevo alcance esta página, el valor por defecto será *no
- * poder configurar*, que es el lado seguro.
- */
+/** Doctor configura horarios; Recepción solo consulta y gestiona citas. */
 export const AgendaPage = () => {
   const { t } = useIdioma();
   const { hasRole } = useAuth();
-  const puedeConfigurar = hasRole([
-    Rol.ADMINISTRADOR,
-    Rol.RECEPCION,
-    Rol.DOCTOR,
-  ]);
+  const puedeConfigurar = hasRole([Rol.DOCTOR]);
+  const [doctor, setDoctor] = useState<Persona | null>(null);
   const [tab, setTab] = useState<Tab>('citas');
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [disponibilidad, setDisponibilidad] = useState<DisponibilidadMedica[]>([]);
@@ -75,8 +61,8 @@ export const AgendaPage = () => {
   const [aviso, setAviso] = useState('');
 
   const empleados = useMemo(
-    () => personas.filter((p) => p.tipo === TipoPersona.EMPLEADO),
-    [personas],
+    () => doctor ? [doctor] : [],
+    [doctor],
   );
   const pacientes = useMemo(
     () => personas.filter((p) => p.tipo === TipoPersona.PACIENTE),
@@ -84,14 +70,20 @@ export const AgendaPage = () => {
   );
   const nombrePersona = useMemo(() => {
     const mapa = new Map(personas.map((p) => [p.idPersona, p.nombre]));
-    return (id: number) => mapa.get(id) ?? `#${id}`;
-  }, [personas]);
+    if (doctor) mapa.set(doctor.idPersona, doctor.nombre);
+    return (id: number) => mapa.get(id) ?? t('agenda.doctorEspecialista');
+  }, [personas, doctor, t]);
   const disponibilidadPorId = useMemo(
     () => new Map(disponibilidad.map((d) => [d.idDisponibilidadMedica, d])),
     [disponibilidad],
   );
 
   const cargarBase = () => {
+    if (puedeConfigurar) {
+      miCuenta().then((cuenta) => setDoctor({
+        idPersona: cuenta.idPersona, nombre: cuenta.email, cedula: '', tipo: TipoPersona.EMPLEADO,
+      })).catch((e) => setError(mensajeDeError(e, t('personas.error'))));
+    }
     listarPersonas()
       .then(setPersonas)
       .catch((e) => setError(mensajeDeError(e, t('personas.error'))));
@@ -175,6 +167,7 @@ export const AgendaPage = () => {
           }}
           onError={setError}
           onAviso={setAviso}
+          onPacienteCreado={(paciente) => setPersonas((previas) => [...previas, paciente])}
         />
       )}
     </section>
@@ -215,7 +208,7 @@ const PanelDisponibilidad = ({
       if (editId) {
         await actualizarDisponibilidad(editId, form);
       } else {
-        await crearDisponibilidad(form);
+        await crearDisponibilidad({ ...form, idEmpleado: form.idEmpleado || empleados[0]?.idPersona });
       }
       setForm(FORM_DISPONIBILIDAD_VACIO);
       setEditId(null);
@@ -266,7 +259,7 @@ const PanelDisponibilidad = ({
               <span className={fieldLabelClass}>{t('agenda.doctorEspecialista')}</span>
               <select
                 className={fieldInputClass}
-                value={form.idEmpleado || ''}
+                value={form.idEmpleado || empleados[0]?.idPersona || ''}
                 onChange={(e) =>
                   setForm({ ...form, idEmpleado: Number(e.target.value) })
                 }
@@ -345,7 +338,7 @@ const PanelDisponibilidad = ({
             </label>
 
             <div className="col-span-full flex items-center gap-3 pt-2">
-              <LuxButton type="submit" disabled={guardando || rangoInvalido}>
+              <LuxButton type="submit" disabled={guardando || rangoInvalido || empleados.length === 0}>
                 {editId ? t('comun.guardarCambios') : t('agenda.crearBloque')}
               </LuxButton>
               {editId ? (

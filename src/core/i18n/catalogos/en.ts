@@ -799,4 +799,10 @@ export const en: Catalogo = {
 
   // --- Paciente en el expediente ---
   'exp.campo.paciente': 'Patient',
+  "roles.admin.descripcion": "Manage stock, sales, orders and business administration.",
+  "roles.agenda.nuevoPaciente": "Register a patient for this appointment",
+  "roles.agenda.fichaMinima": "Enter identification and contact details. This does not create a portal account.",
+  "roles.agenda.guardarPaciente": "Save and select patient",
+  "roles.agenda.sinHorario": "No availability is configured for this day. The doctor must set their hours.",
+  'roles.doctor.pacientes': 'Register and update patient details for clinical care.',
 };

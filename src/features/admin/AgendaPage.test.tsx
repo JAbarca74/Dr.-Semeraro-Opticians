@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, cleanup, within } from '../../test/rtl';
 import userEvent from '@testing-library/user-event';
 import { AgendaPage } from './AgendaPage';
+import { miCuenta } from '../../core/api/cuenta.service';
 import { listarPersonas } from '../../core/api/personas.service';
 import {
   cambiarEstadoCita,
@@ -22,9 +23,10 @@ import {
 import { TipoPersona } from '../../core/models/persona';
 import { Rol } from '../../core/models/rol';
 import { EstadoCita } from '../../core/models/agenda';
-import { EstadoEnvio, TipoComunicacion } from '../../core/models/whatsapp';
+
 
 vi.mock('../../core/api/personas.service');
+vi.mock('../../core/api/cuenta.service');
 vi.mock('../../core/api/agenda.service');
 vi.mock('../../core/api/whatsapp.service');
 
@@ -115,7 +117,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   fijarLunes();
   // Por defecto, quien mira es Doctor o Administrador: ve las dos pestañas.
-  mockHasRole.mockReturnValue(true);
+  mockHasRole.mockImplementation((roles) => roles.includes(Rol.DOCTOR));
+  vi.mocked(miCuenta).mockResolvedValue({ idUsuario: 2, idPersona: 7, email: 'doctor@optica.local', rol: Rol.DOCTOR });
   vi.mocked(listarPersonas).mockResolvedValue(personas as never);
   vi.mocked(listarDisponibilidad).mockResolvedValue([bloqueLunes] as never);
   vi.mocked(listarCitas).mockResolvedValue([citaDe9] as never);
@@ -342,70 +345,16 @@ describe('AgendaPage', () => {
     });
   });
 
-  describe('5. Recordatorios — CU-05 pasos 7 y 8', () => {
-    const recordatorio = {
-      idComunicacionWhatsapp: 1,
-      idPaciente: 5,
-      idCita: 10,
-      idInteraccionIa: null,
-      tipo: TipoComunicacion.RECORDATORIO,
-      mensaje: 'Le recordamos su cita en Óptica Dr. Semeraro…',
-      estadoEnvio: EstadoEnvio.PENDIENTE,
-      enviadoEn: null,
-      urlWhatsapp: 'https://wa.me/87101122?text=Le%20recordamos',
-    };
-
-    it('prepara los recordatorios y ofrece el enlace de WhatsApp', async () => {
-      const user = usuario();
-      vi.mocked(generarRecordatorios).mockResolvedValue([recordatorio] as never);
-      render(<AgendaPage />);
-      await user.click(
-        await screen.findByRole('button', { name: /Preparar recordatorios/i }),
-      );
-      const enlace = await screen.findByRole('link', { name: /Abrir en WhatsApp/i });
-      expect(enlace).toHaveAttribute('href', recordatorio.urlWhatsapp);
-    });
-
-    it('nacen pendientes: nadie los ha mandado todavía', async () => {
-      const user = usuario();
-      vi.mocked(generarRecordatorios).mockResolvedValue([recordatorio] as never);
-      render(<AgendaPage />);
-      await user.click(
-        await screen.findByRole('button', { name: /Preparar recordatorios/i }),
-      );
-      expect(await screen.findByText('pendiente')).toBeInTheDocument();
-    });
-
-    it('marcar enviado actualiza la fila', async () => {
-      const user = usuario();
-      vi.mocked(generarRecordatorios).mockResolvedValue([recordatorio] as never);
-      vi.mocked(marcarRecordatorioEnviado).mockResolvedValue({
-        ...recordatorio,
-        estadoEnvio: EstadoEnvio.ENVIADO,
-      } as never);
-      render(<AgendaPage />);
-      await user.click(
-        await screen.findByRole('button', { name: /Preparar recordatorios/i }),
-      );
-      await user.click(await screen.findByRole('button', { name: /Marcar enviado/i }));
-      expect(await screen.findByText('enviado')).toBeInTheDocument();
-    });
-
-    it('avisa cuando no hay nada que recordar', async () => {
-      const user = usuario();
-      vi.mocked(generarRecordatorios).mockResolvedValue([] as never);
-      render(<AgendaPage />);
-      await user.click(
-        await screen.findByRole('button', { name: /Preparar recordatorios/i }),
-      );
-      expect(
-        await screen.findByText(/No hay citas confirmadas en las próximas 24 horas/i),
-      ).toBeInTheDocument();
-    });
+  it('Doctor no recibe controles ni peticiones de recordatorios administrativos', async () => {
+    render(<AgendaPage />);
+    await screen.findByText(/Calendario del día/i);
+    expect(screen.queryByRole('button', { name: /Preparar recordatorios/i })).not.toBeInTheDocument();
+    expect(generarRecordatorios).not.toHaveBeenCalled();
+    expect(marcarRecordatorioEnviado).not.toHaveBeenCalled();
   });
 
   describe('6. Reparto por rol — decisión del PO del 2026-08-20', () => {
-    it('Administrador, Recepción y Doctor ven las dos pestañas', async () => {
+    it('Doctor ve citas y disponibilidad', async () => {
       render(<AgendaPage />);
       expect(await screen.findByRole('button', { name: /Disponibilidad/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /^Citas$/i })).toBeInTheDocument();
@@ -415,11 +364,7 @@ describe('AgendaPage', () => {
       render(<AgendaPage />);
       await screen.findByRole('button', { name: /Disponibilidad/i });
       // El Paciente no está en la lista: CU-06 le queda cerrado.
-      expect(mockHasRole).toHaveBeenCalledWith([
-        Rol.ADMINISTRADOR,
-        Rol.RECEPCION,
-        Rol.DOCTOR,
-      ]);
+      expect(mockHasRole).toHaveBeenCalledWith([Rol.DOCTOR]);
     });
 
     it('un rol sin permiso no ve la pestaña ni CU-06 en el encabezado', async () => {
@@ -430,6 +375,7 @@ describe('AgendaPage', () => {
       expect(
         screen.queryByRole('button', { name: /Disponibilidad/i }),
       ).not.toBeInTheDocument();
+      expect(miCuenta).not.toHaveBeenCalled();
     });
 
     it('aun sin poder configurar, conserva el calendario de citas', async () => {
@@ -443,6 +389,17 @@ describe('AgendaPage', () => {
     const irADisponibilidad = async (user: ReturnType<typeof usuario>) => {
       await user.click(await screen.findByRole('button', { name: /Disponibilidad/i }));
     };
+
+    it('permite crear el primer bloque con la identidad propia sin directorio de empleados', async () => {
+      vi.mocked(listarPersonas).mockResolvedValue(personas.filter((p) => p.tipo === TipoPersona.PACIENTE) as never);
+      const user = usuario();
+      render(<AgendaPage />);
+      await irADisponibilidad(user);
+      expect(await screen.findByRole('option', { name: 'doctor@optica.local' })).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: /Crear bloque/i }));
+      expect(crearDisponibilidad).toHaveBeenCalledWith(expect.objectContaining({ idEmpleado: 7 }));
+      expect(miCuenta).toHaveBeenCalled();
+    });
 
     it('bloquea el guardado si la hora de fin no es posterior a la de inicio', async () => {
       const user = usuario();

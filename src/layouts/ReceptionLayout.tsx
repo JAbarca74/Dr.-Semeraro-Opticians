@@ -26,42 +26,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  {
-    to: '/recepcion',
-    label: 'nav.recepcion.panel',
-    drawerLabel: 'nav.recepcion.panelCajon',
-    end: true,
-  },
-  {
-    to: '/recepcion/pacientes',
-    label: 'nav.recepcion.pacientes',
-    drawerLabel: 'nav.recepcion.pacientesCajon',
-  },
-  {
-    to: '/recepcion/recetas',
-    label: 'nav.recepcion.verificar',
-    drawerLabel: 'nav.recepcion.verificarCajon',
-  },
-  {
-    to: '/recepcion/agenda',
-    label: 'nav.recepcion.citas',
-    drawerLabel: 'nav.recepcion.citasCajon',
-  },
-  {
-    to: '/recepcion/ventas',
-    label: 'nav.admin.ventas',
-    drawerLabel: 'nav.admin.ventasCajon',
-  },
-  {
-    to: '/recepcion/existencias',
-    label: 'nav.recepcion.existencias',
-    drawerLabel: 'nav.recepcion.existenciasCajon',
-  },
-  {
-    to: '/recepcion/laboratorio',
-    label: 'nav.admin.laboratorio',
-    drawerLabel: 'nav.recepcion.laboratorioCajon',
-  },
+  { to: '/recepcion/agenda', label: 'nav.recepcion.citas', drawerLabel: 'nav.recepcion.citasCajon' },
 ];
 
 /**
