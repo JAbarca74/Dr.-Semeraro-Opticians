@@ -2,6 +2,33 @@
 
 Aplicación web (SPA) del Sistema de Gestión de Óptica Dr. Semeraro.
 
+## Activación de cuentas de pacientes
+
+Desde el 18/10/2026, `/registro` explica el acceso por invitación y
+`/activar-cuenta` permite definir la contraseña usando el enlace del correo.
+El alta pública directa está cerrada. Inicio, catálogo e información del doctor
+siguen siendo públicos; `/portal` y `/pedidos` requieren sesión de Paciente.
+La verificación pública de recetas se conserva en `/validar-receta` y
+`/verificar/:hash`.
+
+Para probar después de actualizar ambos repositorios:
+
+1. Ejecuta `npm start` aquí. Comprueba las dependencias, inicia PostgreSQL y
+   Mailpit y aplica las migraciones de la API.
+2. Entra como Doctor o Recepción y registra una ficha con correo. En Recepción,
+   se hace desde la agenda, al seleccionar un cupo y «Nuevo paciente».
+3. Abre [Mailpit](http://localhost:8025), entra al mensaje del paciente y abre
+   el enlace de activación. Es un buzón de desarrollo; no envía correos reales.
+4. Define y confirma la contraseña; después inicia sesión con ese correo.
+5. Si falta el correo o falla el envío, selecciona al paciente en la cita:
+   allí puedes consultar el estado, guardar el correo o reenviar la invitación.
+   Doctor también puede consultar/reintentar al editar la ficha en Pacientes.
+
+El enlace vence en 24 horas y funciona una sola vez. Reenviarlo invalida el
+anterior. No se solicita una contraseña al personal. Para envíos reales hace
+falta configurar un proveedor SMTP en la API; las variables están documentadas
+en su README y `.env.example`. Las cuentas existentes conservan su acceso.
+
 > Repositorio del **frontend**. La API (NestJS) vive en un repositorio aparte.
 
 ---

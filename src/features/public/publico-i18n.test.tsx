@@ -71,9 +71,9 @@ const CASOS: [string, () => ReactElement, Record<Idioma, string>][] = [
     'Registro de paciente (CU-10)',
     () => <RegistroPage />,
     {
-      es: 'Crear cuenta de paciente',
-      en: 'Create a patient account',
-      it: 'Crea un account paziente',
+      es: 'Activar cuenta de paciente',
+      en: 'Activate patient account',
+      it: 'Attiva account paziente',
     },
   ],
   [

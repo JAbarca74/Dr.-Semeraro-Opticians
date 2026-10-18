@@ -1,3 +1,5 @@
+import { claveEstadoAcceso } from '../../core/api/activacion.service';
+import { AccesoPortalPaciente } from './AccesoPortalPaciente';
 import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
@@ -53,6 +55,7 @@ export const PersonasPage = () => {
   const [form, setForm] = useState<PersonaInput>(FORM_VACIO);
   const [editId, setEditId] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const [aviso, setAviso] = useState('');
   const [guardando, setGuardando] = useState(false);
 
   const cargar = () =>
@@ -79,17 +82,19 @@ export const PersonasPage = () => {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
-    setGuardando(true);
+    setGuardando(true); setAviso('');
     try {
       if (editId) {
         // Al editar se manda el formulario tal cual, con las cadenas vacías
         // incluidas: el backend las interpreta como «borra este campo». Si se
         // omitieran, `Object.assign` conservaría el valor anterior y el dato
         // seguiría en la base aunque la pantalla se viera vacía.
-        await actualizarPersona(editId, datosPermitidos());
+        const guardada = await actualizarPersona(editId, datosPermitidos());
+        if (guardada?.accesoPortal) setAviso(t(claveEstadoAcceso(guardada.accesoPortal.estado)));
       } else {
         // En un alta sí sobran: una clave vacía no aporta nada al registro nuevo.
-        await crearPersona(sinVacios(datosPermitidos()));
+        const guardada = await crearPersona(sinVacios(datosPermitidos()));
+        if (guardada?.accesoPortal) setAviso(t(claveEstadoAcceso(guardada.accesoPortal.estado)));
       }
       setForm(FORM_VACIO);
       setEditId(null);
@@ -132,12 +137,14 @@ export const PersonasPage = () => {
 
   return (
     <section className="space-y-10">
+      {editId && form.tipo === TipoPersona.PACIENTE ? <AccesoPortalPaciente key={editId} idPersona={editId} permitirEditarCorreo={false} /> : null}
       <SectionHeader
         kicker={t('personas.kicker')}
         title={t(esDoctor ? 'pacientes.titulo' : 'personas.titulo')}
         description={t(esDoctor ? 'roles.doctor.pacientes' : 'personas.descripcion')}
       />
 
+      {aviso ? <p role="status">{aviso}</p> : null}
       {/* Formulario */}
       <motion.div {...fadeUp}>
         <LuxCard className="p-6">

@@ -16,6 +16,7 @@ export const ROLES_RUTA: Record<string, Rol[]> = {
   '/recepcion': [Rol.RECEPCION],
   '/recepcion/agenda': [Rol.RECEPCION],
   '/recepcion/cuenta': [Rol.RECEPCION],
+  '/portal': [Rol.PACIENTE],
   '/pedidos': [Rol.PACIENTE],
 };
 

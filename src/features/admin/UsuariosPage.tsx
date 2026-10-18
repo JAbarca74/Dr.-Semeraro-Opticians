@@ -185,7 +185,7 @@ export const UsuariosPage = () => {
                 value={form.rol}
                 onChange={(e) => setForm({ ...form, rol: e.target.value as Rol })}
               >
-                {Object.values(Rol).map((r) => (
+                {Object.values(Rol).filter((r) => r !== Rol.PACIENTE).map((r) => (
                   <option key={r} value={r}>
                     {r}
                   </option>
@@ -250,7 +250,7 @@ export const UsuariosPage = () => {
                           : undefined
                       }
                     >
-                      {Object.values(Rol).map((r) => (
+                      {Object.values(Rol).filter((r) => r === u.rol || (r !== Rol.PACIENTE && u.rol !== Rol.PACIENTE)).map((r) => (
                         <option key={r} value={r}>
                           {r}
                         </option>

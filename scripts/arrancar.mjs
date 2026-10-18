@@ -170,7 +170,10 @@ if (!existsSync(envWeb)) {
 // ── 3. Dependencias ─────────────────────────────────────────────────────────
 paso(3, 'Instalando dependencias');
 for (const [nombre, ruta] of [['API', API], ['web', WEB]]) {
-  if (existsSync(join(ruta, 'node_modules'))) {
+  const manifiesto = JSON.parse(readFileSync(join(ruta, 'package.json'), 'utf8'));
+  const dependencias = Object.keys({ ...manifiesto.dependencies, ...manifiesto.devDependencies });
+  const completas = dependencias.every((dependencia) => existsSync(join(ruta, 'node_modules', dependencia, 'package.json')));
+  if (completas) {
     info(`${nombre}: ya instaladas`);
   } else {
     console.log(`      instalando las de ${nombre}, tarda un poco la primera vez…`);
@@ -183,11 +186,11 @@ for (const [nombre, ruta] of [['API', API], ['web', WEB]]) {
 }
 
 // ── 4. Base de datos ────────────────────────────────────────────────────────
-paso(4, 'Levantando PostgreSQL en Docker');
+paso(4, 'Levantando PostgreSQL y el correo local en Docker');
 correr('docker', ['compose', 'up', '-d', '--wait'], API, {
-  titulo: 'No se pudo levantar el contenedor de PostgreSQL',
+  titulo: 'No se pudieron levantar los servicios locales',
   ayuda: [
-    'Puede que el puerto 5432 esté ocupado por otro PostgreSQL.',
+    'Comprueba si los puertos 5432, 1025 o 8025 están ocupados.',
     'Comprueba qué lo usa y ciérralo, o cambia el puerto en:',
     c('36', '  optica-semeraro-api/docker-compose.yml'),
   ],
@@ -199,15 +202,16 @@ await esperarPuerto('localhost', 5432, 60, 'PostgreSQL', [
   c('36', '  docker logs optica-semeraro-db'),
 ]);
 ok('PostgreSQL aceptando conexiones en localhost:5432');
+ok('Buzón local de invitaciones: http://localhost:8025 (no envía correos reales)');
 
 // ── 5. Esquema y datos ──────────────────────────────────────────────────────
 paso(5, 'Aplicando migraciones y datos iniciales');
 correr(npm, ['run', 'migration:run'], API, {
   titulo: 'Fallaron las migraciones',
   ayuda: [
-    'Si la base quedó a medias, se puede recrear desde cero (BORRA los datos):',
-    c('36', '  cd ../optica-semeraro-api && npm run db:reset'),
-    'y volver a lanzar este comando.',
+    'Revisa el error anterior antes de volver a intentar. Conserva los datos existentes.',
+    'Si aparece UQ_usuario_email_normalizado, hay correos de usuario duplicados al ignorar mayúsculas o espacios.',
+    'Verifica esas cuentas y corrige los duplicados antes de reintentar la migración.',
   ],
 });
 ok('Esquema al día');

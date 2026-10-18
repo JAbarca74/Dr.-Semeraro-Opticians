@@ -49,8 +49,9 @@ export const router = createBrowserRouter([
       { path: '/catalogo', element: <CatalogoPage /> },
       { path: '/especialista', element: <PerfilEspecialistaPage /> },
       { path: '/registro', element: <RegistroPage /> },
+      { path: '/activar-cuenta', element: <RegistroPage /> },
       { path: '/agendar', element: <AgendarCitaPage /> },
-      { path: '/portal', element: <PortalPacientePage /> },
+      { path: '/validar-receta', element: <PortalPacientePage /> },
       { path: '/verificar/:hash', element: <VerificarRecetaPage /> },
       {
         element: <ProtectedRoute />,
@@ -61,7 +62,7 @@ export const router = createBrowserRouter([
             // 403: el mismo defecto que se corrigió en las rutas de bodega,
             // ventas y métricas (ver `06-estado-y-hallazgos.md` §3.22 y §3.28).
             element: <RoleRoute roles={[Rol.PACIENTE]} />,
-            children: [{ path: '/pedidos', element: <SeguimientoPedidosPage /> }],
+            children: [{ path: '/portal', element: <PortalPacientePage /> }, { path: '/pedidos', element: <SeguimientoPedidosPage /> }],
           },
         ],
       },

@@ -1,9 +1,7 @@
 import api from '../api/http';
 import type {
-  CuentaCreada,
   LoginRequest,
   LoginResponse,
-  RegistroPaciente,
 } from '../models/usuario';
 
 export const loginRequest = async (
@@ -20,14 +18,6 @@ export const logoutRequest = async (): Promise<void> => {
   } catch {
     // Ignorar: el cierre de sesión local se realiza igualmente.
   }
-};
-
-/** Alta de cuenta de paciente por autoservicio (CU-10). **No requiere sesión**. */
-export const registrarPacienteRequest = async (
-  datos: RegistroPaciente,
-): Promise<CuentaCreada> => {
-  const { data } = await api.post<CuentaCreada>('/auth/registro', datos);
-  return data;
 };
 
 export const cambiarPasswordRequest = async (

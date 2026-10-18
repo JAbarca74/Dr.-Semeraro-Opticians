@@ -6,6 +6,7 @@ export const TipoPersona = {
 export type TipoPersona = (typeof TipoPersona)[keyof typeof TipoPersona];
 
 export interface Persona {
+  accesoPortal?: import('../api/activacion.service').EstadoAcceso;
   idPersona: number;
   cedula: string;
   nombre: string;

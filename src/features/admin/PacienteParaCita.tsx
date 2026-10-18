@@ -6,7 +6,7 @@ import { mensajeDeError } from '../../shared/error';
 import { TelefonoInput } from '../../shared/TelefonoInput';
 import { Alert, LuxButton, fieldInputClass, fieldLabelClass } from '../../shared/ui';
 
-/** Solo ficha mínima para una cita; no crea una cuenta de acceso al portal. */
+/** Ficha para la cita; el correo inicia una invitación al portal. */
 export const PacienteParaCita = ({ onCreado, onCancelar }: {
   onCreado: (persona: Persona) => void;
   onCancelar: () => void;
