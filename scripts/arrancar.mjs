@@ -13,7 +13,7 @@
  * Es idempotente: se puede ejecutar tantas veces como haga falta. Los pasos ya
  * hechos se detectan y se saltan.
  *
- * Node 20+. Sin dependencias externas a propósito: tiene que funcionar antes de
+ * Node 24+. Sin dependencias externas a propósito: tiene que funcionar antes de
  * que exista `node_modules`.
  */
 import { spawn, spawnSync } from 'node:child_process';
@@ -104,8 +104,8 @@ async function exigirPuertosLibres() {
 paso(1, 'Comprobando requisitos');
 
 const major = Number(process.versions.node.split('.')[0]);
-if (major < 20) {
-  morir(`Node 20 o superior es necesario (tienes ${process.versions.node})`, [
+if (major < 24) {
+  morir(`Node 24 o superior es necesario (tienes ${process.versions.node})`, [
     'Instálalo desde https://nodejs.org (versión LTS).',
   ]);
 }

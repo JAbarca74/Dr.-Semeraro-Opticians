@@ -55,7 +55,7 @@ backend y frontend.
 
 Solo dos, y el script comprueba ambos antes de empezar:
 
-1. **Node.js 20 o superior** — <https://nodejs.org> (versión LTS).
+1. **Node.js 24** — <https://nodejs.org> (misma versión mayor que utiliza CI).
 2. **Docker Desktop instalado y abierto** — <https://www.docker.com/products/docker-desktop>
    PostgreSQL corre en un contenedor: **no instales PostgreSQL en tu equipo**.
 
