@@ -19,7 +19,7 @@ describe('rutas privadas frente a la política de la API', () => {
     [Rol.DOCTOR, ['/admin/agenda', '/admin/expedientes', '/admin/personas'], ['/admin/inventario', '/admin/ventas', '/admin/laboratorio', '/admin/usuarios', '/recepcion/agenda']],
     [Rol.ADMINISTRADOR, ['/admin/inventario', '/admin/ventas', '/admin/laboratorio', '/admin/usuarios'], ['/admin/expedientes', '/admin/agenda', '/recepcion/agenda']],
     [Rol.RECEPCION, ['/recepcion/agenda', '/recepcion/cuenta'], ['/admin', '/admin/ventas', '/admin/expedientes', '/recepcion/ventas', '/recepcion/pacientes']],
-    [Rol.PACIENTE, ['/portal', '/pedidos'], ['/admin', '/recepcion/agenda', '/admin/expedientes']],
+    [Rol.PACIENTE, ['/portal', '/pedidos', '/mi-cuenta'], ['/admin', '/recepcion/agenda', '/admin/expedientes']],
   ];
   for (const [usuario, permitidas, prohibidas] of casos) {
     it(`${usuario} solo tiene las rutas acordadas`, () => {

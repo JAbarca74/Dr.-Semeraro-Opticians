@@ -16,6 +16,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   login: (credenciales: LoginRequest) => Promise<UsuarioSesion | null>;
   logout: () => Promise<void>;
+  cerrarSesionLocal: () => void;
   hasRole: (roles: Rol[]) => boolean;
 }
 
@@ -35,11 +36,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return sesion;
   }, []);
 
-  const logout = useCallback(async () => {
-    await logoutRequest();
+  const cerrarSesionLocal = useCallback(() => {
     clearToken();
     setUser(null);
   }, []);
+
+  const logout = useCallback(async () => {
+    await logoutRequest();
+    cerrarSesionLocal();
+  }, [cerrarSesionLocal]);
 
   const hasRole = useCallback(
     (roles: Rol[]) => (user ? roles.includes(user.rol) : false),
@@ -47,8 +52,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, isAuthenticated: user !== null, login, logout, hasRole }),
-    [user, login, logout, hasRole],
+    () => ({ user, isAuthenticated: user !== null, login, logout, cerrarSesionLocal, hasRole }),
+    [user, login, logout, cerrarSesionLocal, hasRole],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

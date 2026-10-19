@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState, type FormEvent } from 'react';
 import { SpinnerLentes } from '../../shared/ilustraciones';
 import { motion } from 'framer-motion';
@@ -76,6 +77,7 @@ export const PortalPacientePage = () => {
             title={t('portal.tituloExp')}
             description={t('portal.descripcionExp')}
           />
+          <Link className="underline" to="/mi-cuenta">{t('cuenta.titulo')}</Link>
           <MisExpedientes />
         </div>
       ) : null}

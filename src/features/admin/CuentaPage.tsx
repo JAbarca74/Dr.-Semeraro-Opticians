@@ -18,7 +18,7 @@ import {
 
 export const CuentaPage = () => {
   const { t } = useIdioma();
-  const { user } = useAuth();
+  const { user, cerrarSesionLocal } = useAuth();
   const [actual, setActual] = useState('');
   const [nueva, setNueva] = useState('');
   const [confirmar, setConfirmar] = useState('');
@@ -34,7 +34,7 @@ export const CuentaPage = () => {
       setError(t('cuenta.noCoincide'));
       return;
     }
-    if (nueva.length < 8) {
+    if (nueva.length < 8 || new TextEncoder().encode(nueva).length > 72) {
       setError(t('cuenta.claveCorta'));
       return;
     }
@@ -45,6 +45,8 @@ export const CuentaPage = () => {
       setActual('');
       setNueva('');
       setConfirmar('');
+      cerrarSesionLocal();
+      window.location.assign('/login');
     } catch (e) {
       setError(mensajeDeError(e));
     } finally {
