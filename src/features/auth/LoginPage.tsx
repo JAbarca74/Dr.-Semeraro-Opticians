@@ -308,6 +308,7 @@ export const LoginPage = () => {
               </motion.button>
             </form>
 
+            <Link to="/recuperar-clave" className="mt-5 block text-sm underline">{t('acceso.olvide')}</Link>
             <Link to="/registro" className="mt-5 block text-sm underline">{t('nav.publico.crearCuenta')}</Link>
             {DEMO.length > 0 ? (
             <div className="mt-8 border-t border-neutral-200/20 pt-6">

@@ -47,7 +47,6 @@ describe('crearUsuario', () => {
     const input = {
       idPersona: 10,
       email: 'admin@optica.local',
-      password: 'admin1234',
       rol: Rol.ADMINISTRADOR,
     };
     const result = await crearUsuario(input);

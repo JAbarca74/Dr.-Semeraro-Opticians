@@ -1,3 +1,4 @@
+import { AccesoCuentaPage } from './features/auth/AccesoCuentaPage';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import { PublicLayout } from './layouts/PublicLayout';
@@ -48,6 +49,9 @@ export const router = createBrowserRouter([
       { path: '/', element: <HomePage /> },
       { path: '/catalogo', element: <CatalogoPage /> },
       { path: '/especialista', element: <PerfilEspecialistaPage /> },
+      { path: '/recuperar-clave', element: <AccesoCuentaPage modo="recuperar" /> },
+      { path: '/restablecer-clave', element: <AccesoCuentaPage modo="restablecer" /> },
+      { path: '/activar-personal', element: <AccesoCuentaPage modo="personal" /> },
       { path: '/registro', element: <RegistroPage /> },
       { path: '/activar-cuenta', element: <RegistroPage /> },
       { path: '/agendar', element: <AgendarCitaPage /> },
@@ -62,7 +66,7 @@ export const router = createBrowserRouter([
             // 403: el mismo defecto que se corrigió en las rutas de bodega,
             // ventas y métricas (ver `06-estado-y-hallazgos.md` §3.22 y §3.28).
             element: <RoleRoute roles={[Rol.PACIENTE]} />,
-            children: [{ path: '/portal', element: <PortalPacientePage /> }, { path: '/pedidos', element: <SeguimientoPedidosPage /> }],
+            children: [{ path: '/portal', element: <PortalPacientePage /> }, { path: '/mi-cuenta', element: <CuentaPage /> }, { path: '/pedidos', element: <SeguimientoPedidosPage /> }],
           },
         ],
       },

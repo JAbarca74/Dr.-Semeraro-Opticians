@@ -1,3 +1,8 @@
+import { InvitacionPersonal } from './InvitacionPersonal';
+import {
+  claveEstadoAcceso,
+  type EstadoAcceso,
+} from '../../core/api/activacion.service';
 import { useIdioma } from '../../core/i18n/idioma.context';
 import { useEffect, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
@@ -15,7 +20,7 @@ import type {
   UpdateUsuario,
   Usuario,
 } from '../../core/models/usuario';
-import type { Persona } from '../../core/models/persona';
+import { TipoPersona, type Persona } from '../../core/models/persona';
 import { mensajeDeError } from '../../shared/error';
 import {
   Alert,
@@ -31,7 +36,6 @@ import {
 const FORM_VACIO: CreateUsuario = {
   idPersona: 0,
   email: '',
-  password: '',
   rol: Rol.RECEPCION,
 };
 
@@ -41,12 +45,12 @@ export const UsuariosPage = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [form, setForm] = useState<CreateUsuario>(FORM_VACIO);
+  const [nuevoEmpleado, setNuevoEmpleado] = useState(false);
+  const [cedula, setCedula] = useState('');
+  const [nombre, setNombre] = useState('');
   const [error, setError] = useState('');
   const [aviso, setAviso] = useState('');
   const [guardando, setGuardando] = useState(false);
-  /** Restablecimiento en curso: a quién y con qué contraseña. */
-  const [reset, setReset] = useState<{ id: number; valor: string } | null>(null);
-
   /** La propia cuenta no se puede degradar ni desactivar desde aquí. */
   const esCuentaPropia = (u: Usuario) => u.idUsuario === user?.idUsuario;
 
@@ -69,14 +73,36 @@ export const UsuariosPage = () => {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!form.idPersona) {
+    if (!nuevoEmpleado && !form.idPersona) {
       setError(t('usuarios.seleccionePersona'));
       return;
     }
     setGuardando(true);
     try {
-      await crearUsuario(form);
+      const creada = await crearUsuario(
+        nuevoEmpleado
+          ? {
+              email: form.email,
+              rol: form.rol,
+              cedula: cedula.trim(),
+              nombre: nombre.trim(),
+            }
+          : form,
+      );
+      setAviso(
+        t(
+          creada.accesoCuenta?.estado === 'fallida'
+            ? 'acceso.envioFallido'
+            : claveEstadoAcceso(
+                (creada.accesoCuenta?.estado ??
+                  'pendiente') as EstadoAcceso['estado'],
+              ),
+        ),
+      );
       setForm(FORM_VACIO);
+      setCedula('');
+      setNombre('');
+      setNuevoEmpleado(false);
       cargar();
     } catch (e) {
       setError(mensajeDeError(e));
@@ -103,24 +129,10 @@ export const UsuariosPage = () => {
     cargar();
   };
 
-  const cambiarRol = (u: Usuario, rol: Rol) =>
-    aplicar(u.idUsuario, { rol });
+  const cambiarRol = (u: Usuario, rol: Rol) => aplicar(u.idUsuario, { rol });
 
   const alternarActivo = (u: Usuario) =>
     aplicar(u.idUsuario, { activo: !u.activo });
-
-  const restablecerPassword = async (u: Usuario) => {
-    if (!reset || reset.valor.length < 8) {
-      setError(t('usuarios.claveCorta'));
-      return;
-    }
-    await aplicar(
-      u.idUsuario,
-      { password: reset.valor },
-      `Contraseña restablecida para ${u.email}. Comuníquesela por un canal seguro.`,
-    );
-    setReset(null);
-  };
 
   const selectMini =
     'transition-luxe border border-neutral-200 bg-white px-2 py-1 text-xs focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-tinta dark:border-white/10 dark:bg-[#18181a] dark:text-white';
@@ -137,26 +149,73 @@ export const UsuariosPage = () => {
         <LuxCard className="p-6">
           <div className="mb-5 flex items-center gap-2 border-b border-neutral-100 pb-4 dark:border-white/5">
             <ShieldCheck className="h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
-            <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">{t('usuarios.nuevo')}</h2>
+            <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200">
+              {t('usuarios.nuevo')}
+            </h2>
           </div>
-          <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <label>
-              <span className={fieldLabelClass}>{t('usuarios.persona')}</span>
-              <select
-                className={fieldInputClass}
-                value={form.idPersona}
-                onChange={(e) =>
-                  setForm({ ...form, idPersona: Number(e.target.value) })
-                }
-              >
-                <option value={0}>{t('usuarios.seleccione')}</option>
-                {personas.map((p) => (
-                  <option key={p.idPersona} value={p.idPersona}>
-                    {p.nombre} ({p.cedula})
-                  </option>
-                ))}
-              </select>
-            </label>
+          <p className="mb-4 text-sm">{t('acceso.invitacionNota')}</p>
+          <LuxButton
+            type="button"
+            variant="ghost"
+            disabled={guardando}
+            onClick={() => setNuevoEmpleado((valor) => !valor)}
+          >
+            {t(
+              nuevoEmpleado ? 'acceso.elegirEmpleado' : 'acceso.nuevoEmpleado',
+            )}
+          </LuxButton>
+          <form
+            onSubmit={onSubmit}
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          >
+            {nuevoEmpleado ? (
+              <>
+                <label className={fieldLabelClass}>
+                  {t('persona.cedula')}
+                  <input
+                    required
+                    maxLength={20}
+                    className={fieldInputClass}
+                    value={cedula}
+                    onChange={(e) => setCedula(e.target.value)}
+                  />
+                </label>
+                <label className={fieldLabelClass}>
+                  {t('persona.nombreCompleto')}
+                  <input
+                    required
+                    maxLength={150}
+                    className={fieldInputClass}
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                  />
+                </label>
+              </>
+            ) : (
+              <>
+                <label>
+                  <span className={fieldLabelClass}>
+                    {t('usuarios.persona')}
+                  </span>
+                  <select
+                    className={fieldInputClass}
+                    value={form.idPersona}
+                    onChange={(e) =>
+                      setForm({ ...form, idPersona: Number(e.target.value) })
+                    }
+                  >
+                    <option value={0}>{t('usuarios.seleccione')}</option>
+                    {personas
+                      .filter((p) => p.tipo === TipoPersona.EMPLEADO)
+                      .map((p) => (
+                        <option key={p.idPersona} value={p.idPersona}>
+                          {p.nombre} ({p.cedula})
+                        </option>
+                      ))}
+                  </select>
+                </label>
+              </>
+            )}
             <label>
               <span className={fieldLabelClass}>{t('usuarios.correo')}</span>
               <input
@@ -168,28 +227,21 @@ export const UsuariosPage = () => {
               />
             </label>
             <label>
-              <span className={fieldLabelClass}>{t('usuarios.clave')}</span>
-              <input
-                type="password"
-                className={fieldInputClass}
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                minLength={8}
-                required
-              />
-            </label>
-            <label>
               <span className={fieldLabelClass}>Rol</span>
               <select
                 className={fieldInputClass}
                 value={form.rol}
-                onChange={(e) => setForm({ ...form, rol: e.target.value as Rol })}
+                onChange={(e) =>
+                  setForm({ ...form, rol: e.target.value as Rol })
+                }
               >
-                {Object.values(Rol).filter((r) => r !== Rol.PACIENTE).map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
+                {Object.values(Rol)
+                  .filter((r) => r !== Rol.PACIENTE)
+                  .map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
               </select>
             </label>
             <div className="col-span-full flex flex-wrap items-center gap-3 pt-2">
@@ -250,58 +302,39 @@ export const UsuariosPage = () => {
                           : undefined
                       }
                     >
-                      {Object.values(Rol).filter((r) => r === u.rol || (r !== Rol.PACIENTE && u.rol !== Rol.PACIENTE)).map((r) => (
-                        <option key={r} value={r}>
-                          {r}
-                        </option>
-                      ))}
+                      {Object.values(Rol)
+                        .filter(
+                          (r) =>
+                            r === u.rol ||
+                            (r !== Rol.PACIENTE && u.rol !== Rol.PACIENTE),
+                        )
+                        .map((r) => (
+                          <option key={r} value={r}>
+                            {r}
+                          </option>
+                        ))}
                     </select>
                   </td>
                   <td className="px-5 py-3">
-                    <Badge tone={u.activo ? 'green' : 'neutral'}>
-                      {u.activo ? 'Activo' : 'Inactivo'}
+                    <Badge
+                      tone={
+                        u.activo && u.activado !== false ? 'green' : 'neutral'
+                      }
+                    >
+                      {u.activo
+                        ? u.activado === false
+                          ? t('acceso.pendiente')
+                          : 'Activo'
+                        : 'Inactivo'}
                     </Badge>
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex flex-wrap items-center justify-end gap-3">
-                      {reset?.id === u.idUsuario ? (
-                        <>
-                          <input
-                            type="password"
-                            autoFocus
-                            minLength={8}
-                            placeholder={t('usuarios.claveNueva')}
-                            aria-label={`Nueva contraseña de ${u.email}`}
-                            value={reset.valor}
-                            onChange={(e) =>
-                              setReset({ id: u.idUsuario, valor: e.target.value })
-                            }
-                            className={selectMini}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => restablecerPassword(u)}
-                            className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-lux-tinta hover:text-lux-blue"
-                          >
-                            Guardar
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setReset(null)}
-                            className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-400 hover:text-lux-tinta"
-                          >
-                            Cancelar
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setReset({ id: u.idUsuario, valor: '' })}
-                          className="transition-luxe text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-lux-tinta"
-                        >
-                          {t('usuarios.restablecer')}
-                        </button>
-                      )}
+                      {u.rol !== Rol.PACIENTE &&
+                      u.activado === false &&
+                      u.activo ? (
+                        <InvitacionPersonal id={u.idUsuario} />
+                      ) : null}
                       {esCuentaPropia(u) ? (
                         <span className="text-[11px] uppercase tracking-wider text-neutral-400">
                           {t('usuarios.suCuenta')}
@@ -321,7 +354,12 @@ export const UsuariosPage = () => {
               ))}
               {usuarios.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-sm text-neutral-400">{t('usuarios.vacio')}</td>
+                  <td
+                    colSpan={5}
+                    className="px-5 py-10 text-center text-sm text-neutral-400"
+                  >
+                    {t('usuarios.vacio')}
+                  </td>
                 </tr>
               ) : null}
             </tbody>

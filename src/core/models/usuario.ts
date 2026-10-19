@@ -7,6 +7,8 @@ export interface Usuario {
   email: string;
   rol: Rol;
   activo: boolean;
+  activado?: boolean;
+  accesoCuenta?: { estado: string };
   createdAt?: string;
   persona?: Persona;
 }
@@ -39,9 +41,10 @@ export interface JwtPayload {
 }
 
 export interface CreateUsuario {
-  idPersona: number;
+  idPersona?: number;
+  cedula?: string;
+  nombre?: string;
   email: string;
-  password: string;
   rol: Rol;
 }
 
@@ -49,8 +52,7 @@ export interface UpdateUsuario {
   email?: string;
   rol?: Rol;
   activo?: boolean;
-  /** Restablecimiento por el Administrador (mínimo 8 caracteres). */
-  password?: string;
+
 }
 
 /**
