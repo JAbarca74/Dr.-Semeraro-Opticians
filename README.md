@@ -24,7 +24,7 @@ ventas, órdenes de laboratorio y portal del paciente, en una sola SPA.
 [Inicio rápido](#-inicio-rápido) ·
 [Solución de problemas](#-solución-de-problemas) ·
 [Contribuir](#-contribuir) ·
-[Seguridad](#-seguridad)
+[Licencia](#-licencia-y-créditos)
 
 </div>
 
@@ -243,17 +243,6 @@ cd ../optica-semeraro-api && npm run db:reset
 ¡Las contribuciones son bienvenidas! Lee la [guía de contribución](./CONTRIBUTING.md)
 y el [código de conducta](./CODE_OF_CONDUCT.md) antes de abrir un *pull request*.
 Para errores e ideas, usa las plantillas de *issues*.
-
-## 🔒 Seguridad
-
-Este sistema maneja datos clínicos. **Si encuentras una vulnerabilidad, no
-abras un *issue* público**: repórtala en privado como explica
-[SECURITY.md](./SECURITY.md).
-
-- Ningún secreto vive en el código; solo se versiona `.env.example`.
-- Un escáner de secretos corre en el *pre-commit* y en CI.
-- Cabeceras de seguridad (HSTS, `nosniff`, `frame-ancestors`, `Permissions-Policy`) en [`vercel.json`](./vercel.json).
-- Análisis estático con CodeQL y actualizaciones con Dependabot.
 
 ## 📄 Licencia y créditos
 
