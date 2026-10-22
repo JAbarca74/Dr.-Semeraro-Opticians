@@ -1,0 +1,7 @@
+# Toda modificación requiere la revisión del mantenedor.
+* @JAbarca74
+
+# Superficie sensible: cabeceras de seguridad, CI y escáner de secretos.
+/vercel.json @JAbarca74
+/.github/ @JAbarca74
+/scripts/escanear-secretos.mjs @JAbarca74
