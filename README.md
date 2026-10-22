@@ -7,8 +7,8 @@
 **Sistema de gestión clínica para ópticas**: expedientes, agenda, inventario,
 ventas, órdenes de laboratorio y portal del paciente, en una sola SPA.
 
-[![CI](https://github.com/JAbarca74/optica-semeraro-web/actions/workflows/ci.yml/badge.svg)](https://github.com/JAbarca74/optica-semeraro-web/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/JAbarca74/optica-semeraro-web/actions/workflows/codeql.yml/badge.svg)](https://github.com/JAbarca74/optica-semeraro-web/actions/workflows/codeql.yml)
+[![CI](https://github.com/JAbarca74/Dr.-Semeraro-Opticians/actions/workflows/ci.yml/badge.svg)](https://github.com/JAbarca74/Dr.-Semeraro-Opticians/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/JAbarca74/Dr.-Semeraro-Opticians/actions/workflows/codeql.yml/badge.svg)](https://github.com/JAbarca74/Dr.-Semeraro-Opticians/actions/workflows/codeql.yml)
 [![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-3c497d.svg)](./LICENSE)
 [![PRs bienvenidos](https://img.shields.io/badge/PRs-bienvenidos-3c497d.svg)](./CONTRIBUTING.md)
 
@@ -92,7 +92,7 @@ mi-carpeta/
 ```
 
 ```bash
-git clone https://github.com/JAbarca74/optica-semeraro-web
+git clone https://github.com/JAbarca74/Dr.-Semeraro-Opticians optica-semeraro-web
 git clone https://github.com/JAbarca74/optica-semeraro-api
 ```
 
