@@ -95,7 +95,7 @@ describe('LaboratorioPage', () => {
   });
 
   it('cambiar de filtro vuelve a consultar con el filtro nuevo', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await screen.findByText('Óptica Lab CR');
 
@@ -127,7 +127,7 @@ describe('LaboratorioPage', () => {
         changedAt: '2026-08-21T09:00:00.000Z',
       },
     ]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await abrirDetalle(usuario);
 
@@ -136,7 +136,7 @@ describe('LaboratorioPage', () => {
   });
 
   it('EX-09: el desplegable no ofrece «Listo» desde «En proceso»', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await abrirDetalle(usuario);
 
@@ -149,7 +149,7 @@ describe('LaboratorioPage', () => {
 
   it('avanza el estado por el camino normal', async () => {
     mockCambiar.mockResolvedValue(orden({ estado: EstadoOrden.RECIBIDO }));
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await abrirDetalle(usuario);
 
@@ -165,7 +165,7 @@ describe('LaboratorioPage', () => {
   });
 
   it('marcar retraso exige motivo antes de dejar confirmar', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await abrirDetalle(usuario);
 
@@ -200,7 +200,7 @@ describe('LaboratorioPage', () => {
         retrasadaDesde: hace3Dias,
       }),
     ]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await abrirDetalle(usuario);
 
@@ -209,7 +209,7 @@ describe('LaboratorioPage', () => {
 
   it('una orden «Listo» no ofrece cambios de estado', async () => {
     mockListar.mockResolvedValue([orden({ estado: EstadoOrden.LISTO })]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await abrirDetalle(usuario);
 
@@ -223,7 +223,7 @@ describe('LaboratorioPage', () => {
     mockCambiar.mockRejectedValue({
       response: { data: { message: 'No se puede pasar de «En proceso» a «Listo para entrega».' } },
     });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await abrirDetalle(usuario);
 
@@ -240,7 +240,7 @@ describe('LaboratorioPage', () => {
 
   it('abre una orden nueva sin mandar los campos opcionales vacíos', async () => {
     mockCrear.mockResolvedValue(orden({ idOrdenLaboratorio: 43 }));
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await screen.findByText('Óptica Lab CR');
 
@@ -261,7 +261,7 @@ describe('LaboratorioPage', () => {
   });
 
   it('el botón de cerrar oculta el detalle sin recargar la tabla', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await abrirDetalle(usuario);
     expect(screen.getByText('Progresivos antirreflejo')).toBeInTheDocument();
@@ -275,7 +275,7 @@ describe('LaboratorioPage', () => {
   });
 
   it('«Actualizar» vuelve a pedir el listado con el filtro vigente', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await screen.findByText('Óptica Lab CR');
     mockListar.mockClear();
@@ -288,7 +288,7 @@ describe('LaboratorioPage', () => {
   });
 
   it('cancelar el alta cierra el formulario sin crear nada', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await screen.findByText('Óptica Lab CR');
 
@@ -303,7 +303,7 @@ describe('LaboratorioPage', () => {
 
   it('el alta manda los campos opcionales cuando sí se llenan', async () => {
     mockCrear.mockResolvedValue(orden({ idOrdenLaboratorio: 44 }));
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await screen.findByText('Óptica Lab CR');
 
@@ -335,7 +335,7 @@ describe('LaboratorioPage', () => {
         },
       },
     });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await screen.findByText('Óptica Lab CR');
 
@@ -354,7 +354,7 @@ describe('LaboratorioPage', () => {
     mockHistorial.mockRejectedValue({
       response: { data: { message: 'La orden #42 no existe.' } },
     });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await waitFor(() => expect(screen.getByText('Óptica Lab CR')).toBeInTheDocument());
     await usuario.click(screen.getByText('Óptica Lab CR'));
@@ -374,7 +374,7 @@ describe('LaboratorioPage', () => {
         changedAt: '2026-08-21T09:00:00.000Z',
       },
     ]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await abrirDetalle(usuario);
 

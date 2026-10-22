@@ -74,7 +74,7 @@ describe('pantallas según finalidad de la cuenta', () => {
     rol = Rol.DOCTOR;
     vi.mocked(crearPersona).mockResolvedValue({ idPersona: 5, cedula: '123', nombre: 'Ana', tipo: 'Paciente' });
     render(<PersonasPage />);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     await user.type(screen.getByLabelText('Cédula'), '123');
     await user.type(screen.getByLabelText('Nombre completo'), 'Ana');
     await user.click(screen.getByRole('button', { name: 'Crear persona' }));

@@ -13,7 +13,7 @@ it('registra solo los datos mínimos y devuelve la ficha seleccionable, sin crea
   vi.mocked(crearPersona).mockResolvedValue(persona);
   const onCreado = vi.fn();
   render(<PacienteParaCita onCreado={onCreado} onCancelar={vi.fn()} />);
-  const user = userEvent.setup();
+  const user = userEvent.setup({ delay: null });
   await user.type(screen.getByLabelText('Cédula'), '123');
   await user.type(screen.getByLabelText('Nombre completo'), 'Ana');
   await user.click(screen.getByRole('button', { name: 'Guardar y seleccionar paciente' }));
@@ -27,7 +27,7 @@ describe('errores de ficha mínima', () => {
     vi.mocked(crearPersona).mockRejectedValue({ response: { data: { message: 'La cédula ya está registrada' } } });
     const onCreado = vi.fn();
     render(<PacienteParaCita onCreado={onCreado} onCancelar={vi.fn()} />);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     await user.type(screen.getByLabelText('Cédula'), '123');
     await user.type(screen.getByLabelText('Nombre completo'), 'Ana');
     await user.click(screen.getByRole('button', { name: 'Guardar y seleccionar paciente' }));

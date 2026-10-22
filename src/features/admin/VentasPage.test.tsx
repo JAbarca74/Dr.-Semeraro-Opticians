@@ -150,7 +150,7 @@ describe('VentasPage', () => {
   });
 
   it('busca en bodega y muestra el stock disponible', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
 
     await usuario.type(screen.getByLabelText('Buscar en bodega'), 'ray');
@@ -162,7 +162,7 @@ describe('VentasPage', () => {
 
   it('un producto sin existencias no se puede agregar', async () => {
     mockProductos.mockResolvedValue([producto({ stock: 0 })]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
 
     await usuario.type(screen.getByLabelText('Buscar en bodega'), 'ray');
@@ -172,7 +172,7 @@ describe('VentasPage', () => {
   });
 
   it('agregar dos veces el mismo producto consolida la línea', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
     await usuario.click(screen.getByRole('button', { name: 'Agregar' }));
@@ -183,7 +183,7 @@ describe('VentasPage', () => {
   });
 
   it('los botones de cantidad suman y restan', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
 
@@ -195,7 +195,7 @@ describe('VentasPage', () => {
   });
 
   it('bajar la cantidad a cero saca la línea del carrito', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
 
@@ -207,7 +207,7 @@ describe('VentasPage', () => {
   });
 
   it('el bote de basura vacía la línea completa', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
 
@@ -220,7 +220,7 @@ describe('VentasPage', () => {
 
   it('avisa y bloquea el cobro si el carrito pide más de lo que hay', async () => {
     mockProductos.mockResolvedValue([producto({ stock: 1 })]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
 
@@ -232,7 +232,7 @@ describe('VentasPage', () => {
 
   it('registra la venta mandando solo producto y cantidad', async () => {
     mockRegistrar.mockResolvedValue(venta());
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
 
@@ -249,7 +249,7 @@ describe('VentasPage', () => {
   it('confirma con el total del servidor, no con el del carrito', async () => {
     // El carrito mostraría ₡100 (1 × 100); el servidor responde 300.
     mockRegistrar.mockResolvedValue(venta({ total: 300 }));
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
 
@@ -262,7 +262,7 @@ describe('VentasPage', () => {
 
   it('vacía el carrito después de cobrar', async () => {
     mockRegistrar.mockResolvedValue(venta());
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
 
@@ -275,7 +275,7 @@ describe('VentasPage', () => {
 
   it('vincula la venta al paciente elegido', async () => {
     mockRegistrar.mockResolvedValue(venta({ idPaciente: 5, nombrePaciente: 'Ana Rojas' }));
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
 
@@ -298,7 +298,7 @@ describe('VentasPage', () => {
         },
       },
     });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
 
@@ -310,7 +310,7 @@ describe('VentasPage', () => {
   });
 
   it('al elegir una venta muestra sus líneas y el total cobrado', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
 
     await usuario.click(await screen.findByText('#7'));
@@ -320,7 +320,7 @@ describe('VentasPage', () => {
   });
 
   it('anular exige motivo de al menos tres caracteres', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await usuario.click(await screen.findByText('#7'));
 
@@ -333,7 +333,7 @@ describe('VentasPage', () => {
 
   it('revierte la venta y avisa que el stock volvió', async () => {
     mockAnular.mockResolvedValue(venta({ estado: EstadoVenta.ANULADA }));
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await usuario.click(await screen.findByText('#7'));
 
@@ -348,7 +348,7 @@ describe('VentasPage', () => {
 
   it('una venta anulada ya no ofrece revertirse', async () => {
     mockVentas.mockResolvedValue([venta({ estado: EstadoVenta.ANULADA })]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
 
     await usuario.click(await screen.findByText('#7'));
@@ -366,7 +366,7 @@ describe('VentasPage', () => {
         },
       },
     });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await usuario.click(await screen.findByText('#7'));
 
@@ -379,7 +379,7 @@ describe('VentasPage', () => {
   });
 
   it('el botón de cerrar oculta el detalle', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await usuario.click(await screen.findByText('#7'));
 
@@ -389,7 +389,7 @@ describe('VentasPage', () => {
   });
 
   it('CU-04 paso 7: filtra el historial de compras por paciente', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await screen.findByText('#7');
 
@@ -402,7 +402,7 @@ describe('VentasPage', () => {
 
   it('un paciente sin compras lo dice, en vez del vacío genérico', async () => {
     mockVentas.mockResolvedValue([]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     // La lista de pacientes llega por separado: hay que esperarla antes de elegir.
     await screen.findByRole('option', { name: /Ana Rojas/ });
@@ -415,7 +415,7 @@ describe('VentasPage', () => {
   });
 
   it('desde una venta activa se salta al tablero de laboratorio', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar('/recepcion/ventas');
     await usuario.click(await screen.findByText('#7'));
 
@@ -425,7 +425,7 @@ describe('VentasPage', () => {
   });
 
   it('desde administración salta al tablero de administración, no al de recepción', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar('/admin/ventas');
     await usuario.click(await screen.findByText('#7'));
 
@@ -436,7 +436,7 @@ describe('VentasPage', () => {
 
   it('una venta anulada no ofrece abrir orden de laboratorio', async () => {
     mockVentas.mockResolvedValue([venta({ estado: EstadoVenta.ANULADA })]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await usuario.click(await screen.findByText('#7'));
 
@@ -468,7 +468,7 @@ describe('VentasPage', () => {
 
   it('avisa si la búsqueda en bodega falla', async () => {
     mockProductos.mockRejectedValue({ response: { data: { message: 'Sin conexión' } } });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
 
     await usuario.click(screen.getByRole('button', { name: /^Buscar$/ }));
@@ -479,7 +479,7 @@ describe('VentasPage', () => {
   it('que no haya lista de pacientes no impide cobrar de mostrador', async () => {
     mockPersonas.mockRejectedValue(new Error('sin permiso'));
     mockRegistrar.mockResolvedValue(venta());
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     montar();
     await agregarAlCarrito(usuario);
 
