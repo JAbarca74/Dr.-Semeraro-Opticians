@@ -1,8 +1,11 @@
 name: CI
 
+# `push` solo en master: en las ramas de un PR ya corre por `pull_request`. Con
+# `push` en todas las ramas cada PR corría dos veces, y la corrida duplicada
+# dejaba a veces un check «en curso» fantasma que bloqueaba la fusión.
 on:
   push:
-    branches: ['**']
+    branches: [master]
   pull_request:
 
 # Mínimo privilegio: el token del workflow solo lee el código. Importa más
