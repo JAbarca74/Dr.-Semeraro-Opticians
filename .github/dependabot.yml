@@ -12,7 +12,19 @@ updates:
     cooldown:
       default-days: 7
       semver-major-days: 30
+    # Las versiones mayores de estos paquetes solo funcionan si suben juntas:
+    # por separado, npm no resuelve las dependencias entre ellos (ERESOLVE) y el
+    # PR nace roto. Cada grupo llega como un único PR, para migrarlo entero.
     groups:
+      react-mayor:
+        patterns: ['react', 'react-dom', '@types/react', '@types/react-dom']
+        update-types: [major]
+      vitest-mayor:
+        patterns: ['vitest', '@vitest/*']
+        update-types: [major]
+      eslint-mayor:
+        patterns: ['eslint', 'eslint-*', '@typescript-eslint/*']
+        update-types: [major]
       dependencias-desarrollo:
         dependency-type: development
         update-types: [minor, patch]
