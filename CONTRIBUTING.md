@@ -22,7 +22,7 @@ Necesitas **Node.js 24** y **Docker Desktop**, y los dos repositorios uno al
 lado del otro:
 
 ```bash
-git clone https://github.com/JAbarca74/optica-semeraro-web
+git clone https://github.com/JAbarca74/Dr.-Semeraro-Opticians optica-semeraro-web
 git clone https://github.com/JAbarca74/optica-semeraro-api
 cd optica-semeraro-web
 npm start
