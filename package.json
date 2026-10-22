@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Frontend del Sistema de Gestion de Optica Dr. Semeraro (React + Vite)",
   "author": "Grupo 84 - Ingenieria de Sistemas I - UNA",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {

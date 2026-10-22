@@ -1,0 +1,48 @@
+name: 🐞 Reportar un error
+description: Algo no funciona como debería.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportarlo. **Si es una vulnerabilidad de seguridad, no uses este formulario**: sigue `SECURITY.md`.
+        ⚠️ **No incluyas datos reales de pacientes, contraseñas ni tokens** en el reporte ni en las capturas.
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: ¿Qué pasó?
+      description: Describe el error y lo que esperabas que ocurriera.
+    validations:
+      required: true
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducirlo
+      placeholder: |
+        1. Entrar como Recepción
+        2. Ir a /recepcion/agenda
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: rol
+    attributes:
+      label: Rol con el que ocurre
+      multiple: true
+      options:
+        - Sin sesión (público)
+        - Paciente
+        - Recepción
+        - Doctor
+        - Administrador
+  - type: input
+    id: entorno
+    attributes:
+      label: Navegador y sistema operativo
+      placeholder: Chrome 140 · Windows 11
+  - type: textarea
+    id: consola
+    attributes:
+      label: Errores de consola o registros
+      description: Revisa que no contengan tokens ni datos personales.
+      render: shell

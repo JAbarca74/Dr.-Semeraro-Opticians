@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 330" width="1200" height="330" role="img" aria-labelledby="t d">
+  <title id="t">Arquitectura del sistema</title>
+  <desc id="d">El navegador ejecuta la SPA en React, que habla por HTTPS con la API REST en NestJS, que persiste en PostgreSQL. Las peticiones viajan con un token JWT y cada endpoint valida el rol.</desc>
+  <defs>
+    <style>
+      .caja { fill: #ffffff; fill-opacity: .06; stroke: #8ea2ff; stroke-opacity: .55; stroke-width: 2; }
+      .icono { fill: none; stroke: #e8ecff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .h { font: 700 22px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: #fff; text-anchor: middle; }
+      .p { font: 400 15px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: #c9d1f5; text-anchor: middle; }
+      .etq { font: 600 13px ui-monospace, 'SFMono-Regular', Consolas, monospace; fill: #8ea2ff; text-anchor: middle; }
+      .pie { font: 500 15px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: #c9d1f5; text-anchor: middle; }
+      .linea { stroke: #8ea2ff; stroke-opacity: .45; stroke-width: 3; stroke-dasharray: 8 8; animation: fluir 1.2s linear infinite; }
+      .ida { fill: #fff; animation: ida 2.4s ease-in-out infinite; }
+      .vuelta { fill: #7ee2b8; animation: vuelta 2.4s ease-in-out 1.2s infinite; opacity: 0; }
+      .d2 { animation-delay: .6s; }
+      .vuelta.d2 { animation-delay: 1.8s; }
+      .latido { animation: latir 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+      @keyframes fluir { to { stroke-dashoffset: -16; } }
+      @keyframes ida { 0% { transform: translateX(0); opacity: 0; } 10% { opacity: 1; } 50% { transform: translateX(120px); opacity: 1; } 55%, 100% { transform: translateX(120px); opacity: 0; } }
+      @keyframes vuelta { 0% { transform: translateX(120px); opacity: 0; } 10% { opacity: 1; } 50% { transform: translateX(0); opacity: 1; } 55%, 100% { transform: translateX(0); opacity: 0; } }
+      @keyframes latir { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; }
+        .ida { opacity: 1; } .vuelta { display: none; }
+      }
+    </style>
+  </defs>
+
+  <rect width="1200" height="330" rx="24" fill="#1f2747"/>
+
+  <!-- Conectores -->
+  <line class="linea" x1="350" y1="130" x2="460" y2="130"/>
+  <line class="linea" x1="740" y1="130" x2="850" y2="130"/>
+  <text class="etq" x="405" y="112">HTTPS + JWT</text>
+  <text class="etq" x="795" y="112">TypeORM</text>
+  <circle class="ida" cx="345" cy="130" r="6"/>
+  <circle class="vuelta" cx="345" cy="130" r="6"/>
+  <circle class="ida d2" cx="735" cy="130" r="6"/>
+  <circle class="vuelta d2" cx="735" cy="130" r="6"/>
+
+  <!-- SPA -->
+  <rect class="caja" x="60" y="40" width="290" height="190" rx="18"/>
+  <g class="icono" transform="translate(180 62)">
+    <rect x="0" y="0" width="50" height="36" rx="5"/><path d="M0 10 H50 M17 36 V44 M33 36 V44 M10 44 H40"/>
+  </g>
+  <text class="h" x="205" y="140">SPA web</text>
+  <text class="p" x="205" y="166">React 18 · Vite · TypeScript</text>
+  <text class="p" x="205" y="188">Tailwind · Router · i18n es/en/it</text>
+  <text class="etq" x="205" y="214">este repositorio</text>
+
+  <!-- API -->
+  <rect class="caja" x="460" y="40" width="280" height="190" rx="18"/>
+  <g transform="translate(575 60)">
+    <g class="icono latido">
+      <path d="M25 0 L50 10 V24 C50 38 38 46 25 50 C12 46 0 38 0 24 V10 Z"/><path d="M15 25 L22 32 L36 18"/>
+    </g>
+  </g>
+  <text class="h" x="600" y="140">API REST</text>
+  <text class="p" x="600" y="166">NestJS 10 · Passport JWT</text>
+  <text class="p" x="600" y="188">RBAC · auditoría · recetas selladas</text>
+  <text class="etq" x="600" y="214">optica-semeraro-api</text>
+
+  <!-- Base de datos -->
+  <rect class="caja" x="850" y="40" width="290" height="190" rx="18"/>
+  <g class="icono" transform="translate(970 58)">
+    <ellipse cx="25" cy="8" rx="25" ry="8"/><path d="M0 8 V44 C0 49 11 52 25 52 C39 52 50 49 50 44 V8 M0 26 C0 31 11 34 25 34 C39 34 50 31 50 26"/>
+  </g>
+  <text class="h" x="995" y="140">PostgreSQL</text>
+  <text class="p" x="995" y="166">Migraciones · seed idempotente</text>
+  <text class="p" x="995" y="188">Docker en local · Supabase</text>
+  <text class="etq" x="995" y="214">datos clínicos</text>
+
+  <!-- Roles -->
+  <text class="pie" x="600" y="286">4 roles con rutas propias: Administrador · Doctor · Recepción · Paciente</text>
+</svg>
