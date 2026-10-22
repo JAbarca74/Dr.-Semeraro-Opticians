@@ -14,7 +14,7 @@
  * Nunca imprime el valor encontrado: solo archivo, línea y tipo.
  */
 import { execFileSync } from 'node:child_process';
-import { readFileSync, statSync } from 'node:fs';
+import { closeSync, fstatSync, openSync, readFileSync } from 'node:fs';
 
 const PLANTILLA = /(\[|<|>|\$\{|tu_|su_|your|example|changeme|cambi[ae]|xxx|\*\*\*|password\]|contrase)/i;
 
@@ -55,8 +55,16 @@ for (const archivo of archivos) {
   if (IGNORADOS.test(archivo)) continue;
   let texto;
   try {
-    if (!statSync(archivo).isFile() || statSync(archivo).size > 1_000_000) continue;
-    texto = readFileSync(archivo, 'utf8');
+    // Se abre una sola vez y se mide sobre ese mismo descriptor: comprobar la
+    // ruta y leerla después dejaría que el archivo cambiara entre medias.
+    const fd = openSync(archivo, 'r');
+    try {
+      const info = fstatSync(fd);
+      if (!info.isFile() || info.size > 1_000_000) continue;
+      texto = readFileSync(fd, 'utf8');
+    } finally {
+      closeSync(fd);
+    }
   } catch {
     continue;
   }

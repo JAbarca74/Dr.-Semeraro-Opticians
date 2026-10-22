@@ -86,4 +86,10 @@ describe('interceptor de response', () => {
     await expect(errorFn(err)).rejects.toEqual(err);
     expect(mockClearToken).not.toHaveBeenCalled();
   });
+
+  it('deja pasar intacta una respuesta correcta', () => {
+    const respuesta = { status: 200, data: { ok: true } };
+    expect((resHandlers[0].fulfilled as (r: unknown) => unknown)(respuesta)).toBe(respuesta);
+    expect(mockClearToken).not.toHaveBeenCalled();
+  });
 });

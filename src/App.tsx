@@ -13,12 +13,7 @@ export default function App() {
           traducirse, y ahí todavía no hay usuario. */}
         <IdiomaProvider>
           <AuthProvider>
-            {/* `v7_startTransition` se configura aquí, no en `createBrowserRouter`:
-            es el único future flag que consume el proveedor. */}
-            <RouterProvider
-              router={router}
-              future={{ v7_startTransition: true }}
-            />
+            <RouterProvider router={router} />
           </AuthProvider>
         </IdiomaProvider>
       </ThemeProvider>
