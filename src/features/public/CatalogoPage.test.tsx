@@ -118,7 +118,7 @@ describe('CatalogoPage', () => {
   });
 
   it('filtra por marca', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<CatalogoPage />);
     await screen.findByText('Ray-Ban Wayfarer');
 
@@ -128,7 +128,7 @@ describe('CatalogoPage', () => {
   });
 
   it('filtra por tipo de producto', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<CatalogoPage />);
     await screen.findByText('Ray-Ban Wayfarer');
 
@@ -140,7 +140,7 @@ describe('CatalogoPage', () => {
   });
 
   it('busca por texto al enviar el formulario', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<CatalogoPage />);
     await screen.findByText('Ray-Ban Wayfarer');
 
@@ -182,7 +182,7 @@ describe('CatalogoPage', () => {
   });
 
   it('CU-09 paso 8: abre WhatsApp con el nombre del producto en el mensaje', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<CatalogoPage />);
     await consultar(usuario);
 
@@ -194,7 +194,7 @@ describe('CatalogoPage', () => {
   });
 
   it('el mensaje no lleva datos personales del visitante', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<CatalogoPage />);
     await consultar(usuario);
 
@@ -204,7 +204,7 @@ describe('CatalogoPage', () => {
 
   it('si el navegador bloquea la ventana, da el número para llamar', async () => {
     abrirVentana.mockReturnValue(null);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<CatalogoPage />);
     await consultar(usuario);
 
@@ -215,7 +215,7 @@ describe('CatalogoPage', () => {
 
   it('sin número configurado avisa en vez de abrir una URL rota', async () => {
     mockParametros.mockResolvedValue({ 'optica.nombre': 'Óptica Dr. Semeraro' });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<CatalogoPage />);
     await consultar(usuario);
 
@@ -229,7 +229,7 @@ describe('CatalogoPage', () => {
     mockCatalogo.mockResolvedValue([
       vitrina({ calibre: 51, filtro: 'Polarizado', material: 'Acetato' }),
     ]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<CatalogoPage />);
 
     await usuario.click(await screen.findByRole('button', { name: /Ver detalle/ }));
@@ -242,7 +242,7 @@ describe('CatalogoPage', () => {
   });
 
   it('desde el detalle también se consulta, y el modal se cierra', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<CatalogoPage />);
     await usuario.click(await screen.findByRole('button', { name: /Ver detalle/ }));
 

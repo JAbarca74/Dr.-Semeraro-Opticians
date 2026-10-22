@@ -125,7 +125,7 @@ describe('InventarioPage', () => {
   });
 
   it('el filtro de bajo stock lo resuelve la API, no la pantalla', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await screen.findByText('RB-2140-51');
 
@@ -135,7 +135,7 @@ describe('InventarioPage', () => {
   });
 
   it('filtra por categoría', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await screen.findByText('RB-2140-51');
 
@@ -147,7 +147,7 @@ describe('InventarioPage', () => {
   });
 
   it('busca por texto libre al enviar el formulario', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await screen.findByText('RB-2140-51');
 
@@ -168,7 +168,7 @@ describe('InventarioPage', () => {
 
   it('al seleccionar un producto carga su kardex', async () => {
     mockKardex.mockResolvedValue([asiento({ referencia: 'ALTA-PRODUCTO' })]);
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 
@@ -179,7 +179,7 @@ describe('InventarioPage', () => {
 
   it('registra una entrada de mercadería', async () => {
     mockEntrada.mockResolvedValue(asiento());
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 
@@ -198,7 +198,7 @@ describe('InventarioPage', () => {
 
   it('una entrada sin referencia no manda cadena vacía', async () => {
     mockEntrada.mockResolvedValue(asiento({ referencia: null }));
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 
@@ -217,7 +217,7 @@ describe('InventarioPage', () => {
     mockAjuste.mockResolvedValue(
       asiento({ tipo: TipoMovimiento.AJUSTE, cantidad: -3, stockDespues: 7 }),
     );
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 
@@ -242,7 +242,7 @@ describe('InventarioPage', () => {
     mockCrear.mockRejectedValue({
       response: { data: { message: 'Ya existe un producto con el SKU «RB-2140-51».' } },
     });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await screen.findByText('RB-2140-51');
 
@@ -258,7 +258,7 @@ describe('InventarioPage', () => {
 
   it('el SKU se normaliza a mayúsculas antes de guardarlo', async () => {
     mockCrear.mockResolvedValue(producto({ stock: 4 }));
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await screen.findByText('RB-2140-51');
 
@@ -278,7 +278,7 @@ describe('InventarioPage', () => {
   });
 
   it('cancelar el alta cierra el formulario sin crear nada', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await screen.findByText('RB-2140-51');
 
@@ -290,7 +290,7 @@ describe('InventarioPage', () => {
   });
 
   it('el botón de cerrar oculta el detalle', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 
@@ -303,7 +303,7 @@ describe('InventarioPage', () => {
 
   it('CU-03: se pueden corregir los datos maestros, incluido el umbral', async () => {
     mockActualizar.mockResolvedValue(producto({ precio: 210, umbralMinimo: 8 }));
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 
@@ -328,7 +328,7 @@ describe('InventarioPage', () => {
 
   it('la edición NUNCA manda stock: eso rompería el kardex', async () => {
     mockActualizar.mockResolvedValue(producto());
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 
@@ -345,7 +345,7 @@ describe('InventarioPage', () => {
   it('vaciar la imagen manda cadena vacía, que el backend lee como «bórrala»', async () => {
     mockListar.mockResolvedValue([producto({ imagenUrl: 'https://ejemplo/aro.jpg' })]);
     mockActualizar.mockResolvedValue(producto({ imagenUrl: null }));
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 
@@ -362,7 +362,7 @@ describe('InventarioPage', () => {
   });
 
   it('cancelar la edición no guarda nada', async () => {
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 
@@ -377,7 +377,7 @@ describe('InventarioPage', () => {
     mockActualizar.mockRejectedValue({
       response: { data: { message: 'Ya existe un producto con el SKU «OK-1».' } },
     });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 
@@ -400,7 +400,7 @@ describe('InventarioPage', () => {
     mockKardex.mockRejectedValue({
       response: { data: { message: 'Producto no encontrado.' } },
     });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await waitFor(() => expect(screen.getByText('Ray-Ban Wayfarer')).toBeInTheDocument());
     await usuario.click(screen.getByText('Ray-Ban Wayfarer'));
@@ -412,7 +412,7 @@ describe('InventarioPage', () => {
     mockEntrada.mockRejectedValue({
       response: { data: { message: 'La cantidad de la entrada debe ser al menos 1.' } },
     });
-    const usuario = userEvent.setup();
+    const usuario = userEvent.setup({ delay: null });
     render(<InventarioPage />);
     await abrirDetalle(usuario);
 

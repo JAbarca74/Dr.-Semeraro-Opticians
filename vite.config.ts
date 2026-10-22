@@ -62,6 +62,10 @@ export default defineConfig(({ mode }) => ({
   },
   test: {
     environment: 'node',
+    // 10 s y no los 5 s por defecto: con React 19 los tests de formularios largos
+    // (expediente clínico, agenda) tardan hasta ~4 s en un equipo normal, y el
+    // runner de GitHub es más lento. Con 5 s fallaban de forma intermitente.
+    testTimeout: 10_000,
     coverage: {
       provider: 'v8',
       // Dos grupos con exigencias distintas, a propósito:

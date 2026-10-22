@@ -31,6 +31,17 @@ updates:
       dependencias-produccion:
         dependency-type: production
         update-types: [minor, patch]
+    # ESLint 10 exige migrar `.eslintrc.cjs` a `eslint.config.js` (flat config) y
+    # un eslint-plugin-react-hooks compatible: sin esa migración el PR siempre
+    # falla. Se pausan sus versiones mayores hasta hacerla; las menores y los
+    # parches siguen llegando. Ojo: ESLint 8 ya no recibe parches, así que si
+    # aparece una alerta de seguridad de ESLint, la salida es hacer la migración
+    # y quitar este bloque.
+    ignore:
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'eslint-plugin-react-hooks'
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
     directory: /

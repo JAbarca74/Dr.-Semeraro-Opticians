@@ -110,7 +110,7 @@ describe('AuditoriaPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    user = userEvent.setup();
+    user = userEvent.setup({ delay: null });
     (listarLogs as any).mockResolvedValue(paginaCambios);
     (listarAccesos as any).mockResolvedValue(paginaAccesos);
     (listarTablasAuditadas as any).mockResolvedValue([

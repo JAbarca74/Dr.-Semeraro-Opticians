@@ -138,7 +138,7 @@ describe('ExpedientesPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    user = userEvent.setup();
+    user = userEvent.setup({ delay: null });
     (listarPersonas as any).mockResolvedValue(mockPacientes);
     (listarExpedientes as any).mockResolvedValue(mockExpedientesLista);
     (expedientePorPaciente as any).mockResolvedValue(mockDetalleConRefraccion);
