@@ -127,7 +127,7 @@ export const AdminLayout = () => {
   return (
     <div className="flex min-h-screen flex-col bg-lux-cream font-sans text-lux-blue transition-luxe dark:bg-[#0a0a0a] dark:text-zinc-100">
       {/* NAVBAR CORPORATIVO STICKY */}
-      <header className="transition-luxe sticky top-0 z-40 border-b border-lux-blue/10 bg-[#fcfbf9]/80 blur-backdrop dark:border-white/10 dark:bg-[#0a0a0a]/80">
+      <header className="transition-luxe sticky top-0 z-40 border-b border-lux-blue/10 bg-lux-cream/80 blur-backdrop dark:border-white/10 dark:bg-[#0a0a0a]/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           {/* Marca */}
           <button

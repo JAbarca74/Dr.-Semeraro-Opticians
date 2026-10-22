@@ -135,7 +135,7 @@ export const UsuariosPage = () => {
     aplicar(u.idUsuario, { activo: !u.activo });
 
   const selectMini =
-    'transition-luxe border border-neutral-200 bg-white px-2 py-1 text-xs focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-tinta dark:border-white/10 dark:bg-[#18181a] dark:text-white';
+    'transition-luxe border border-neutral-200 bg-white px-2 py-1 text-xs focus:border-lux-blue focus:outline-hidden focus:ring-1 focus:ring-lux-tinta dark:border-white/10 dark:bg-[#18181a] dark:text-white';
 
   return (
     <section className="space-y-10">

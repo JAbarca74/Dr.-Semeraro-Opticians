@@ -129,7 +129,7 @@ export const LuxButton = ({
   <button
     className={cx(
       'transition-luxe inline-flex cursor-pointer items-center justify-center gap-2',
-      'px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em]',
+      'px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider2',
       'disabled:cursor-not-allowed disabled:opacity-50',
       VARIANTS[variant],
       className,
@@ -146,7 +146,7 @@ export const fieldLabelClass =
 
 export const fieldInputClass =
   'transition-luxe mt-1.5 w-full border bg-[#fdfdfc] px-3.5 py-2.5 text-sm text-neutral-900 ' +
-  'border-neutral-200 placeholder-neutral-400 focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-tinta ' +
+  'border-neutral-200 placeholder-neutral-400 focus:border-lux-blue focus:outline-hidden focus:ring-1 focus:ring-lux-tinta ' +
   'dark:bg-[#18181a] dark:text-white dark:border-white/10 dark:placeholder-neutral-600 dark:focus:border-lux-tinta-claro';
 
 // ── Etiqueta de estado (badge) ───────────────────────────────────────────────
