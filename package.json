@@ -51,7 +51,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^4.6.2",
     "husky": "^9.1.7",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.1.1",
     "lint-staged": "^17.6.0",
     "lockfile-lint": "5.1.0",
     "postcss": "^8.5.31",
