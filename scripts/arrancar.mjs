@@ -195,6 +195,17 @@ for (const [nombre, ruta] of [['API', API], ['web', WEB]]) {
   }
 }
 
+// `.npmrc` instala sin scripts (`ignore-scripts`), así que el `prepare` de Husky
+// ya no corre solo. Sin él no existe el pre-commit que escanea secretos: se
+// instala aquí, explícitamente. `--no` impide descargar nada que no esté en el lockfile.
+if (existsSync(join(WEB, '.git'))) {
+  correr(npm, ['exec', '--no', '--', 'husky'], WEB, {
+    titulo: 'No se pudieron instalar los hooks de git (Husky)',
+    ayuda: ['Prueba a mano:', c('36', '  npx --no husky')],
+  });
+  ok('web: hooks de git activos (escaneo de secretos antes de cada commit)');
+}
+
 // ── 4. Base de datos ────────────────────────────────────────────────────────
 paso(4, 'Levantando PostgreSQL y el correo local en Docker');
 correr('docker', ['compose', 'up', '-d', '--wait'], API, {

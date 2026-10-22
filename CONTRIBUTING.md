@@ -29,7 +29,17 @@ npm start
 ```
 
 `npm start` crea los `.env` locales, levanta PostgreSQL en Docker, aplica
-migraciones y arranca API y frontend. Detalle completo en el
+migraciones, activa los hooks de git y arranca API y frontend.
+
+El `.npmrc` del proyecto instala **sin scripts de instalación**
+(`ignore-scripts=true`), para cortar la vía habitual del malware en npm. Si
+instalas a mano en vez de usar `npm start`, activa los hooks tú mismo; sin ellos
+no se escanean los secretos antes de cada commit:
+
+```bash
+npm ci
+npx --no husky
+``` Detalle completo en el
 [README](./README.md#-inicio-rápido).
 
 ## Flujo de trabajo

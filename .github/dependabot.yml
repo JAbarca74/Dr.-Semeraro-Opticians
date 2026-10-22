@@ -1,10 +1,17 @@
 version: 2
+# cooldown: Dependabot espera a que una versión tenga cierta antigüedad antes de
+# proponerla. La mayoría de los paquetes maliciosos se detectan y se retiran del
+# registro en pocos días; esperar evita instalarlos. No afecta a las
+# actualizaciones de seguridad, que siguen llegando en cuanto se publican.
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
     groups:
       dependencias-desarrollo:
         dependency-type: development
@@ -17,3 +24,5 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7

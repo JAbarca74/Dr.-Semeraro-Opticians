@@ -5,6 +5,9 @@
   "author": "Grupo 84 - Ingenieria de Sistemas I - UNA",
   "license": "MIT",
   "private": true,
+  "engines": {
+    "node": ">=24"
+  },
   "type": "module",
   "scripts": {
     "start": "node scripts/arrancar.mjs",
@@ -12,6 +15,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "seguridad:secretos": "node scripts/escanear-secretos.mjs",
+    "seguridad:lockfile": "lockfile-lint --path package-lock.json --type npm --allowed-hosts npm --validate-https --validate-package-names --validate-integrity",
     "lint": "eslint . --ext ts,tsx",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "test": "vitest run",
@@ -49,6 +53,7 @@
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.6.0",
+    "lockfile-lint": "5.1.0",
     "postcss": "^8.5.31",
     "prettier": "^3.9.10",
     "tailwindcss": "^4.3.3",
