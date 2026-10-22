@@ -114,17 +114,6 @@ export const router = createBrowserRouter([
   },
     { path: '*', element: <Navigate to="/" replace /> },
   ],
-  {
-    // Adopta desde ya el comportamiento de React Router v7. Sin esto la consola
-    // avisa en cada arranque («Future Flag Warning»); activarlos también deja el
-    // salto a v7 sin cambios de comportamiento sorpresa.
-    // `v7_startTransition` no va aquí, sino en el `RouterProvider` de `App.tsx`.
-    future: {
-      v7_relativeSplatPath: true,
-      v7_fetcherPersist: true,
-      v7_normalizeFormMethod: true,
-      v7_partialHydration: true,
-      v7_skipActionErrorRevalidation: true,
-    },
-  },
+  // React Router 7 (2026-10-22): los future flags de v6 ya eran el comportamiento
+  // por defecto aquí, así que el salto de versión no cambia nada en la app.
 );

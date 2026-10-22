@@ -16,7 +16,7 @@ import { Rol } from '../../core/models/rol';
 import { MisExpedientes } from './MisExpedientes';
 import type { VerificacionReceta } from '../../core/models/expediente';
 import { mensajeDeError } from '../../shared/error';
-import { normalizarHash } from '../../shared/receta';
+import { normalizarHash, urlPdfReceta } from '../../shared/receta';
 import {
   Kicker,
   LuxButton,
@@ -264,7 +264,7 @@ export const PortalPacientePage = () => {
               </p>
 
               <div className="flex flex-wrap gap-3 pt-2">
-                <a href={`${API_BASE}/recetas/${hash}/pdf`} target="_blank" rel="noreferrer">
+                <a href={urlPdfReceta(API_BASE, hash)} target="_blank" rel="noreferrer">
                   <LuxButton type="button">
                     <Download className="h-3.5 w-3.5" /> {t('receta.descargarPdf')}
                   </LuxButton>

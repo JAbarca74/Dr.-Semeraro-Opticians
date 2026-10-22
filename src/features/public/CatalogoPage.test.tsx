@@ -302,7 +302,7 @@ describe('DSO-57 · el aproximado en dólares', () => {
     render(<CatalogoPage />);
 
     // Sin la fecha, alguien llega al mostrador esperando pagar exactamente eso.
-    expect(await screen.findByText(/open\.er-api\.com/)).toBeInTheDocument();
+    expect(await screen.findByText('open.er-api.com', { exact: false })).toBeInTheDocument();
     expect(
       screen.getByText(/el precio de la óptica es en colones/i),
     ).toBeInTheDocument();

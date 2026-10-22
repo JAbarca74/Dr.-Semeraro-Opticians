@@ -17,7 +17,7 @@
  * que exista `node_modules`.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, copyFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -145,23 +145,33 @@ await exigirPuertosLibres();
 // ── 2. Variables de entorno ─────────────────────────────────────────────────
 paso(2, 'Preparando variables de entorno');
 
-const envApi = join(API, '.env');
-if (!existsSync(envApi)) {
-  copyFileSync(join(API, '.env.example'), envApi);
-  // Secreto propio de cada equipo: nunca se comparte ni se versiona.
-  const texto = readFileSync(envApi, 'utf8').replace(
-    /^JWT_SECRET=.*$/m,
-    `JWT_SECRET=${randomBytes(32).toString('hex')}`,
-  );
-  writeFileSync(envApi, texto);
+/**
+ * Crea el archivo solo si no existe, en una única operación (`wx`): comprobar
+ * con `existsSync` y escribir después deja una ventana en la que otro proceso
+ * podría crearlo o sustituirlo. Devuelve `false` si ya existía.
+ */
+function crearSiNoExiste(ruta, contenido) {
+  try {
+    writeFileSync(ruta, contenido, { flag: 'wx', mode: 0o600 });
+    return true;
+  } catch (e) {
+    if (e.code === 'EEXIST') return false;
+    throw e;
+  }
+}
+
+// Secreto propio de cada equipo: nunca se comparte ni se versiona.
+const envApiTexto = readFileSync(join(API, '.env.example'), 'utf8').replace(
+  /^JWT_SECRET=.*$/m,
+  `JWT_SECRET=${randomBytes(32).toString('hex')}`,
+);
+if (crearSiNoExiste(join(API, '.env'), envApiTexto)) {
   ok('api/.env creado con un JWT_SECRET aleatorio');
 } else {
   info('api/.env ya existe, no se toca');
 }
 
-const envWeb = join(WEB, '.env');
-if (!existsSync(envWeb)) {
-  writeFileSync(envWeb, 'VITE_API_URL=http://localhost:3000/api\n');
+if (crearSiNoExiste(join(WEB, '.env'), 'VITE_API_URL=http://localhost:3000/api\n')) {
   ok('web/.env creado');
 } else {
   info('web/.env ya existe, no se toca');
