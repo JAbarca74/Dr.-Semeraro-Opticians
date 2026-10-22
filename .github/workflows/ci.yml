@@ -14,24 +14,35 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Las acciones van fijadas por SHA (OpenSSF Scorecard, Pinned-Dependencies): una
+# etiqueta como `@v7` se puede mover a otro commit; un SHA no. El comentario
+# dice la versión, y Dependabot actualiza ambos a la vez.
 jobs:
   quality:
     name: Lint · Build · Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
 
+      # Sin scripts de instalación: es la vía habitual del malware en npm.
+      # `.npmrc` ya lo impone; se repite aquí para que no dependa de ese archivo.
       - name: Instalar dependencias
-        run: npm ci
+        run: npm ci --ignore-scripts
+
+      - name: Verificar firmas del registro
+        run: npm audit signatures
+
+      - name: Validar lockfile
+        run: npm run seguridad:lockfile
 
       - name: Escanear secretos
         run: npm run seguridad:secretos
