@@ -117,7 +117,7 @@ export const LoginPage = () => {
   return (
     <div className="flex min-h-screen flex-col bg-lux-cream font-sans text-lux-blue transition-luxe dark:bg-[#0a0a0a] dark:text-zinc-100">
       {/* Header */}
-      <header className="transition-luxe sticky top-0 z-30 border-b border-lux-blue/10 bg-[#fcfbf9]/80 blur-backdrop dark:border-white/10 dark:bg-[#0a0a0a]/80">
+      <header className="transition-luxe sticky top-0 z-30 border-b border-lux-blue/10 bg-lux-cream/80 blur-backdrop dark:border-white/10 dark:bg-[#0a0a0a]/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <Link to="/">
             <MarcaOptica tamano="md" />
@@ -143,7 +143,7 @@ export const LoginPage = () => {
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-stretch gap-10 px-6 py-12 lg:flex-row">
         {/* Panel izquierdo cinematográfico */}
         <section className="relative hidden flex-1 flex-col justify-between overflow-hidden border border-neutral-200/60 bg-white p-12 dark:border-white/10 dark:bg-[#0d0d0d] lg:flex">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-lux-tinta/5 via-transparent to-lux-blue/5" />
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-tr from-lux-tinta/5 via-transparent to-lux-blue/5" />
           <div className="relative z-10">
             <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-lux-tinta">
               {t('login.eslogan')}
@@ -168,7 +168,7 @@ export const LoginPage = () => {
                     referrerPolicy="no-referrer"
                     className="transition-luxe h-full w-full object-cover opacity-90 hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
                 </div>
                 <div>
                   <span className="block font-mono text-[11px] uppercase tracking-widest text-neutral-400">
@@ -261,7 +261,7 @@ export const LoginPage = () => {
                       setEmail(e.target.value);
                       setError('');
                     }}
-                    className="transition-luxe w-full border border-neutral-200 bg-[#fdfdfc] py-3 pl-10 pr-4 text-xs text-neutral-900 placeholder-neutral-400 focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-tinta dark:border-white/10 dark:bg-[#18181a] dark:text-white dark:placeholder-neutral-600 dark:focus:border-lux-tinta-claro"
+                    className="transition-luxe w-full border border-neutral-200 bg-[#fdfdfc] py-3 pl-10 pr-4 text-xs text-neutral-900 placeholder-neutral-400 focus:border-lux-blue focus:outline-hidden focus:ring-1 focus:ring-lux-tinta dark:border-white/10 dark:bg-[#18181a] dark:text-white dark:placeholder-neutral-600 dark:focus:border-lux-tinta-claro"
                   />
                 </div>
               </div>
@@ -282,7 +282,7 @@ export const LoginPage = () => {
                       setPassword(e.target.value);
                       setError('');
                     }}
-                    className="transition-luxe w-full border border-neutral-200 bg-[#fdfdfc] py-3 pl-10 pr-10 text-xs text-neutral-900 placeholder-neutral-400 focus:border-lux-blue focus:outline-none focus:ring-1 focus:ring-lux-tinta dark:border-white/10 dark:bg-[#18181a] dark:text-white dark:placeholder-neutral-600 dark:focus:border-lux-tinta-claro"
+                    className="transition-luxe w-full border border-neutral-200 bg-[#fdfdfc] py-3 pl-10 pr-10 text-xs text-neutral-900 placeholder-neutral-400 focus:border-lux-blue focus:outline-hidden focus:ring-1 focus:ring-lux-tinta dark:border-white/10 dark:bg-[#18181a] dark:text-white dark:placeholder-neutral-600 dark:focus:border-lux-tinta-claro"
                   />
                   <button
                     type="button"

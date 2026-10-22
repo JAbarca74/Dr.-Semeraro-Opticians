@@ -73,7 +73,7 @@ export const SpinnerLentes = ({
           r="8.5"
           strokeLinecap="round"
           strokeDasharray="14 40"
-          className="origin-center animate-spin [transform-box:fill-box]"
+          className="origin-center animate-spin transform-fill"
           style={{ animationDuration: '1.1s' }}
         />
       </g>

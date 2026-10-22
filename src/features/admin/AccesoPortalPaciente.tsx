@@ -23,7 +23,7 @@ export const AccesoPortalPaciente = ({ idPersona, permitirEditarCorreo = true }:
     finally { setOcupado(false); }
   };
   const existente = estado?.estado === 'activa' || estado?.estado === 'desactivada';
-  return <aside className="my-4 space-y-3 rounded border p-4 dark:border-white/10">
+  return <aside className="my-4 space-y-3 rounded-sm border p-4 dark:border-white/10">
     <h3 className="font-semibold">{t('registro.kicker')}</h3>
     {error ? <Alert>{error}</Alert> : null}
     {estado ? <p role="status">{t(claveEstadoAcceso(estado.estado))}</p> : null}

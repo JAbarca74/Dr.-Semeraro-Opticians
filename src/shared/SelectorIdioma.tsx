@@ -102,7 +102,7 @@ export const SelectorIdioma = ({ className }: { className?: string }) => {
         }
         onClick={() => (abierto ? setAbierto(false) : abrir())}
         onKeyDown={alTeclear}
-        className="transition-luxe flex cursor-pointer items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest opacity-70 outline-none hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-lux-tinta"
+        className="transition-luxe flex cursor-pointer items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest opacity-70 outline-hidden hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-lux-tinta"
       >
         <Globe
           className="h-3.5 w-3.5 shrink-0"
@@ -125,7 +125,7 @@ export const SelectorIdioma = ({ className }: { className?: string }) => {
           id={idLista}
           role="listbox"
           aria-label={t('idioma.selector.etiqueta')}
-          className="absolute right-0 top-full z-50 mt-2 min-w-[9rem] animate-desplegar border border-neutral-200 bg-white py-1 text-lux-blue shadow-xl dark:border-white/10 dark:bg-[#0f0f11] dark:text-white"
+          className="absolute right-0 top-full z-50 mt-2 min-w-36 animate-desplegar border border-neutral-200 bg-white py-1 text-lux-blue shadow-xl dark:border-white/10 dark:bg-[#0f0f11] dark:text-white"
         >
           {IDIOMAS.map((i, n) => {
             const elegido = i === idioma;

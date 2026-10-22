@@ -117,7 +117,7 @@ export const DashboardPage = () => {
             className="h-full w-full object-cover opacity-70"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-black/85" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/10 via-black/40 to-black/85" />
         <div className="relative z-10 max-w-4xl space-y-6 px-4">
           <span className="block text-[10px] font-bold uppercase tracking-[0.35em] text-lux-tinta-claro md:text-xs">
             Óptica Dr. Luigi Semeraro

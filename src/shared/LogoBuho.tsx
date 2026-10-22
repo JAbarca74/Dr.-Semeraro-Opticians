@@ -27,7 +27,7 @@ export function LogoBuho({
   parpadeo = false,
 }: Props) {
   // `fill-box` hace que el origen sea el centro de cada pupila, no del lienzo.
-  const ojo = parpadeo ? 'animate-parpadeo [transform-box:fill-box] origin-center' : undefined;
+  const ojo = parpadeo ? 'animate-parpadeo transform-fill origin-center' : undefined;
   return (
     <svg
       viewBox="0 0 107 123"

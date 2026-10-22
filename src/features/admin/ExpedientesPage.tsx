@@ -312,7 +312,7 @@ const CampoMedida = ({
         step={paso}
         className={cx(
           fieldInputClass,
-          malo && '!border-red-500 focus:!ring-red-400',
+          malo && 'border-red-500! focus:ring-red-400!',
         )}
         value={valor}
         onChange={(e) => onChange(e.target.value)}
@@ -620,7 +620,7 @@ export const ExpedientesPage = () => {
               className={cx(
                 fieldInputClass,
                 fueraDeRango(c, valores[c]) &&
-                  '!border-red-500 focus:!ring-red-400',
+                  'border-red-500! focus:ring-red-400!',
               )}
               value={valores[c]}
               onChange={(e) => set({ ...valores, [c]: e.target.value })}
@@ -1419,7 +1419,7 @@ export const ExpedientesPage = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 outline-none"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 outline-hidden"
           >
             <LuxCard className="w-full max-w-md p-6">
               <div className="mb-4 flex items-center justify-between border-b border-neutral-100 pb-3 dark:border-white/5">

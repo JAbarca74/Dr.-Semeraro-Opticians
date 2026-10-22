@@ -49,7 +49,7 @@ export const RecepCard = ({
 }: ComponentPropsWithoutRef<'div'>) => (
   <div
     className={cx(
-      'border border-neutral-150 bg-white shadow-sm dark:border-neutral-800 dark:bg-[#181c22]',
+      'border border-neutral-150 bg-white shadow-xs dark:border-neutral-800 dark:bg-[#181c22]',
       className,
     )}
     {...rest}
@@ -81,7 +81,7 @@ export const RecepButton = ({
 );
 
 export const recepInputClass =
-  'w-full border border-neutral-250 bg-stone-50/50 px-3.5 py-3 text-xs outline-none transition-colors ' +
+  'w-full border border-neutral-250 bg-stone-50/50 px-3.5 py-3 text-xs outline-hidden transition-colors ' +
   'focus:border-neutral-900 focus:bg-white dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-neutral-500';
 
 export const recepLabelClass =

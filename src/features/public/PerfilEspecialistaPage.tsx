@@ -164,7 +164,7 @@ export const PerfilEspecialistaPage = () => {
           <div className="grid items-center gap-10 lg:grid-cols-12">
             <motion.div
               {...fadeUp}
-              className="relative aspect-[4/5] overflow-hidden border border-lux-blue/10 dark:border-white/10 lg:col-span-5"
+              className="relative aspect-4/5 overflow-hidden border border-lux-blue/10 dark:border-white/10 lg:col-span-5"
             >
               {especialista.fotoUrl ? (
                 <img
@@ -180,7 +180,7 @@ export const PerfilEspecialistaPage = () => {
                   </span>
                 </span>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
               {/*
                 La línea de colegiatura solo existe si la base tiene el código.
                 Antes estaba escrita a mano y era falsa: ver §3.9.

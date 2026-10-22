@@ -140,7 +140,7 @@ export const DiagramaMotilidad = ({
                 }
               }}
               className={cx(
-                'transition-luxe outline-none',
+                'transition-luxe outline-hidden',
                 !soloLectura && 'cursor-pointer focus-visible:stroke-lux-tinta',
                 estado === EstadoMotilidad.NORMAL &&
                   'fill-emerald-500/80 stroke-emerald-600',
