@@ -25,6 +25,9 @@ updates:
       eslint-mayor:
         patterns: ['eslint', 'eslint-*', '@typescript-eslint/*']
         update-types: [major]
+      vite-mayor:
+        patterns: ['vite', '@vitejs/*']
+        update-types: [major]
       dependencias-desarrollo:
         dependency-type: development
         update-types: [minor, patch]
@@ -41,6 +44,12 @@ updates:
       - dependency-name: 'eslint'
         update-types: ['version-update:semver-major']
       - dependency-name: 'eslint-plugin-react-hooks'
+        update-types: ['version-update:semver-major']
+      # Los tipos de Node siguen a la versión del runtime (engines.node >= 24),
+      # no a la última de Node: los de una versión mayor posterior describen
+      # funciones que el Node del proyecto no tiene. Se suben a mano junto con
+      # `engines` y el `node-version` del CI.
+      - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
