@@ -311,7 +311,7 @@ export const CatalogoPage = () => {
                   type="button"
                   onClick={() => setDetalle(p)}
                   aria-label={`${t('catalogo.verDetalle')} ${p.nombre}`}
-                  className="block aspect-[4/3] w-full overflow-hidden bg-stone-100 dark:bg-neutral-900"
+                  className="block aspect-4/3 w-full overflow-hidden bg-stone-100 dark:bg-neutral-900"
                 >
                   {p.imagenUrl ? (
                     <img

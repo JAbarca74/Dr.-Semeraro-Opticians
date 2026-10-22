@@ -7,3 +7,11 @@ export const normalizarHash = (valor: string): string => {
   const m = limpio.match(/verificar\/([a-f0-9]+)/i);
   return m ? m[1] : limpio;
 };
+
+/**
+ * Enlace de descarga del PDF de una receta. El hash lo escribe la persona, así
+ * que se codifica: una entrada como `../usuarios` no puede salirse de
+ * `/recetas/` ni inyectar otra URL en el `href`.
+ */
+export const urlPdfReceta = (apiBase: string, hash: string): string =>
+  `${apiBase}/recetas/${encodeURIComponent(hash)}/pdf`;

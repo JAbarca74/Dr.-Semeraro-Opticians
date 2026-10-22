@@ -21,7 +21,7 @@ export const BotonWhatsappFlotante = () => {
       {aviso ? (
         <p
           role="alert"
-          className="fixed bottom-24 right-5 z-50 max-w-[15rem] border border-amber-300/40 bg-amber-50 px-3 py-2 text-[11px] text-amber-800 shadow-lg dark:border-amber-900/30 dark:bg-amber-950/90 dark:text-amber-300"
+          className="fixed bottom-24 right-5 z-50 max-w-60 border border-amber-300/40 bg-amber-50 px-3 py-2 text-[11px] text-amber-800 shadow-lg dark:border-amber-900/30 dark:bg-amber-950/90 dark:text-amber-300"
         >
           {aviso}
         </p>

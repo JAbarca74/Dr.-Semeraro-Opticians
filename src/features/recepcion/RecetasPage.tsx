@@ -6,7 +6,7 @@ import { Download, ScanLine, ShieldCheck, ShieldX } from 'lucide-react';
 import { verificarReceta } from '../../core/api/expedientes.service';
 import type { VerificacionReceta } from '../../core/models/expediente';
 import { mensajeDeError } from '../../shared/error';
-import { normalizarHash } from '../../shared/receta';
+import { normalizarHash, urlPdfReceta } from '../../shared/receta';
 import {
   RecepButton,
   RecepCard,
@@ -172,7 +172,7 @@ export const RecetasPage = () => {
                   <p className="break-all font-mono text-[10px] text-neutral-400">
                     SHA-256: {resultado?.hash}
                   </p>
-                  <a href={`${API_BASE}/recetas/${hash}/pdf`} target="_blank" rel="noreferrer">
+                  <a href={urlPdfReceta(API_BASE, hash)} target="_blank" rel="noreferrer">
                     <RecepButton type="button" variant="outline">
                       <Download className="h-3.5 w-3.5" /> {t('receta.descargarPdf')}
                     </RecepButton>

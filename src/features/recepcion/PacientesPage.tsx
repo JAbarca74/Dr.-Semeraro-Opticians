@@ -302,7 +302,7 @@ export const PacientesPage = () => {
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 placeholder={t('pacientes.buscar')}
-                className="w-full bg-transparent text-xs outline-none placeholder:text-neutral-400"
+                className="w-full bg-transparent text-xs outline-hidden placeholder:text-neutral-400"
               />
               <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
                 {filtrados.length} / {personas.length}
