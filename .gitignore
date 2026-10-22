@@ -51,6 +51,13 @@ lerna-debug.log*
 /docs
 *.md
 !/README.md
+# Excepción (2026-10-21, repositorio público): los estándares de comunidad
+# de GitHub sí se versionan. Lista cerrada, nada más.
+!/CONTRIBUTING.md
+!/CODE_OF_CONDUCT.md
+!/SECURITY.md
+!/.github/*.md
+!/.github/ISSUE_TEMPLATE/*.md
 
 # --- Documentos ofimáticos y PDF ---
 # Se generan a partir de su fuente en Markdown; no se despliegan.

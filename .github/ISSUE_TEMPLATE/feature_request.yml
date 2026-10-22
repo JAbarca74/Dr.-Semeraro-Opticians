@@ -1,0 +1,25 @@
+name: 💡 Proponer una mejora
+description: Una idea para el sistema.
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        El proyecto tiene un alcance documentado; algunas ideas pueden quedar fuera de él. Igual nos interesa leerla.
+  - type: textarea
+    id: problema
+    attributes:
+      label: ¿Qué problema resuelve?
+      placeholder: Como recepcionista, necesito ... porque ...
+    validations:
+      required: true
+  - type: textarea
+    id: propuesta
+    attributes:
+      label: Solución propuesta
+    validations:
+      required: true
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas consideradas
