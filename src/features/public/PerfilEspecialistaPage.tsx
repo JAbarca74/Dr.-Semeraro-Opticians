@@ -63,9 +63,7 @@ export const PerfilEspecialistaPage = () => {
         setEspecialista(lista[0] ?? null);
         setError('');
       })
-      .catch((e) =>
-        setError(mensajeDeError(e, t('especialista.error'))),
-      )
+      .catch((e) => setError(mensajeDeError(e, t('especialista.error'))))
       .finally(() => setCargando(false));
 
     parametrosPublicos()
@@ -201,7 +199,10 @@ export const PerfilEspecialistaPage = () => {
               */}
               {experiencia ? (
                 <p className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
-                  <Stethoscope className="h-4 w-4 text-lux-tinta" strokeWidth={1.5} />
+                  <Stethoscope
+                    className="h-4 w-4 text-lux-tinta"
+                    strokeWidth={1.5}
+                  />
                   {experiencia}
                 </p>
               ) : null}
@@ -227,22 +228,6 @@ export const PerfilEspecialistaPage = () => {
                 <MessageCircle size={14} />
                 {t('especialista.contactar')}
               </button>
-
-              {/*
-                Flujos alternos de CU-13: quien ya tiene cuenta entra a su panel
-                y quien no la tiene va al registro del CU-10.
-              */}
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                {t('especialista.yaPaciente')}{' '}
-                <Link to="/login" className="underline hover:text-lux-tinta">
-                  {t('especialista.entrar')}
-                </Link>{' '}
-                {t('especialista.paraVer')}{' '}
-                <Link to="/registro" className="underline hover:text-lux-tinta">
-                  {t('especialista.crearCuenta')}
-                </Link>
-                .
-              </p>
             </motion.div>
           </div>
 

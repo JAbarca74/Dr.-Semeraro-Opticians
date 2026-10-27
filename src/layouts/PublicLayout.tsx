@@ -30,7 +30,6 @@ const ENLACES_PUBLICOS: { to: string; clave: ClaveTexto; end?: boolean }[] = [
   { to: '/especialista', clave: 'nav.publico.especialista' },
   { to: '/catalogo', clave: 'nav.publico.catalogo' },
   { to: '/agendar', clave: 'nav.publico.agendar' },
-  { to: '/portal', clave: 'nav.publico.portal' },
 ];
 
 /** Shell del entorno PÚBLICO (portal del paciente) con la identidad de la óptica. */
@@ -40,6 +39,9 @@ export const PublicLayout = () => {
   const { t } = useIdioma();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const esPortalPrivado =
+    user?.rol === Rol.PACIENTE &&
+    ['/portal', '/pedidos', '/mi-cuenta'].includes(location.pathname);
 
   // Cambiar de página cierra el cajón: si no, al volver atrás con el navegador
   // la capa oscura se queda encima del contenido.
@@ -68,7 +70,11 @@ export const PublicLayout = () => {
                 <NavLink
                   key={e.to}
                   to={e.to}
-                  className={navLinkClass}
+                  className={
+                    e.to === '/agendar'
+                      ? 'transition-luxe bg-lux-blue px-4 py-2 text-[11px] font-semibold uppercase tracking-wider2 text-white hover:bg-lux-tinta dark:bg-lux-tinta-claro dark:text-black'
+                      : navLinkClass
+                  }
                   end={e.end}
                 >
                   {t(e.clave)}
@@ -78,14 +84,25 @@ export const PublicLayout = () => {
                 <>
                   {/* `/pedidos` exige sesión y no tenía ningún enlace: solo se
                       llegaba escribiendo la URL a mano. */}
-                  {user?.rol === Rol.PACIENTE ? <NavLink to="/pedidos" className={navLinkClass}>
-                    {t('nav.publico.pedidos')}
-                  </NavLink> : null}
+                  {esPortalPrivado ? (
+                    <NavLink to="/portal" className={navLinkClass}>
+                      {t('nav.publico.portal')}
+                    </NavLink>
+                  ) : null}
+                  {esPortalPrivado ? (
+                    <NavLink to="/pedidos" className={navLinkClass}>
+                      {t('nav.publico.pedidos')}
+                    </NavLink>
+                  ) : null}
                   <Link
-                    to={homePathForRole(user?.rol)}
+                    to={
+                      esPortalPrivado
+                        ? '/mi-cuenta'
+                        : homePathForRole(user?.rol)
+                    }
                     className={navLinkClass({ isActive: false })}
                   >
-                    {t('nav.publico.panel')}
+                    {t(esPortalPrivado ? 'cuenta.titulo' : 'nav.publico.panel')}
                   </Link>
                   <button
                     type="button"
@@ -97,9 +114,6 @@ export const PublicLayout = () => {
                 </>
               ) : (
                 <>
-                  <NavLink to="/registro" className={navLinkClass}>
-                    {t('nav.publico.crearCuenta')}
-                  </NavLink>
                   <Link
                     to="/login"
                     className="transition-luxe border border-lux-blue px-4 py-2 text-[11px] font-semibold uppercase tracking-wider2 text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-tinta-claro dark:text-lux-tinta-claro dark:hover:bg-lux-tinta-claro dark:hover:text-black"
@@ -134,7 +148,9 @@ export const PublicLayout = () => {
               className="transition-luxe flex cursor-pointer items-center gap-1.5 border border-lux-blue px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-tinta-claro dark:text-lux-tinta-claro dark:hover:bg-lux-tinta-claro dark:hover:text-black lg:hidden"
             >
               <Menu className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{t('publico.menu.etiqueta')}</span>
+              <span className="hidden sm:inline">
+                {t('publico.menu.etiqueta')}
+              </span>
             </button>
           </div>
         </div>
@@ -197,20 +213,29 @@ export const PublicLayout = () => {
           ))}
           {isAuthenticated ? (
             <>
-              {user?.rol === Rol.PACIENTE ? <NavLink
-                to="/pedidos"
-                onClick={() => setMenuOpen(false)}
-                className={claseCajon}
-              >
-                <span>{t('nav.publico.pedidos')}</span>
-                <ChevronRight className="h-3.5 w-3.5 opacity-40" />
-              </NavLink> : null}
+              {esPortalPrivado ? (
+                <NavLink to="/portal" className={claseCajon}>
+                  {t('nav.publico.portal')}
+                </NavLink>
+              ) : null}
+              {esPortalPrivado ? (
+                <NavLink
+                  to="/pedidos"
+                  onClick={() => setMenuOpen(false)}
+                  className={claseCajon}
+                >
+                  <span>{t('nav.publico.pedidos')}</span>
+                  <ChevronRight className="h-3.5 w-3.5 opacity-40" />
+                </NavLink>
+              ) : null}
               <Link
-                to={homePathForRole(user?.rol)}
+                to={esPortalPrivado ? '/mi-cuenta' : homePathForRole(user?.rol)}
                 onClick={() => setMenuOpen(false)}
                 className={claseCajon}
               >
-                <span>{t('nav.publico.panel')}</span>
+                <span>
+                  {t(esPortalPrivado ? 'cuenta.titulo' : 'nav.publico.panel')}
+                </span>
                 <ChevronRight className="h-3.5 w-3.5 opacity-40" />
               </Link>
               <button type="button" onClick={logout} className={claseCajon}>
@@ -220,14 +245,6 @@ export const PublicLayout = () => {
             </>
           ) : (
             <>
-              <NavLink
-                to="/registro"
-                onClick={() => setMenuOpen(false)}
-                className={claseCajon}
-              >
-                <span>{t('nav.publico.crearCuenta')}</span>
-                <ChevronRight className="h-3.5 w-3.5 opacity-40" />
-              </NavLink>
               <Link
                 to="/login"
                 onClick={() => setMenuOpen(false)}
