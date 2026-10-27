@@ -14,10 +14,20 @@ vi.mock('../../core/api/catalogo.service');
 
 vi.mock('framer-motion', async () => {
   const react = await import('react');
-  const PROPS_ANIMACION = ['initial', 'animate', 'exit', 'variants', 'transition', 'whileInView', 'viewport'];
+  const PROPS_ANIMACION = [
+    'initial',
+    'animate',
+    'exit',
+    'variants',
+    'transition',
+    'whileInView',
+    'viewport',
+  ];
   const stripProps = (props: any) =>
     Object.fromEntries(
-      Object.entries(props).filter(([clave]) => !PROPS_ANIMACION.includes(clave)),
+      Object.entries(props).filter(
+        ([clave]) => !PROPS_ANIMACION.includes(clave),
+      ),
     );
   return {
     AnimatePresence: ({ children }: any) => <>{children}</>,
@@ -51,7 +61,9 @@ const perfil = (
 });
 
 const mockListar = listarEspecialistas as unknown as ReturnType<typeof vi.fn>;
-const mockParametros = parametrosPublicos as unknown as ReturnType<typeof vi.fn>;
+const mockParametros = parametrosPublicos as unknown as ReturnType<
+  typeof vi.fn
+>;
 
 const pintar = () =>
   render(
@@ -119,10 +131,14 @@ describe('1. Los datos salen de la base, no del componente', () => {
   });
 
   it('con frase propia sí la muestra entrecomillada', async () => {
-    mockListar.mockResolvedValue([perfil({ filosofia: 'Cada dioptría cuenta.' })]);
+    mockListar.mockResolvedValue([
+      perfil({ filosofia: 'Cada dioptría cuenta.' }),
+    ]);
     pintar();
 
-    expect(await screen.findByText(/Cada dioptría cuenta\./)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Cada dioptría cuenta\./),
+    ).toBeInTheDocument();
   });
 
   it('sin años de experiencia no inventa un «0 años»', async () => {
@@ -136,7 +152,9 @@ describe('1. Los datos salen de la base, no del componente', () => {
     mockListar.mockResolvedValue([perfil({ aniosExperiencia: 12 })]);
     pintar();
 
-    expect(await screen.findByText('12 años de experiencia')).toBeInTheDocument();
+    expect(
+      await screen.findByText('12 años de experiencia'),
+    ).toBeInTheDocument();
   });
 
   it('sin fotografía muestra el marcador, no una imagen rota', async () => {
@@ -152,7 +170,9 @@ describe('2. CU-13 pasos 4–6 · canal de WhatsApp', () => {
     pintar();
 
     expect(
-      await screen.findByRole('button', { name: /agendar o consultar por whatsapp/i }),
+      await screen.findByRole('button', {
+        name: /agendar o consultar por whatsapp/i,
+      }),
     ).toBeInTheDocument();
   });
 
@@ -241,18 +261,14 @@ describe('3. EX-15 · enlace de WhatsApp no disponible', () => {
 });
 
 describe('4. Flujos alternos y estados vacíos', () => {
-  it('ofrece iniciar sesión y activar la cuenta mediante invitación', async () => {
+  it('mantiene el perfil público sin enlaces a registro o expediente', async () => {
     pintar();
-
     await screen.findByText('Luigi Semeraro Román');
-    expect(screen.getByRole('link', { name: /inicie sesión/i })).toHaveAttribute(
-      'href',
-      '/login',
-    );
-    expect(screen.getByRole('link', { name: /active su cuenta mediante la invitación/i })).toHaveAttribute(
-      'href',
-      '/registro',
-    );
+    const destinos = screen
+      .queryAllByRole('link')
+      .map((enlace) => enlace.getAttribute('href'));
+    expect(destinos).not.toContain('/registro');
+    expect(destinos).not.toContain('/portal');
   });
 
   it('sin ningún perfil publicado lo dice, no deja la página en blanco', async () => {
@@ -260,7 +276,9 @@ describe('4. Flujos alternos y estados vacíos', () => {
     pintar();
 
     expect(
-      await screen.findByText('El perfil del especialista aún no está publicado.'),
+      await screen.findByText(
+        'El perfil del especialista aún no está publicado.',
+      ),
     ).toBeInTheDocument();
   });
 
@@ -268,9 +286,7 @@ describe('4. Flujos alternos y estados vacíos', () => {
     mockListar.mockRejectedValue(new Error('caído'));
     pintar();
 
-    await waitFor(() =>
-      expect(screen.getByRole('alert')).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument());
   });
 
   it('un perfil sin especialidades no pinta la rejilla', async () => {

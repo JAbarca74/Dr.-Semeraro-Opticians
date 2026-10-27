@@ -1,19 +1,18 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  ArrowDown,
-  ArrowRight,
-  Award,
-  Glasses,
-  ShieldCheck,
-  User,
-} from 'lucide-react';
+import { ArrowDown, ArrowRight, Glasses, User } from 'lucide-react';
 import { IlustracionLentes } from '../../shared/ilustraciones';
 import { Kicker, LuxCard, fadeUp, fadeUpItem, stagger } from '../../shared/ui';
 import { useIdioma } from '../../core/i18n/idioma.context';
 import type { ClaveTexto } from '../../core/i18n/catalogos/es';
 
-const BRANDS = ['Ray-Ban®', 'Oakley®', 'Persol®', 'Varilux® XR', 'Transitions®'];
+const BRANDS = [
+  'Ray-Ban®',
+  'Oakley®',
+  'Persol®',
+  'Varilux® XR',
+  'Transitions®',
+];
 
 /** Guardan claves, no textos: el rótulo se resuelve al pintar (`DSO-54`). */
 const SERVICIOS: {
@@ -36,13 +35,6 @@ const SERVICIOS: {
     desc: 'home.servicio.especialista.desc',
     to: '/especialista',
     cta: 'home.servicio.especialista.cta',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'home.servicio.receta.titulo',
-    desc: 'home.servicio.receta.desc',
-    to: '/portal',
-    cta: 'home.servicio.receta.cta',
   },
 ];
 
@@ -86,22 +78,23 @@ export const HomePage = () => {
             </h1>
             <p className="max-w-xl text-sm leading-relaxed text-stone-300 md:text-lg">
               {t('home.intro.antes')}{' '}
-              <strong className="font-medium text-white">Dr. Luigi Semeraro</strong>
+              <strong className="font-medium text-white">
+                Dr. Luigi Semeraro
+              </strong>
               {t('home.intro.despues')}
             </p>
             <div className="flex flex-wrap justify-center gap-4 pt-2 md:justify-start">
               <button
-                onClick={() => navigate('/catalogo')}
+                onClick={() => navigate('/agendar')}
                 className="transition-luxe flex items-center gap-2 border border-white bg-white px-8 py-4 text-xs font-bold uppercase tracking-widest text-black hover:bg-transparent hover:text-white"
               >
-                {t('home.cta.catalogo')} <ArrowRight className="h-4 w-4" />
+                {t('nav.publico.agendar')} <ArrowRight className="h-4 w-4" />
               </button>
               <button
-                onClick={() => navigate('/validar-receta')}
+                onClick={() => navigate('/catalogo')}
                 className="transition-luxe flex items-center gap-2 border border-white/40 px-8 py-4 text-xs font-bold uppercase tracking-widest text-white hover:bg-white hover:text-black"
               >
-                <ShieldCheck className="h-4 w-4 text-lux-tinta-claro" />{' '}
-                {t('home.cta.receta')}
+                {t('home.cta.catalogo')}
               </button>
             </div>
           </motion.div>
@@ -133,7 +126,10 @@ export const HomePage = () => {
       </div>
 
       {/* BENTO SERVICIOS */}
-      <section id="solutions-overview" className="mx-auto w-full max-w-7xl space-y-12 px-6 md:px-10">
+      <section
+        id="solutions-overview"
+        className="mx-auto w-full max-w-7xl space-y-12 px-6 md:px-10"
+      >
         <div className="mx-auto max-w-2xl space-y-3 text-center">
           <Kicker>{t('home.servicios.kicker')}</Kicker>
           <h2 className="font-serif text-3xl font-light tracking-tight text-lux-blue dark:text-white md:text-5xl">
@@ -152,13 +148,16 @@ export const HomePage = () => {
           initial="initial"
           whileInView="animate"
           viewport={{ once: true }}
-          className="grid grid-cols-1 gap-8 md:grid-cols-3"
+          className="grid grid-cols-1 gap-8 md:grid-cols-2"
         >
           {SERVICIOS.map((s) => {
             const Icon = s.icon;
             return (
               <motion.div key={s.title} variants={fadeUpItem}>
-                <LuxCard hover className="flex h-full flex-col justify-between gap-6 p-8">
+                <LuxCard
+                  hover
+                  className="flex h-full flex-col justify-between gap-6 p-8"
+                >
                   <div className="space-y-4">
                     <span className="flex h-10 w-10 items-center justify-center border border-neutral-200 text-lux-tinta dark:border-white/10">
                       <Icon className="h-5 w-5" strokeWidth={1.5} />
@@ -182,43 +181,6 @@ export const HomePage = () => {
               </motion.div>
             );
           })}
-        </motion.div>
-      </section>
-
-      {/* CERTIFICACIÓN HASH */}
-      <section className="mx-auto w-full max-w-7xl px-6 pb-8 md:px-10">
-        <motion.div {...fadeUp}>
-          <LuxCard className="grid grid-cols-1 items-center gap-12 bg-lux-gray p-8 dark:bg-[#0e0e0e] md:grid-cols-12 md:p-16">
-            <div className="space-y-6 md:col-span-7">
-              <Kicker>{t('home.sello.kicker')}</Kicker>
-              <h3 className="font-serif text-3xl font-light leading-tight tracking-tight text-lux-blue dark:text-white md:text-4xl">
-                {t('home.sello.titulo.antes')}{' '}
-                <span className="italic text-lux-tinta">
-                  {t('home.sello.titulo.destacado')}
-                </span>
-              </h3>
-              <p className="max-w-xl text-xs leading-relaxed text-neutral-600 dark:text-neutral-400 md:text-sm">
-                {t('home.sello.descripcion')}
-              </p>
-              <div className="flex items-center gap-2 font-mono text-[10.5px] font-semibold text-lux-blue dark:text-lux-tinta-claro">
-                <ShieldCheck className="h-4 w-4 shrink-0" />
-                <span>{t('home.sello.ley')}</span>
-              </div>
-            </div>
-            <div className="flex h-64 items-center justify-center border border-neutral-200 bg-white p-8 text-center dark:border-white/10 dark:bg-black md:col-span-5">
-              <div className="space-y-4">
-                <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-neutral-200 text-lux-tinta dark:border-white/15">
-                  <Award className="h-6 w-6" />
-                </span>
-                <p className="font-serif text-2xl font-light uppercase tracking-wider text-lux-blue dark:text-white">
-                  Est. <strong className="font-bold">2025</strong>
-                </p>
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
-                  {t('home.sello.fidelidad')}
-                </p>
-              </div>
-            </div>
-          </LuxCard>
         </motion.div>
       </section>
     </div>
