@@ -839,4 +839,66 @@ export const en: Catalogo = {
   "roles.agenda.guardarPaciente": "Save and select patient",
   "roles.agenda.sinHorario": "No availability is configured for this day. The doctor must set their hours.",
   'roles.doctor.pacientes': 'Register and update patient details for clinical care.',
+  'especialista.vista.subtitulo': 'Optometrist · Pérez Zeledón, Costa Rica',
+  'especialista.vista.presentacion.titulo':
+    'Specialized vision care for every stage of your life.',
+  'especialista.vista.presentacion.descripcion':
+    'Meet the professional responsible for clinical care at Óptica Dr. Luigi Semeraro and get guidance on vision care services tailored to your needs.',
+  'especialista.vista.agendar': 'SCHEDULE AN ASSESSMENT',
+  'especialista.vista.servicios.kicker': 'AREAS OF CARE',
+  'especialista.vista.servicios.titulo':
+    'Services to care for your visual health',
+  'especialista.vista.servicios.descripcion':
+    'From a vision assessment to specialized services, explore the care options available.',
+  'especialista.vista.servicios.primario.titulo': 'Primary eye care',
+  'especialista.vista.servicios.primario.descripcion':
+    'Assessments to understand your vision and identify care needs.',
+  'especialista.vista.servicios.lentes.titulo': 'Specialty contact lenses',
+  'especialista.vista.servicios.lentes.descripcion':
+    'Assessment and fitting of lenses according to your visual characteristics.',
+  'especialista.vista.servicios.terapia.titulo': 'Vision therapy',
+  'especialista.vista.servicios.terapia.descripcion':
+    'Assessment and care of visual skills through individualized programs.',
+  'especialista.vista.servicios.pediatria.titulo': 'Pediatric optometry',
+  'especialista.vista.servicios.pediatria.descripcion':
+    'Vision care focused on the needs of children.',
+  'especialista.vista.enfoque.kicker': 'OUR APPROACH TO CARE',
+  'especialista.vista.enfoque.titulo':
+    'Every patient has different visual needs.',
+  'especialista.vista.enfoque.descripcion':
+    'Optometric care should consider each person’s age, daily activities and individual needs. An individualized assessment is therefore the starting point for guiding decisions about vision care.',
+  'especialista.vista.enfoque.complemento':
+    'Professional care and individualized assessment.',
+  'especialista.vista.contacto.kicker': 'SCHEDULE YOUR CONSULTATION',
+  'especialista.vista.contacto.titulo':
+    'Your visual health deserves attention.',
+  'especialista.vista.contacto.descripcion':
+    'Ask about our specialized services or schedule your next optometric assessment in Pérez Zeledón.',
+  'especialista.vista.ubicacion': 'Pérez Zeledón, Costa Rica',
+  'especialista.vista.mensaje':
+    'Hello, I saw specialist Luigi Semeraro’s page and would like information about scheduling an optometric assessment.',
+  "home.vista.bienvenida": "WELCOME",
+  "home.vista.llegar": "GET DIRECTIONS",
+  "home.vista.servicios.kicker": "OPTOMETRIC CARE",
+  "home.vista.servicios.titulo": "Our services",
+  "home.vista.servicios.descripcion": "Explore the vision care options available for you and your family.",
+  "home.vista.servicios.primario": "Assessment of your visual health and care needs.",
+  "home.vista.servicios.lentes": "Assessment and fitting according to your visual needs.",
+  "home.vista.servicios.terapia": "Assessment and care of visual skills.",
+  "home.vista.servicios.pediatria": "Vision care for children.",
+  "home.vista.variedad.titulo": "Variety and quality for your vision",
+  "home.vista.variedad.descripcion": "We offer a wide selection of quality lenses and frames, with options for different needs and styles.",
+  "home.vista.consultorio.kicker": "OUR FACILITIES",
+  "home.vista.consultorio.titulo": "Discover our practice",
+  "home.vista.consultorio.descripcion": "A look at our facilities and the space where we carry out optometric assessments.",
+  "home.vista.ubicacion.kicker": "VISIT US",
+  "home.vista.ubicacion.titulo": "Find us",
+  "home.vista.ubicacion.descripcion": "Visit us in Pérez Zeledón, Costa Rica.",
+  "home.vista.mapa.titulo": "Location of the optical practice at Zoetry Medical Center",
+  "home.vista.mapa.boton": "GET DIRECTIONS ON GOOGLE MAPS",
+  "home.contacto.boton": "CONTACT US",
+  "home.contacto.kicker": "CONTACT",
+  "home.contacto.titulo": "Contact us",
+  "home.contacto.descripcion": "We are here to help. Contact us or follow us on social media.",
+  "home.contacto.correo": "Email",
 };

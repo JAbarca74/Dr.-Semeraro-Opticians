@@ -87,85 +87,83 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('1. Los datos salen de la base, no del componente', () => {
-  it('muestra nombre, título y código profesional del perfil recibido', async () => {
+describe('1. Presentación y contenido aprobado', () => {
+  it('presenta las cuatro secciones en orden, un H1 y cuatro servicios', async () => {
     pintar();
-
-    expect(await screen.findByText('Luigi Semeraro Román')).toBeInTheDocument();
-    expect(screen.getByText(/Cód\. 066-120/)).toBeInTheDocument();
-    expect(screen.getAllByText('Optometrista').length).toBeGreaterThan(0);
+    const nombre = await screen.findByRole('heading', {
+      level: 1,
+      name: 'Luigi Semeraro Román',
+    });
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(nombre).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent),
+    ).toEqual([
+      'Atención visual especializada para cada etapa de tu vida.',
+      'Servicios para el cuidado de tu salud visual',
+      'Cada paciente tiene necesidades visuales diferentes.',
+      'Tu salud visual merece atención.',
+    ]);
+    expect(
+      screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent),
+    ).toEqual([
+      'Cuidado ocular primario',
+      'Lentes de contacto especiales',
+      'Terapia visual',
+      'Optometría pediátrica',
+    ]);
+    expect(
+      screen.getByText('Optometrista · Pérez Zeledón, Costa Rica'),
+    ).toBeInTheDocument();
   });
 
-  it('pinta las especialidades que vienen de la API', async () => {
-    pintar();
-
-    expect(await screen.findByText('Optometría clínica')).toBeInTheDocument();
-    expect(screen.getByText('Diagnóstico refractivo')).toBeInTheDocument();
-  });
-
-  /**
-   * Blindaje del hallazgo §3.9: la página llevaba «Licencia médica COPT-4421»
-   * escrito a mano junto a la foto real del doctor. Si alguien lo reintroduce,
-   * esta prueba lo dice.
-   */
-  it('NO contiene el código inventado que tenía escrito a mano', async () => {
-    const { container } = pintar();
-
-    await screen.findByText('Luigi Semeraro Román');
-    expect(container.textContent).not.toContain('COPT-4421');
-  });
-
-  it('sin código profesional, la línea de colegiatura no se pinta', async () => {
-    mockListar.mockResolvedValue([perfil({ codigoProfesional: null })]);
-    const { container } = pintar();
-
-    await screen.findByText('Luigi Semeraro Román');
-    expect(container.textContent).not.toContain('Cód.');
-  });
-
-  it('sin frase propia no aparece ninguna cita entrecomillada', async () => {
-    const { container } = pintar();
-
-    await screen.findByText('Luigi Semeraro Román');
-    expect(container.textContent).not.toContain('“');
-  });
-
-  it('con frase propia sí la muestra entrecomillada', async () => {
+  it('conserva la foto elegida y no publica código, experiencia ni frases del perfil', async () => {
     mockListar.mockResolvedValue([
-      perfil({ filosofia: 'Cada dioptría cuenta.' }),
+      perfil({ aniosExperiencia: 12, filosofia: 'Frase anterior.' }),
+    ]);
+    const { container } = pintar();
+    const foto = await screen.findByRole('img', {
+      name: 'Luigi Semeraro Román',
+    });
+    expect(foto).toHaveAttribute('src', '/dr-luigi-semeraro-retrato.png');
+    expect(foto).toHaveClass('h-auto', 'w-full');
+    expect(container.textContent).not.toMatch(
+      /066-120|COPT-4421|12 años|Frase anterior/,
+    );
+  });
+
+  it('respeta una fotografía configurada posteriormente', async () => {
+    mockListar.mockResolvedValue([
+      perfil({ fotoUrl: '/foto-configurada.png' }),
     ]);
     pintar();
-
     expect(
-      await screen.findByText(/Cada dioptría cuenta\./),
-    ).toBeInTheDocument();
+      await screen.findByRole('img', { name: 'Luigi Semeraro Román' }),
+    ).toHaveAttribute('src', '/foto-configurada.png');
   });
 
-  it('sin años de experiencia no inventa un «0 años»', async () => {
-    const { container } = pintar();
-
-    await screen.findByText('Luigi Semeraro Román');
-    expect(container.textContent).not.toContain('años de experiencia');
-  });
-
-  it('con años de experiencia los muestra', async () => {
-    mockListar.mockResolvedValue([perfil({ aniosExperiencia: 12 })]);
-    pintar();
-
-    expect(
-      await screen.findByText('12 años de experiencia'),
-    ).toBeInTheDocument();
-  });
-
-  it('sin fotografía muestra el marcador, no una imagen rota', async () => {
+  it('sin fotografía muestra el marcador', async () => {
     mockListar.mockResolvedValue([perfil({ fotoUrl: null })]);
     pintar();
-
     expect(await screen.findByText('Sin fotografía')).toBeInTheDocument();
   });
 });
 
 describe('2. CU-13 pasos 4–6 · canal de WhatsApp', () => {
+  it('el botón inicial utiliza el mismo número y mensaje aprobado', async () => {
+    const open = vi.fn().mockReturnValue({});
+    vi.stubGlobal('open', open);
+    pintar();
+    await userEvent.click(
+      await screen.findByRole('button', { name: /^agendar valoración$/i }),
+    );
+    const url = new URL(open.mock.calls[0][0]);
+    expect(url.pathname).toBe('/50688887777');
+    expect(url.searchParams.get('text')).toBe(
+      'Hola, vi la página del especialista Luigi Semeraro y me gustaría recibir información para agendar una valoración optométrica.',
+    );
+  });
+
   it('el botón está visible', async () => {
     pintar();
 
@@ -189,7 +187,7 @@ describe('2. CU-13 pasos 4–6 · canal de WhatsApp', () => {
     const [url] = open.mock.calls[0];
     expect(url).toContain('https://wa.me/50688887777');
     expect(decodeURIComponent(url)).toContain(
-      'me gustaría agendar una cita o consultar sobre mis lentes',
+      'Hola, vi la página del especialista Luigi Semeraro y me gustaría recibir información para agendar una valoración optométrica.',
     );
   });
 });

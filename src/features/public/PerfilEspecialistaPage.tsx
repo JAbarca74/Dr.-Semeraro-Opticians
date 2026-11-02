@@ -1,53 +1,39 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import {
-  Award,
-  BadgeCheck,
+  Baby,
+  Eye,
+  Focus,
   ImageOff,
+  MapPin,
   MessageCircle,
-  Stethoscope,
+  ScanEye,
 } from 'lucide-react';
 import { listarEspecialistas } from '../../core/api/especialistas.service';
 import { parametrosPublicos } from '../../core/api/catalogo.service';
-import {
-  construirMensajeEspecialista,
-  type EspecialistaVitrina,
-} from '../../core/models/especialista';
+import type { EspecialistaVitrina } from '../../core/models/especialista';
 import { enlaceWhatsapp, numeroLegible } from '../../core/models/catalogo';
 import { mensajeDeError } from '../../shared/error';
 import { useIdioma } from '../../core/i18n/idioma.context';
-import {
-  Alert,
-  Kicker,
-  LuxCard,
-  SectionHeader,
-  fadeUp,
-  fadeUpItem,
-  stagger,
-} from '../../shared/ui';
+import { Alert, Kicker, LuxCard, SectionHeader, fadeUp } from '../../shared/ui';
 
-/**
- * Perfil del especialista (CU-13, `DSO-37`).
- *
- * ⚠️ **Hasta esta versión, esta página se inventaba las credenciales.** Llevaba
- * escrito a mano «Licencia médica COPT-4421» —un número que no existe— junto a
- * la fotografía real del doctor, más una frase entrecomillada que se le atribuía
- * y tres tarjetas de credenciales, todas redactadas por el proyecto. Era el
- * hallazgo `06-estado-y-hallazgos.md` §3.9, abierto desde el 2026-08-06.
- *
- * Ahora **todo lo que se afirma sobre él sale de la base** (`GET /especialistas`,
- * `DSO-38`), y lo que la base no tiene **no se pinta**: sin código profesional no
- * hay línea de colegiatura, y sin frase propia no hay cita entrecomillada. Es
- * deliberado. Si aquí vuelve a aparecer un dato escrito a mano sobre una persona
- * real, se está reabriendo §3.9.
- */
+const SERVICIOS = [
+  { clave: 'primario', Icono: Eye },
+  { clave: 'lentes', Icono: ScanEye },
+  { clave: 'terapia', Icono: Focus },
+  { clave: 'pediatria', Icono: Baby },
+] as const;
+
+const BOTON_CONTACTO =
+  'transition-luxe inline-flex items-center justify-center gap-2 bg-lux-tinta px-7 py-3.5 text-[11px] font-semibold uppercase tracking-wider2 text-white hover:bg-lux-blue focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lux-tinta dark:hover:bg-lux-tinta-claro dark:hover:text-black';
+const TITULO_SECCION =
+  'font-serif text-2xl font-light leading-snug tracking-tight text-lux-blue dark:text-white md:text-3xl';
+
 export const PerfilEspecialistaPage = () => {
   const { t } = useIdioma();
   const [especialista, setEspecialista] = useState<EspecialistaVitrina | null>(
     null,
   );
-  const [nombreOptica, setNombreOptica] = useState('la óptica');
   const [whatsapp, setWhatsapp] = useState('');
   const [telefono, setTelefono] = useState('');
   const [error, setError] = useState('');
@@ -57,225 +43,199 @@ export const PerfilEspecialistaPage = () => {
   useEffect(() => {
     listarEspecialistas()
       .then((lista) => {
-        // CU-13 describe la página de «Nuestro Especialista» en singular. Si
-        // algún día hay más de uno publicado, esta vista muestra el primero y
-        // habrá que decidir cómo se listan: no es un caso que el CU contemple.
         setEspecialista(lista[0] ?? null);
         setError('');
       })
       .catch((e) => setError(mensajeDeError(e, t('especialista.error'))))
       .finally(() => setCargando(false));
-
     parametrosPublicos()
       .then((p) => {
         setWhatsapp(p['optica.whatsapp'] ?? '');
         setTelefono(p['optica.telefono'] ?? '');
-        setNombreOptica(p['optica.nombre'] ?? 'la óptica');
       })
       .catch(() => {
-        // Sin parámetros no se puede redirigir; el botón lo dirá con EX-15.
+        /* El contacto informa si no hay un canal disponible. */
       });
-    // `t` solo se usa para el texto de respaldo del error. Meterlo en las
-    // dependencias haría que cambiar de idioma volviera a pedir el perfil.
+    // Cambiar de idioma no debe volver a solicitar el perfil.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * CU-13 pasos 5–6: abre WhatsApp con el mensaje predefinido.
-   *
-   * **EX-15** cubre los dos modos de fallo: que no haya canal configurado y que
-   * el navegador bloquee la ventana emergente (`window.open` devuelve `null`).
-   * En ambos el comportamiento que pide el caso de uso es el mismo — mostrar el
-   * teléfono del consultorio— así que se resuelve en un solo sitio.
-   */
   const contactar = () => {
     if (!especialista) return;
     setAvisoCanal('');
-
     const respaldo = telefono
       ? `Llámenos al ${telefono}.`
       : t('contacto.llamePorTelefono');
-
     if (!whatsapp) {
       setAvisoCanal(`Canal no disponible. ${respaldo}`);
       return;
     }
-
-    const mensaje = construirMensajeEspecialista(especialista, nombreOptica);
-    const ventana = window.open(enlaceWhatsapp(whatsapp, mensaje), '_blank');
-    if (!ventana) {
+    const ventana = window.open(
+      enlaceWhatsapp(whatsapp, t('especialista.vista.mensaje')),
+      '_blank',
+    );
+    if (!ventana)
       setAvisoCanal(
-        `Canal no disponible. ${
-          telefono ? respaldo : `Llámenos al ${numeroLegible(whatsapp)}.`
-        }`,
+        `Canal no disponible. ${telefono ? respaldo : `Llámenos al ${numeroLegible(whatsapp)}.`}`,
       );
-    }
   };
 
-  /**
-   * ⚠️ **El plural se resuelve aquí, no en el modelo.** `experienciaLegible()`
-   * devolvía el texto ya armado en español; con tres idiomas el número y su
-   * sustantivo tienen que juntarse en la pantalla, que es la que sabe el
-   * idioma. Se distingue el singular para no escribir «1 años».
-   */
-  const anios = especialista?.aniosExperiencia ?? null;
-  const experiencia =
-    anios === null || anios <= 0
-      ? null
-      : anios === 1
-        ? t('especialista.experiencia.uno')
-        : `${anios} ${t('especialista.experiencia.varios')}`;
-
   return (
-    <section className="space-y-12">
-      <SectionHeader
-        kicker={t('especialista.kicker')}
-        title={especialista ? especialista.nombre : t('especialista.titulo')}
-        /*
-          Descripción fija y genérica **a propósito**: la biografía se pinta en
-          el cuerpo, y ponerla también aquí la mostraba dos veces seguidas.
-        */
-        description={t('especialista.descripcion')}
-      />
-
+    <div className="space-y-10 md:space-y-12">
       {error ? <Alert>{error}</Alert> : null}
-
-      {avisoCanal ? (
-        <p
-          role="alert"
-          className="border border-amber-300/40 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/30 dark:bg-amber-950/30 dark:text-amber-300"
-        >
-          {avisoCanal}
-        </p>
-      ) : null}
-
-      {!especialista ? (
-        <LuxCard className="p-12 text-center">
-          <p className="text-sm text-neutral-500">
-            {cargando
-              ? t('especialista.cargando')
-              : t('especialista.noPublicado')}
-          </p>
-        </LuxCard>
-      ) : (
-        <>
-          <div className="grid items-center gap-10 lg:grid-cols-12">
+      {avisoCanal ? <Alert>{avisoCanal}</Alert> : null}
+      <section
+        aria-labelledby="especialista-presentacion"
+        className="space-y-7"
+      >
+        <div id="especialista-presentacion">
+          <SectionHeader
+            kicker={t('especialista.kicker')}
+            title={
+              especialista ? especialista.nombre : t('especialista.titulo')
+            }
+            description={t('especialista.vista.subtitulo')}
+          />
+        </div>
+        {!especialista ? (
+          <LuxCard className="p-8 text-center">
+            <p className="text-sm text-neutral-500">
+              {cargando
+                ? t('especialista.cargando')
+                : t('especialista.noPublicado')}
+            </p>
+          </LuxCard>
+        ) : (
+          <div className="grid items-center gap-7 md:grid-cols-12 lg:gap-10">
             <motion.div
               {...fadeUp}
-              className="relative aspect-4/5 overflow-hidden border border-lux-blue/10 dark:border-white/10 lg:col-span-5"
+              className="min-w-0 overflow-hidden border border-lux-blue/10 dark:border-white/10 md:col-span-5"
             >
               {especialista.fotoUrl ? (
                 <img
-                  src={especialista.fotoUrl}
+                  src={
+                    especialista.fotoUrl === '/dr-luigi-semeraro.jpg'
+                      ? '/dr-luigi-semeraro-retrato.png'
+                      : especialista.fotoUrl
+                  }
                   alt={especialista.nombre}
-                  className="transition-luxe h-full w-full object-cover"
+                  className="block h-auto w-full"
                 />
               ) : (
-                <span className="flex h-full w-full flex-col items-center justify-center gap-2 bg-stone-100 text-neutral-300 dark:bg-neutral-900 dark:text-neutral-700">
-                  <ImageOff size={28} />
+                <span className="flex aspect-4/3 flex-col items-center justify-center gap-2 bg-stone-100 text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
+                  <ImageOff size={28} aria-hidden="true" />
                   <span className="text-[10px] uppercase tracking-wider">
                     {t('especialista.sinFoto')}
                   </span>
                 </span>
               )}
-              <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
-              {/*
-                La línea de colegiatura solo existe si la base tiene el código.
-                Antes estaba escrita a mano y era falsa: ver §3.9.
-              */}
-              {especialista.codigoProfesional ? (
-                <span className="absolute bottom-5 left-5 font-mono text-[9px] uppercase tracking-widest text-white/80">
-                  {t('especialista.codigo')} {especialista.codigoProfesional}
-                </span>
-              ) : null}
             </motion.div>
-
-            <motion.div {...fadeUp} className="space-y-6 lg:col-span-7">
-              <Kicker>{especialista.titulo}</Kicker>
-
-              {/*
-                CU-13 paso 2 pide «años de experiencia». Si nadie lo ha aportado,
-                la línea no se pinta: un «0 años» sería un dato inventado más.
-              */}
-              {experiencia ? (
-                <p className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
-                  <Stethoscope
-                    className="h-4 w-4 text-lux-tinta"
-                    strokeWidth={1.5}
-                  />
-                  {experiencia}
-                </p>
-              ) : null}
-
-              {especialista.filosofia ? (
-                <p className="font-serif text-2xl font-light leading-relaxed tracking-tight text-lux-blue dark:text-white md:text-3xl">
-                  “{especialista.filosofia}”
-                </p>
-              ) : null}
-
-              {especialista.biografia ? (
-                <p className="max-w-xl text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-                  {especialista.biografia}
-                </p>
-              ) : null}
-
-              {/* CU-13 paso 4: el botón, «de forma visible». */}
+            <motion.div {...fadeUp} className="min-w-0 space-y-5 md:col-span-7">
+              <h2 className={TITULO_SECCION}>
+                {t('especialista.vista.presentacion.titulo')}
+              </h2>
+              <p className="max-w-xl text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                {t('especialista.vista.presentacion.descripcion')}
+              </p>
               <button
                 type="button"
                 onClick={contactar}
-                className="transition-luxe inline-flex items-center gap-2 bg-lux-tinta px-7 py-3.5 text-[11px] font-semibold uppercase tracking-wider2 text-white hover:bg-lux-blue dark:hover:bg-lux-tinta-claro dark:hover:text-black"
+                className={BOTON_CONTACTO}
               >
-                <MessageCircle size={14} />
-                {t('especialista.contactar')}
+                <MessageCircle
+                  size={14}
+                  className="shrink-0"
+                  aria-hidden="true"
+                />
+                {t('especialista.vista.agendar')}
               </button>
             </motion.div>
           </div>
-
-          {/*
-            CU-13 paso 2 · especialidades. Antes eran tres tarjetas con texto
-            redactado por el proyecto; ahora salen del catálogo `especializacion`.
-          */}
-          {especialista.especialidades.length > 0 ? (
-            <motion.div
-              variants={stagger}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-              className="grid gap-6 md:grid-cols-3"
-            >
-              {especialista.especialidades.map((especialidad) => (
-                <motion.div key={especialidad} variants={fadeUpItem}>
-                  <LuxCard hover className="flex h-full flex-col gap-4 p-7">
-                    <span className="flex h-10 w-10 items-center justify-center border border-neutral-200 text-lux-tinta dark:border-white/10">
-                      <BadgeCheck className="h-5 w-5" strokeWidth={1.5} />
-                    </span>
-                    <h3 className="font-serif text-lg font-bold text-lux-blue dark:text-white">
-                      {especialidad}
-                    </h3>
-                  </LuxCard>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : null}
-        </>
-      )}
-
-      <motion.div {...fadeUp}>
-        <LuxCard className="flex flex-col items-center justify-between gap-4 bg-lux-gray p-8 text-center dark:bg-[#0e0e0e] sm:flex-row sm:text-left">
-          <div className="flex items-center gap-3">
-            <Award className="h-6 w-6 text-lux-tinta" strokeWidth={1.2} />
-            <p className="font-serif text-xl font-light text-lux-blue dark:text-white">
-              {t('especialista.atencion')}
-            </p>
-          </div>
-          <Link
-            to="/catalogo"
-            className="transition-luxe inline-flex items-center gap-2 border border-lux-blue px-6 py-3 text-[11px] font-semibold uppercase tracking-wider2 text-lux-blue hover:bg-lux-blue hover:text-white dark:border-lux-tinta-claro dark:text-lux-tinta-claro dark:hover:bg-lux-tinta-claro dark:hover:text-black"
+        )}
+      </section>
+      {especialista ? (
+        <>
+          <section
+            aria-labelledby="especialista-servicios"
+            className="space-y-6"
           >
-            {t('especialista.verColeccion')}
-          </Link>
-        </LuxCard>
-      </motion.div>
-    </section>
+            <div className="space-y-2">
+              <Kicker>{t('especialista.vista.servicios.kicker')}</Kicker>
+              <h2 id="especialista-servicios" className={TITULO_SECCION}>
+                {t('especialista.vista.servicios.titulo')}
+              </h2>
+              <p className="max-w-2xl text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                {t('especialista.vista.servicios.descripcion')}
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {SERVICIOS.map(({ clave, Icono }) => (
+                <LuxCard
+                  key={clave}
+                  className="flex items-start gap-4 p-5 sm:p-6"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-neutral-200 text-lux-tinta dark:border-white/10">
+                    <Icono size={20} strokeWidth={1.5} aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0 space-y-2">
+                    <h3 className="font-serif text-lg font-bold text-lux-blue dark:text-white">
+                      {t(`especialista.vista.servicios.${clave}.titulo`)}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                      {t(`especialista.vista.servicios.${clave}.descripcion`)}
+                    </p>
+                  </div>
+                </LuxCard>
+              ))}
+            </div>
+          </section>
+          <section
+            aria-labelledby="especialista-enfoque"
+            className="space-y-4 border-t border-neutral-200/80 pt-8 dark:border-white/10"
+          >
+            <Kicker>{t('especialista.vista.enfoque.kicker')}</Kicker>
+            <h2
+              id="especialista-enfoque"
+              className={`${TITULO_SECCION} max-w-2xl`}
+            >
+              {t('especialista.vista.enfoque.titulo')}
+            </h2>
+            <p className="max-w-3xl text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+              {t('especialista.vista.enfoque.descripcion')}
+            </p>
+            <p className="text-sm font-medium text-lux-blue dark:text-white">
+              {t('especialista.vista.enfoque.complemento')}
+            </p>
+          </section>
+          <section aria-labelledby="especialista-contacto">
+            <LuxCard className="space-y-4 bg-lux-gray p-6 dark:bg-[#0e0e0e] sm:p-8">
+              <Kicker>{t('especialista.vista.contacto.kicker')}</Kicker>
+              <h2 id="especialista-contacto" className={TITULO_SECCION}>
+                {t('especialista.vista.contacto.titulo')}
+              </h2>
+              <p className="max-w-2xl text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                {t('especialista.vista.contacto.descripcion')}
+              </p>
+              <button
+                type="button"
+                onClick={contactar}
+                className={BOTON_CONTACTO}
+              >
+                <MessageCircle
+                  size={14}
+                  className="shrink-0"
+                  aria-hidden="true"
+                />
+                {t('especialista.contactar')}
+              </button>
+              <p className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                <MapPin size={14} className="shrink-0" aria-hidden="true" />
+                {t('especialista.vista.ubicacion')}
+              </p>
+            </LuxCard>
+          </section>
+        </>
+      ) : null}
+    </div>
   );
 };
