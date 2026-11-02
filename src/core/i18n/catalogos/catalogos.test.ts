@@ -64,6 +64,8 @@ describe('calidad de las traducciones', () => {
     'nav.admin.metricas',
     // Nombre propio del negocio y su ubicación: no se traduce en ningún idioma.
     'publico.pie.ubicacion',
+    'especialista.vista.ubicacion', // «Pérez Zeledón, Costa Rica» es un nombre propio.
+    'especialista.vista.subtitulo', // «Optometrista» también se escribe así en italiano.
     // «Cilindro» se escribe igual en español y en italiano: es el término
     // óptico establecido en ambos, no una traducción olvidada.
     'receta.cilindro',
