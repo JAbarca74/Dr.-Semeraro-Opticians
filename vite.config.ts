@@ -31,6 +31,7 @@ const politicaCsp = (apiUrl: string): Plugin => ({
       // Fotos de la vitrina y del sitio: https de cualquier origen, nunca http.
       "img-src 'self' data: blob: https:",
       `connect-src 'self' ${origenApi}`,
+      "frame-src https://www.google.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

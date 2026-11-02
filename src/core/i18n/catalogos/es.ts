@@ -848,6 +848,67 @@ export const es = {
   "roles.agenda.guardarPaciente": "Guardar y seleccionar paciente",
   "roles.agenda.sinHorario": "No hay atención configurada para este día. El doctor debe definir su disponibilidad.",
   'roles.doctor.pacientes': 'Registre y actualice los datos de sus pacientes para la atención clínica.',
+  'especialista.vista.subtitulo': 'Optometrista · Pérez Zeledón, Costa Rica',
+  'especialista.vista.presentacion.titulo':
+    'Atención visual especializada para cada etapa de tu vida.',
+  'especialista.vista.presentacion.descripcion':
+    'Conoce al profesional a cargo de la dirección clínica de Óptica Dr. Luigi Semeraro y recibe orientación sobre los servicios de cuidado visual adaptados a tus necesidades.',
+  'especialista.vista.agendar': 'AGENDAR VALORACIÓN',
+  'especialista.vista.servicios.kicker': 'ÁREAS DE ATENCIÓN',
+  'especialista.vista.servicios.titulo':
+    'Servicios para el cuidado de tu salud visual',
+  'especialista.vista.servicios.descripcion':
+    'Desde una evaluación visual hasta servicios especializados, conoce las opciones de atención disponibles.',
+  'especialista.vista.servicios.primario.titulo': 'Cuidado ocular primario',
+  'especialista.vista.servicios.primario.descripcion':
+    'Evaluaciones para conocer tu estado visual y detectar necesidades de atención.',
+  'especialista.vista.servicios.lentes.titulo': 'Lentes de contacto especiales',
+  'especialista.vista.servicios.lentes.descripcion':
+    'Valoración y adaptación de lentes según tus características visuales.',
+  'especialista.vista.servicios.terapia.titulo': 'Terapia visual',
+  'especialista.vista.servicios.terapia.descripcion':
+    'Evaluación y atención de habilidades visuales mediante programas individualizados.',
+  'especialista.vista.servicios.pediatria.titulo': 'Optometría pediátrica',
+  'especialista.vista.servicios.pediatria.descripcion':
+    'Atención visual orientada a las necesidades de niños y niñas.',
+  'especialista.vista.enfoque.kicker': 'ENFOQUE DE ATENCIÓN',
+  'especialista.vista.enfoque.titulo':
+    'Cada paciente tiene necesidades visuales diferentes.',
+  'especialista.vista.enfoque.descripcion':
+    'La atención optométrica debe considerar la edad, las actividades diarias y las necesidades particulares de cada persona. Por eso, una valoración individualizada es el punto de partida para orientar las decisiones sobre su cuidado visual.',
+  'especialista.vista.enfoque.complemento':
+    'Atención profesional y valoración individualizada.',
+  'especialista.vista.contacto.kicker': 'AGENDA TU CONSULTA',
+  'especialista.vista.contacto.titulo': 'Tu salud visual merece atención.',
+  'especialista.vista.contacto.descripcion':
+    'Consulta por nuestros servicios especializados o agenda tu próxima valoración optométrica en Pérez Zeledón.',
+  'especialista.vista.ubicacion': 'Pérez Zeledón, Costa Rica',
+  'especialista.vista.mensaje':
+    'Hola, vi la página del especialista Luigi Semeraro y me gustaría recibir información para agendar una valoración optométrica.',
+  "home.vista.bienvenida": "BIENVENIDOS",
+  "home.vista.llegar": "CÓMO LLEGAR",
+  "home.vista.servicios.kicker": "ATENCIÓN OPTOMÉTRICA",
+  "home.vista.servicios.titulo": "Nuestros servicios",
+  "home.vista.servicios.descripcion": "Conoce las opciones de atención visual disponibles para ti y tu familia.",
+  "home.vista.servicios.primario": "Evaluación de tu salud visual y necesidades de atención.",
+  "home.vista.servicios.lentes": "Valoración y adaptación según tus necesidades visuales.",
+  "home.vista.servicios.terapia": "Evaluación y atención de habilidades visuales.",
+  "home.vista.servicios.pediatria": "Atención visual para niños y niñas.",
+  "home.vista.variedad.titulo": "Variedad y calidad para tu visión",
+  "home.vista.variedad.descripcion": "Contamos con una amplia selección de lentes y monturas de calidad, con opciones para diferentes necesidades y estilos.",
+  "home.vista.consultorio.kicker": "NUESTRAS INSTALACIONES",
+  "home.vista.consultorio.titulo": "Conoce nuestro consultorio",
+  "home.vista.consultorio.descripcion": "Un vistazo a nuestras instalaciones y al espacio donde realizamos las valoraciones optométricas.",
+  "home.vista.ubicacion.kicker": "VISÍTANOS",
+  "home.vista.ubicacion.titulo": "Encuéntranos",
+  "home.vista.ubicacion.descripcion": "Visítanos en Pérez Zeledón, Costa Rica.",
+  "home.vista.mapa.titulo": "Ubicación de la óptica en Zoetry Medical Center",
+  "home.vista.mapa.boton": "CÓMO LLEGAR EN GOOGLE MAPS",
+  "home.contacto.boton": "CONTÁCTANOS",
+  "home.contacto.kicker": "CONTACTO",
+  "home.contacto.titulo": "Contáctanos",
+  "home.contacto.descripcion": "Estamos para ayudarte. Comunícate con nosotros o síguenos en nuestras redes sociales.",
+  "home.contacto.correo": "Correo electrónico",
 } as const;
 
 /**

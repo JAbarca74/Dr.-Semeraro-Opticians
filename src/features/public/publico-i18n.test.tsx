@@ -79,7 +79,7 @@ const CASOS: [string, () => ReactElement, Record<Idioma, string>][] = [
   [
     'Portada',
     () => <HomePage />,
-    { es: 'Aliados oficiales:', en: 'Official partners:', it: 'Partner ufficiali:' },
+    { es: 'Nuestros servicios', en: 'Our services', it: 'I nostri servizi' },
   ],
   [
     'Seguimiento de pedidos (CU-14)',
